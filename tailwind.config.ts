@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        cream: "#FBF7EE",
+        cream: "#FDFAF2",
         sage: {
           DEFAULT: "#D8E1D2",
           dark: "#A9BBA0",
