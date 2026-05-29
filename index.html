@@ -503,25 +503,6 @@
     transition: transform .25s cubic-bezier(.16,1,.3,1), border-color .2s, box-shadow .25s;
   }
   .tpl-card:hover { transform: translateY(-3px); border-color: var(--mint-300); box-shadow: var(--shadow-card); }
-  /* Browser chrome — three dots + an address pill turn each preview into a
-     believable website window. */
-  .tpl-chrome {
-    display: flex; align-items: center; gap: 9px; flex: none;
-    padding: 8px 11px;
-    border-bottom: 1px solid var(--rule);
-    background: var(--bg);
-  }
-  .tpl-chrome .dots { display: inline-flex; gap: 5px; flex: none; }
-  .tpl-chrome .dots i { width: 7px; height: 7px; border-radius: 999px; background: var(--rule-strong); }
-  .tpl-chrome .url {
-    flex: 1; min-width: 0;
-    display: inline-flex; align-items: center; gap: 6px;
-    background: var(--surface); border: 1px solid var(--rule);
-    border-radius: 999px; padding: 3px 10px;
-    font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--muted);
-    white-space: nowrap; overflow: hidden;
-  }
-  .tpl-chrome .url svg { width: 10px; height: 10px; flex: none; color: var(--mint-600); }
   /* Full front-page preview. The iframe is rendered at ~4x the card width and
      then scaled down to fit exactly, so the entire page width stays visible
      (no horizontal crop / zoom) and any floating UI inside the template renders
@@ -1939,7 +1920,6 @@
 
       <div class="tpl-grid">
         <a href="./onboard.html" class="tpl-card reveal">
-          <div class="tpl-chrome"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span></div>
           <div class="tpl-preview"><iframe loading="lazy" data-template="purr" data-palette="peach" title="Counter template preview"></iframe><div class="shield"></div></div>
           <div class="tpl-label">
             <div class="tpl-name-row"><h3 class="tpl-name">Counter</h3><span class="tpl-tag">Cafe, quick-serve</span></div>
@@ -1948,7 +1928,6 @@
         </a>
 
         <a href="./onboard.html" class="tpl-card reveal">
-          <div class="tpl-chrome"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span></div>
           <div class="tpl-preview"><iframe loading="lazy" data-template="sprout" data-palette="forest" title="Market template preview"></iframe><div class="shield"></div></div>
           <div class="tpl-label">
             <div class="tpl-name-row"><h3 class="tpl-name">Market</h3><span class="tpl-tag">Grocery, bakery</span></div>
@@ -1956,7 +1935,6 @@
           </div>
         </a>
         <a href="./onboard.html" class="tpl-card reveal">
-          <div class="tpl-chrome"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span></div>
           <div class="tpl-preview"><iframe loading="lazy" data-template="chain" data-palette="evergreen" title="Storefront template preview"></iframe><div class="shield"></div></div>
           <div class="tpl-label">
             <div class="tpl-name-row"><h3 class="tpl-name">Storefront</h3><span class="tpl-tag">Chain, multi-loc</span></div>
@@ -1964,7 +1942,6 @@
           </div>
         </a>
         <a href="./onboard.html" class="tpl-card reveal">
-          <div class="tpl-chrome"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span></div>
           <div class="tpl-preview"><iframe loading="lazy" data-template="boutique" data-palette="spa" title="Boutique template preview"></iframe><div class="shield"></div></div>
           <div class="tpl-label">
             <div class="tpl-name-row"><h3 class="tpl-name">Boutique</h3><span class="tpl-tag">Tasting menu</span></div>
@@ -1972,7 +1949,6 @@
           </div>
         </a>
         <a href="./onboard.html" class="tpl-card reveal">
-          <div class="tpl-chrome"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span></div>
           <div class="tpl-preview"><iframe loading="lazy" data-template="shack" data-palette="shack" title="Shack template preview"></iframe><div class="shield"></div></div>
           <div class="tpl-label">
             <div class="tpl-name-row"><h3 class="tpl-name">Shack</h3><span class="tpl-tag">Burgers, diner</span></div>
