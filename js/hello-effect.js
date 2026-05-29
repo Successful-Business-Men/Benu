@@ -15,14 +15,17 @@ class BenuHelloEffect {
 
   createSVG() {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 350 200");
+    svg.setAttribute("viewBox", "0 0 290 150");
     svg.setAttribute("fill", "none");
     svg.setAttribute("stroke", "currentColor");
-    svg.setAttribute("stroke-width", "12");
-    svg.style.height = "100%";
+    svg.setAttribute("stroke-width", "8");
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svg.style.height = "1em";
     svg.style.width = "auto";
     svg.style.display = "inline-block";
-    svg.style.verticalAlign = "middle";
+    svg.style.verticalAlign = "baseline";
+    svg.style.marginLeft = "0.1em";
+    svg.style.color = "inherit";
     
     // Title for accessibility
     const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
@@ -80,33 +83,33 @@ class BenuHelloEffect {
     const paths = [
       {
         // B
-        d: "M20 50 Q20 30 40 30 Q60 30 60 50 Q60 70 40 70 M40 70 Q70 70 70 95 Q70 120 40 120 Q20 120 20 95 L20 50",
-        duration: this.calc(800),
+        d: "M15 35 Q15 20 30 20 Q45 20 45 35 Q45 50 30 50 M30 50 Q50 50 50 70 Q50 90 30 90 Q15 90 15 70 L15 35",
+        duration: this.calc(700),
         delay: 0
       },
       {
         // e
-        d: "M90 95 Q90 70 115 70 Q140 70 140 95 Q140 120 115 120 Q90 120 90 105 L90 100 L140 95",
-        duration: this.calc(500),
-        delay: this.calc(300)
+        d: "M70 70 Q70 50 90 50 Q110 50 110 70 Q110 90 90 90 Q70 90 70 75 L70 70 L110 65",
+        duration: this.calc(450),
+        delay: this.calc(250)
       },
       {
         // n
-        d: "M160 120 L160 75 Q160 70 170 70 Q180 70 180 75 L180 120",
-        duration: this.calc(400),
-        delay: this.calc(600)
+        d: "M130 90 L130 55 Q130 50 140 50 Q150 50 150 55 L150 90",
+        duration: this.calc(350),
+        delay: this.calc(500)
       },
       {
         // u
-        d: "M200 70 L200 105 Q200 120 220 120 Q240 120 240 105 L240 70",
-        duration: this.calc(400),
-        delay: this.calc(900)
+        d: "M170 50 L170 75 Q170 90 185 90 Q200 90 200 75 L200 50",
+        duration: this.calc(350),
+        delay: this.calc(700)
       },
       {
         // dot (period)
-        d: "M260 115 Q260 110 265 110 Q270 110 270 115 Q270 120 265 120 Q260 120 260 115",
-        duration: this.calc(200),
-        delay: this.calc(1200)
+        d: "M220 85 Q220 82 223 82 Q226 82 226 85 Q226 88 223 88 Q220 88 220 85",
+        duration: this.calc(150),
+        delay: this.calc(900)
       }
     ];
 
