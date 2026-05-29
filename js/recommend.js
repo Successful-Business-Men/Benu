@@ -69,5 +69,53 @@ window.BMRecommend = (function () {
     return { primary, copy, type: t };
   }
 
-  return { suggest };
+  // Curated top-3 templates for a specific restaurant. The primary always leads;
+  // the next two are sensible alternates ranked by type, then padded from a
+  // global fallback order. Multi-location nudges the chain "Storefront" up.
+  const ALT_BY_TYPE = {
+    noodle: ["purr", "shack", "sprout"],
+    cafe:   ["purr", "chain", "boutique"],
+    pizza:  ["shack", "purr", "chain"],
+    sushi:  ["boutique", "sprout", "purr"],
+    burger: ["shack", "purr", "chain"],
+    fine:   ["boutique", "sprout", "purr"],
+    market: ["sprout", "chain", "boutique"],
+    chain:  ["chain", "purr", "shack"],
+    other:  ["sprout", "purr", "boutique"],
+  };
+  const FALLBACK_ORDER = ["sprout", "purr", "boutique", "shack", "chain"];
+
+  const WHY = {
+    purr:     "Live cart and search — great for quick-serve ordering.",
+    sprout:   "Filter rail and product cards — easy to browse a big menu.",
+    chain:    "Promo banner and category rows — built for multi-location brands.",
+    boutique: "Editorial hero and reviews — for menus with a story.",
+    shack:    "Bold headlines and photo-led cards — high-energy and casual.",
+  };
+
+  function suggestTop3(stateLike = {}) {
+    const base = suggest(stateLike);
+    const t = base.type;
+    const modules = stateLike.modules || {};
+
+    const ranked = [...(ALT_BY_TYPE[t] || ALT_BY_TYPE.other)];
+    // Multi-location restaurants benefit from the Storefront layout — surface it.
+    if (modules.multiLocation && !ranked.includes("chain")) ranked.splice(1, 0, "chain");
+    // Ensure the primary recommendation always leads.
+    const lead = base.primary.template;
+    const order = [lead, ...ranked, ...FALLBACK_ORDER].filter(
+      (id, i, arr) => arr.indexOf(id) === i
+    );
+
+    const top = order.slice(0, 3).map((template, i) => ({
+      template,
+      palette: base.primary.palette,
+      reason: WHY[template] || "",
+      recommended: i === 0,
+    }));
+
+    return { top, copy: base.copy, type: t };
+  }
+
+  return { suggest, suggestTop3 };
 })();
