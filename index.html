@@ -494,80 +494,69 @@
     gap: 32px; flex-wrap: wrap; margin-bottom: 48px;
   }
   .tpl-head h2 { max-width: 14ch; }
-  .tpl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .tpl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
   .tpl-card {
     position: relative; background: var(--surface);
-    border: 1px solid var(--rule); border-radius: 18px; overflow: hidden;
+    border: 1px solid var(--rule); border-radius: 8px; overflow: hidden;
     display: flex; flex-direction: column;
+    box-shadow: 0 1px 2px rgba(20,23,26,.04);
     transition: transform .25s cubic-bezier(.16,1,.3,1), border-color .2s, box-shadow .25s;
   }
-  .tpl-card:hover { transform: translateY(-4px); border-color: var(--mint-300); box-shadow: var(--shadow-soft); }
+  .tpl-card:hover { transform: translateY(-3px); border-color: var(--mint-300); box-shadow: var(--shadow-card); }
   /* Browser chrome — three dots + an address pill turn each preview into a
      believable website window. */
   .tpl-chrome {
-    display: flex; align-items: center; gap: 10px; flex: none;
-    padding: 9px 13px;
+    display: flex; align-items: center; gap: 9px; flex: none;
+    padding: 8px 11px;
     border-bottom: 1px solid var(--rule);
     background: var(--bg);
   }
   .tpl-chrome .dots { display: inline-flex; gap: 5px; flex: none; }
-  .tpl-chrome .dots i { width: 8px; height: 8px; border-radius: 999px; background: var(--rule-strong); }
+  .tpl-chrome .dots i { width: 7px; height: 7px; border-radius: 999px; background: var(--rule-strong); }
   .tpl-chrome .url {
     flex: 1; min-width: 0;
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--surface); border: 1px solid var(--rule);
-    border-radius: 999px; padding: 3px 11px;
-    font-family: 'JetBrains Mono', monospace; font-size: .62rem; color: var(--muted);
+    border-radius: 999px; padding: 3px 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--muted);
     white-space: nowrap; overflow: hidden;
   }
   .tpl-chrome .url svg { width: 10px; height: 10px; flex: none; color: var(--mint-600); }
+  /* Full front-page preview. The iframe is rendered at ~4x the card width and
+     then scaled down to fit exactly, so the entire page width stays visible
+     (no horizontal crop / zoom) and any floating UI inside the template renders
+     at a natural size — no oversized buttons. Fully responsive: the scale is
+     relative to the card, so it holds at every breakpoint. */
   .tpl-preview {
-    position: relative; width: 100%; aspect-ratio: 4/5; overflow: hidden; background: var(--raised);
-    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 88%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 0%, #000 88%, transparent 100%);
+    position: relative; width: 100%; aspect-ratio: 16 / 11; overflow: hidden; background: var(--raised);
   }
   .tpl-preview iframe {
-    border: 0; position: absolute; top: 0; left: 50%;
-    width: 1280px; height: 1600px;
-    transform: translateX(-50%) scale(0.24);
-    transform-origin: top center;
+    border: 0; position: absolute; top: 0; left: 0;
+    width: 400%; height: 400%;
+    transform: scale(0.25);
+    transform-origin: top left;
     pointer-events: none;
   }
+  /* Invisible click layer so the whole card stays a single link target. */
   .tpl-preview .shield { position: absolute; inset: 0; cursor: pointer; z-index: 3; }
-  .tpl-label { padding: 1.05rem 1.2rem 1.25rem; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 7px; }
+  .tpl-label { padding: .85rem 1rem 1rem; display: flex; flex-direction: column; gap: 6px; }
   .tpl-name-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
   .tpl-name {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic; font-weight: 500;
-    font-size: 1.35rem; line-height: 1.2; margin: 0;
+    font-size: 1.2rem; line-height: 1.2; margin: 0;
   }
   .tpl-tag {
     font-family: 'JetBrains Mono', monospace;
-    font-size: .62rem; letter-spacing: .04em;
+    font-size: .58rem; letter-spacing: .04em;
     color: var(--mint-700);
     background: var(--mint-100);
     border-radius: 999px;
-    padding: 3px 9px;
+    padding: 3px 8px;
     white-space: nowrap;
     font-weight: 500;
   }
-  .tpl-blurb { margin: 0; font-size: .82rem; line-height: 1.5; color: var(--muted); }
-
-  /* Featured template — a full-width hero window: a wide landscape preview with
-     the template's details set beside it. */
-  .tpl-card.tpl-featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1.55fr 1fr; }
-  .tpl-featured .tpl-feat-window { display: flex; flex-direction: column; border-right: 1px solid var(--rule); min-width: 0; }
-  .tpl-featured .tpl-preview { aspect-ratio: 16 / 10; -webkit-mask-image: none; mask-image: none; flex: 1; }
-  /* Featured fills responsively (renders the site at the card's real width and
-     crops the top) so it never shows side gaps regardless of breakpoint. */
-  .tpl-featured .tpl-preview iframe { left: 0; width: 100%; height: 1400px; transform: none; }
-  .tpl-featured .tpl-feat-info { padding: clamp(22px, 2.2vw, 38px); display: flex; flex-direction: column; gap: 13px; justify-content: center; }
-  .tpl-featured .tpl-feat-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: .64rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mint-700); }
-  .tpl-featured .tpl-name { font-size: 2.1rem; }
-  .tpl-featured .tpl-tag { align-self: flex-start; }
-  .tpl-featured .tpl-blurb { font-size: .95rem; line-height: 1.6; }
-  .tpl-featured .tpl-feat-cta { margin-top: 4px; display: inline-flex; align-items: center; gap: 7px; font-size: .85rem; font-weight: 500; color: var(--mint-700); }
-  .tpl-featured:hover .tpl-feat-cta .arrow-icon { transform: translateX(3px); }
+  .tpl-blurb { margin: 0; font-size: .78rem; line-height: 1.5; color: var(--muted); }
 
   /* ─────────────────────────  Demo (scripted)  ───────────────────────── */
   .demo-wrap { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(28px, 5vw, 80px); align-items: center; }
@@ -1536,9 +1525,6 @@
     .bundle-trio { grid-template-columns: 1fr 1fr; }
     .how-steps { grid-template-columns: 1fr 1fr; gap: 36px; }
     .tpl-grid { grid-template-columns: repeat(2, 1fr); }
-    .tpl-card.tpl-featured { grid-template-columns: 1fr; }
-    .tpl-featured .tpl-feat-window { border-right: 0; border-bottom: 1px solid var(--rule); }
-    .tpl-featured .tpl-preview { aspect-ratio: 16 / 9; }
     .why-wrap { grid-template-columns: 1fr; gap: 36px; }
     .why-manifesto { position: static; }
   }
@@ -1952,23 +1938,12 @@
       </div>
 
       <div class="tpl-grid">
-        <!-- Featured template — full-width hero window -->
-        <a href="./onboard.html" class="tpl-card tpl-featured reveal">
-          <div class="tpl-feat-window">
-            <div class="tpl-chrome">
-              <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span>
-            </div>
-            <div class="tpl-preview"><iframe loading="lazy" data-template="purr" data-palette="peach" title="Counter template preview"></iframe><div class="shield"></div></div>
-          </div>
-          <div class="tpl-feat-info">
-            <span class="tpl-feat-eyebrow">Featured template</span>
-            <h3 class="tpl-name">Counter</h3>
-            <span class="tpl-tag">Cafe, quick-serve</span>
-            <p class="tpl-blurb">A clean dashboard with sidebar nav, search, and a live cart panel — built to take orders inline.</p>
-            <span class="tpl-feat-cta">Preview this template
-              <svg class="arrow-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </span>
+        <a href="./onboard.html" class="tpl-card reveal">
+          <div class="tpl-chrome"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>yourrestaurant.com</span></div>
+          <div class="tpl-preview"><iframe loading="lazy" data-template="purr" data-palette="peach" title="Counter template preview"></iframe><div class="shield"></div></div>
+          <div class="tpl-label">
+            <div class="tpl-name-row"><h3 class="tpl-name">Counter</h3><span class="tpl-tag">Cafe, quick-serve</span></div>
+            <p class="tpl-blurb">Dashboard layout with sidebar nav, search, and a live cart panel.</p>
           </div>
         </a>
 
@@ -2340,10 +2315,33 @@
   };
   const SAMPLE_CONFIG = BMStore.encodeState(SAMPLE_STATE);
 
+  // ─── Gallery-preview-only style fix ─────────────────────────────
+  // Some template icons fill their container (width="100%") and rely on a
+  // sized parent; in a couple of spots that parent isn't sized, so the icon
+  // balloons. Inject a tiny stylesheet into the GALLERY preview iframes only
+  // (never the hero device previews) to clamp fill-icons to text size. This
+  // leaves menu.html itself untouched.
+  const PREVIEW_FIX_CSS =
+    'svg[width="100%"]{width:1.1em!important;height:1.1em!important;}';
+  function injectPreviewFix(iframe) {
+    const apply = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc || !doc.head || doc.getElementById("bm-preview-fix")) return;
+        const st = doc.createElement("style");
+        st.id = "bm-preview-fix";
+        st.textContent = PREVIEW_FIX_CSS;
+        doc.head.appendChild(st);
+      } catch (e) { /* same-origin only; ignore otherwise */ }
+    };
+    iframe.addEventListener("load", apply);
+  }
+
   // ─── Seed every iframe on the page with the sample state ────────
   document.querySelectorAll("iframe[data-template]").forEach(iframe => {
     const tpl = iframe.dataset.template;
     const pal = iframe.dataset.palette || "forest";
+    if (iframe.closest(".tpl-preview")) injectPreviewFix(iframe);
     iframe.src = `./menu.html?config=${SAMPLE_CONFIG}&template=${tpl}&palette=${pal}`;
   });
   document.querySelectorAll("iframe[data-kitchen]").forEach(iframe => {
