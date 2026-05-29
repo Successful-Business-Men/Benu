@@ -1,0 +1,1875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Menu</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Anton&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/motion@11.11.17/dist/motion.min.js"></script>
+<style>
+  /* ─── Design tokens (overridden per-template via applyTheme) ─── */
+  :root {
+    --bm-bg: #FBE8D6;
+    --bm-surface: #FFFFFF;
+    --bm-accent: #FF8A5C;
+    --bm-accentDeep: #E76A39;
+    --bm-soft: #FFF4E8;
+    --bm-softDeep: #F5D9BD;
+    --bm-text: #1F1A16;
+    --bm-muted: #7E6F5F;
+    --bm-rule: #1F1A16;
+    --bm-heading-font: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --bm-body-font: 'Inter', system-ui, sans-serif;
+  }
+  html, body {
+    background: var(--bm-bg);
+    color: var(--bm-text);
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--bm-body-font);
+  }
+  body { min-height: 100vh; }
+  .bm-head { font-family: var(--bm-heading-font); }
+  .bm-serif { font-family: 'Cormorant Garamond', serif; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { scrollbar-width: none; }
+
+  /* Reveal primitive — used by every layout for staggered card entrances. */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); transition-delay: calc(var(--i, 0) * 60ms); }
+  .reveal.in-view { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     PURR — Counter dashboard.
+     Sidebar + main + cart panel. Peach background, white surfaces,
+     candied-orange accent. Inspired by Purr'Coffee.
+     ═══════════════════════════════════════════════════════════════════ */
+  [data-layout="purr"] body { background: var(--bm-bg); }
+  .purr-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr 320px;
+    gap: 16px;
+    padding: 16px;
+    min-height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1100px) { .purr-shell { grid-template-columns: 1fr; padding: 12px; gap: 12px; } .purr-side, .purr-cart { display: none; } }
+
+  .purr-side {
+    background: var(--bm-surface);
+    border-radius: 22px;
+    padding: 24px 18px;
+    display: flex; flex-direction: column;
+    gap: 22px;
+    position: sticky; top: 16px;
+    align-self: start;
+    height: calc(100vh - 32px);
+  }
+  .purr-brand {
+    font-family: var(--bm-heading-font);
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: -.02em;
+    padding: 6px 8px;
+    display: flex; gap: 2px; align-items: baseline;
+  }
+  .purr-brand .a { color: var(--bm-accent); font-style: italic; }
+  .purr-brand .b { color: var(--bm-text); }
+  .purr-nav { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+  .purr-nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    color: var(--bm-muted);
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background .25s, color .25s, transform .25s cubic-bezier(.16,1,.3,1);
+  }
+  .purr-nav-item:hover { background: var(--bm-soft); color: var(--bm-text); transform: translateX(2px); }
+  .purr-nav-item.active { background: var(--bm-soft); color: var(--bm-accentDeep); font-weight: 600; }
+  .purr-nav-ico { width: 18px; height: 18px; flex: 0 0 18px; }
+  .purr-badge {
+    margin-left: auto;
+    background: var(--bm-accent); color: white;
+    font-size: .7rem; padding: 2px 8px; border-radius: 999px;
+    font-weight: 600;
+  }
+  .purr-side-rule { height: 1px; background: var(--bm-rule); opacity: .08; margin: 4px 0; }
+  .purr-side-footer { margin-top: auto; display: flex; flex-direction: column; gap: 4px; padding-top: 8px; }
+  .purr-donate { color: var(--bm-accent); font-weight: 600; }
+
+  .purr-main {
+    background: var(--bm-surface);
+    border-radius: 22px;
+    padding: 22px 28px 40px;
+    overflow: hidden;
+  }
+  .purr-top {
+    display: flex; gap: 12px; align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent);
+  }
+  .purr-search {
+    flex: 1; display: flex; align-items: center; gap: 10px;
+    background: var(--bm-soft);
+    padding: 10px 16px;
+    border-radius: 999px;
+    color: var(--bm-muted);
+    font-size: .9rem;
+  }
+  .purr-filter {
+    background: var(--bm-accent); color: white;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: .85rem; font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s;
+  }
+  .purr-filter:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -8px var(--bm-accent); }
+
+  .purr-cats { display: flex; gap: 10px; padding: 22px 0 16px; flex-wrap: wrap; }
+  .purr-cat {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--bm-text) 14%, transparent);
+    background: transparent;
+    color: var(--bm-text);
+    font-size: .88rem;
+    cursor: pointer;
+    transition: all .25s cubic-bezier(.16,1,.3,1);
+    position: relative;
+  }
+  .purr-cat:hover { border-color: var(--bm-accent); color: var(--bm-accentDeep); }
+  .purr-cat[aria-pressed="true"] { background: var(--bm-accent); color: white; border-color: var(--bm-accent); }
+
+  .purr-section-h {
+    font-family: var(--bm-heading-font);
+    font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em;
+    color: var(--bm-text);
+    padding: 4px 0 12px;
+  }
+  .purr-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 720px) { .purr-grid { grid-template-columns: 1fr; } }
+
+  .purr-card {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent);
+    border-radius: 18px;
+    padding: 14px;
+    transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .35s;
+    cursor: pointer;
+  }
+  .purr-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 50px -20px color-mix(in srgb, var(--bm-accent) 30%, transparent);
+    border-color: color-mix(in srgb, var(--bm-accent) 40%, transparent);
+  }
+  .purr-photo {
+    width: 110px; height: 130px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--bm-soft);
+  }
+  .purr-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.16,1,.3,1); }
+  .purr-card:hover .purr-photo img { transform: scale(1.06); }
+  .purr-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .purr-name-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .purr-name { font-weight: 700; font-size: 1rem; color: var(--bm-text); }
+  .purr-price { font-weight: 700; color: var(--bm-accent); font-size: .95rem; white-space: nowrap; }
+  .purr-desc {
+    font-size: .8rem; line-height: 1.5;
+    color: var(--bm-muted);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .purr-sizes { display: flex; align-items: center; gap: 6px; padding-top: 4px; font-size: .75rem; color: var(--bm-muted); }
+  .purr-size-pill {
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--bm-text) 14%, transparent);
+    cursor: pointer; transition: all .2s;
+    font-size: .72rem;
+    background: transparent;
+    color: var(--bm-text);
+  }
+  .purr-size-pill.on { background: var(--bm-text); color: var(--bm-bg); border-color: var(--bm-text); }
+  .purr-add {
+    margin-top: 8px;
+    background: color-mix(in srgb, var(--bm-accent) 14%, transparent);
+    color: var(--bm-accentDeep);
+    border: 1px dashed color-mix(in srgb, var(--bm-accent) 50%, transparent);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: .8rem; font-weight: 600;
+    cursor: pointer;
+    transition: all .2s cubic-bezier(.16,1,.3,1);
+    align-self: flex-start;
+  }
+  .purr-add:hover { background: var(--bm-accent); color: white; border-style: solid; }
+  .purr-add.added { background: var(--bm-accent); color: white; border-style: solid; }
+
+  .purr-cart {
+    background: var(--bm-surface);
+    border-radius: 22px;
+    padding: 24px 20px;
+    display: flex; flex-direction: column;
+    gap: 16px;
+    position: sticky; top: 16px;
+    align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+  .purr-cart-header { display: flex; justify-content: space-between; align-items: center; }
+  .purr-cart-h {
+    font-family: var(--bm-heading-font);
+    font-size: 1.4rem; font-weight: 700; letter-spacing: -.02em;
+  }
+  .purr-order-id { font-size: .75rem; color: var(--bm-muted); }
+  .purr-mode { display: flex; gap: 4px; background: var(--bm-soft); padding: 4px; border-radius: 999px; }
+  .purr-mode-btn {
+    padding: 8px 14px; border-radius: 999px;
+    font-size: .78rem; color: var(--bm-muted);
+    cursor: pointer; transition: all .25s cubic-bezier(.16,1,.3,1);
+    border: none; background: transparent;
+  }
+  .purr-mode-btn.on { background: var(--bm-text); color: white; }
+  .purr-cart-items { display: flex; flex-direction: column; gap: 16px; }
+  .purr-cart-item {
+    display: grid; grid-template-columns: 64px 1fr; gap: 12px;
+    align-items: center;
+  }
+  .purr-cart-thumb { width: 64px; height: 64px; border-radius: 12px; overflow: hidden; background: var(--bm-soft); }
+  .purr-cart-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .purr-cart-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .purr-cart-name { font-weight: 600; font-size: .9rem; }
+  .purr-cart-spec { font-size: .72rem; color: var(--bm-muted); }
+  .purr-cart-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .purr-cart-price { font-weight: 700; font-size: .9rem; }
+  .purr-qty { display: flex; align-items: center; gap: 8px; font-size: .8rem; }
+  .purr-qty button {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: var(--bm-soft); color: var(--bm-text);
+    display: grid; place-items: center;
+    cursor: pointer; border: none;
+    transition: background .2s, transform .2s cubic-bezier(.16,1,.3,1);
+  }
+  .purr-qty button:hover { background: var(--bm-softDeep); transform: scale(1.1); }
+  .purr-totals { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; color: var(--bm-muted); padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent); }
+  .purr-totals-row { display: flex; justify-content: space-between; }
+  .purr-total-row { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; color: var(--bm-text); padding-top: 6px; border-top: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent); }
+  .purr-place {
+    margin-top: 8px;
+    background: var(--bm-accent);
+    color: white;
+    padding: 14px;
+    border-radius: 999px;
+    border: none;
+    font-weight: 700; font-size: .95rem;
+    cursor: pointer;
+    transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s;
+  }
+  .purr-place:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -12px var(--bm-accent); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     SPROUT — Market with sidebar filters.
+     ═══════════════════════════════════════════════════════════════════ */
+  [data-layout="sprout"] body { background: var(--bm-bg); }
+  .sp-shell {
+    max-width: 1240px; margin: 0 auto;
+    padding: 24px clamp(16px, 3vw, 36px) 64px;
+  }
+  .sp-top {
+    display: grid; grid-template-columns: auto 1fr auto auto;
+    gap: clamp(12px, 3vw, 32px);
+    align-items: center;
+    padding: 8px 0 20px;
+  }
+  .sp-brand { font-family: var(--bm-heading-font); font-weight: 700; font-size: 1.5rem; letter-spacing: -.02em; color: var(--bm-accent); }
+  .sp-brand-mark { color: var(--bm-text); }
+  .sp-search {
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 10%, transparent);
+    padding: 10px 18px; border-radius: 999px;
+    font-size: .9rem; color: var(--bm-muted);
+    max-width: 320px; width: 100%;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sp-top-pill {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .85rem; color: var(--bm-text);
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent);
+  }
+  .sp-top-pill strong { color: var(--bm-accent); }
+
+  .sp-body {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: clamp(16px, 4vw, 56px);
+    margin-top: 12px;
+  }
+  @media (max-width: 900px) { .sp-body { grid-template-columns: 1fr; } .sp-filter { display: none; } }
+
+  .sp-filter {
+    position: sticky; top: 20px; align-self: start;
+    font-size: .85rem;
+  }
+  .sp-filter-h {
+    font-family: var(--bm-heading-font);
+    font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em;
+    padding-bottom: 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--bm-text) 12%, transparent);
+  }
+  .sp-fgroup { padding: 16px 0; border-bottom: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent); }
+  .sp-fgroup-h {
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 600; font-size: .82rem;
+    cursor: pointer; user-select: none;
+  }
+  .sp-fgroup-h::after {
+    content: ""; width: 8px; height: 8px;
+    border-right: 1.5px solid var(--bm-text);
+    border-bottom: 1.5px solid var(--bm-text);
+    transform: rotate(45deg) translate(-1px, -2px);
+    transition: transform .25s;
+  }
+  .sp-fgroup.collapsed .sp-fgroup-h::after { transform: rotate(-135deg) translate(-3px, 0); }
+  .sp-fgroup.collapsed .sp-fgroup-body { display: none; }
+  .sp-fgroup-body { padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .sp-check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .sp-check input { accent-color: var(--bm-accent); width: 14px; height: 14px; }
+  .sp-range { position: relative; height: 28px; margin: 4px 0 10px; }
+  .sp-range::before { content: ""; position: absolute; left: 0; right: 0; top: 13px; height: 2px; background: var(--bm-softDeep); border-radius: 999px; }
+  .sp-range::after { content: ""; position: absolute; left: 18%; right: 32%; top: 13px; height: 2px; background: var(--bm-accent); border-radius: 999px; }
+  .sp-knob { position: absolute; top: 9px; width: 10px; height: 10px; border-radius: 999px; background: var(--bm-accent); transform: translateX(-50%); box-shadow: 0 0 0 4px color-mix(in srgb, var(--bm-accent) 20%, transparent); }
+
+  .sp-results-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 10px;
+  }
+  .sp-crumb { font-size: .78rem; color: var(--bm-muted); }
+  .sp-crumb strong { color: var(--bm-text); font-weight: 500; }
+  .sp-title {
+    font-family: var(--bm-heading-font);
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    line-height: 1; font-weight: 400; letter-spacing: -.02em;
+    margin: 8px 0 6px; color: var(--bm-text);
+  }
+  .sp-count { font-size: .85rem; color: var(--bm-muted); display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; }
+  .sp-sort {
+    border: 1px solid color-mix(in srgb, var(--bm-text) 14%, transparent);
+    padding: 8px 14px; border-radius: 10px;
+    font-size: .82rem; background: var(--bm-surface);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .sp-chips { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 18px; align-items: center; }
+  .sp-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 12%, transparent);
+    font-size: .78rem;
+  }
+  .sp-chip strong { font-weight: 500; }
+  .sp-chip-x { color: var(--bm-muted); cursor: pointer; }
+  .sp-chips-clear { font-size: .78rem; color: var(--bm-muted); text-decoration: underline; cursor: pointer; }
+
+  .sp-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  @media (max-width: 720px) { .sp-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .sp-grid { grid-template-columns: 1fr; } }
+
+  .sp-card {
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex; flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s, border-color .35s;
+    cursor: pointer;
+  }
+  .sp-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 32px -16px color-mix(in srgb, var(--bm-text) 18%, transparent);
+    border-color: color-mix(in srgb, var(--bm-accent) 40%, transparent);
+  }
+  .sp-circle {
+    width: 92px; height: 92px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--bm-soft);
+    margin: 8px 0 12px;
+    box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--bm-text) 25%, transparent);
+    transition: transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .sp-card:hover .sp-circle { transform: scale(1.06) rotate(-3deg); }
+  .sp-circle img { width: 100%; height: 100%; object-fit: cover; }
+  .sp-rate {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--bm-surface);
+    color: var(--bm-accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--bm-accent) 25%, transparent);
+    font-size: .68rem; font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .sp-rate::before { content: "★"; color: var(--bm-accent); }
+  .sp-sale {
+    position: absolute; top: 56px; right: 14px;
+    background: #D43838; color: white;
+    padding: 2px 10px;
+    font-size: .65rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    border-radius: 4px;
+  }
+  .sp-card-name {
+    font-size: .92rem; font-weight: 600;
+    color: var(--bm-text);
+    text-align: center; line-height: 1.25;
+    min-height: 36px;
+  }
+  .sp-card-cat { font-size: .68rem; color: var(--bm-muted); letter-spacing: .14em; text-transform: uppercase; margin-top: 2px; }
+  .sp-card-row {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    width: 100%; margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in srgb, var(--bm-text) 6%, transparent);
+  }
+  .sp-add {
+    display: flex; align-items: center; gap: 6px;
+    background: transparent;
+    color: var(--bm-text);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 14%, transparent);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: .78rem;
+    cursor: pointer;
+    transition: all .2s cubic-bezier(.16,1,.3,1);
+  }
+  .sp-add:hover { background: var(--bm-accent); color: white; border-color: var(--bm-accent); }
+  .sp-add::after { content: "+"; font-size: 1rem; line-height: 0; }
+  .sp-pricewrap { text-align: right; line-height: 1.2; }
+  .sp-price { font-weight: 700; color: #D43838; font-size: 1rem; }
+  .sp-price-strike { font-size: .72rem; color: var(--bm-muted); text-decoration: line-through; }
+  .sp-price-unit { font-size: .68rem; color: var(--bm-muted); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     CHAIN — Storefront with promo banner and horizontal rows.
+     ═══════════════════════════════════════════════════════════════════ */
+  [data-layout="chain"] body { background: var(--bm-bg); }
+  .ch-shell { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 3vw, 36px) 80px; }
+  .ch-utility {
+    display: flex; align-items: center; gap: 18px;
+    padding: 18px 0 14px;
+    border-bottom: 1px solid color-mix(in srgb, var(--bm-text) 6%, transparent);
+  }
+  .ch-brand {
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    background: var(--bm-accent);
+    color: white;
+    display: grid; place-items: center;
+    font-family: var(--bm-heading-font);
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .ch-loc { font-size: .82rem; color: var(--bm-text); display: flex; align-items: center; gap: 6px; }
+  .ch-loc-pin { color: var(--bm-accent); }
+  .ch-search-box {
+    flex: 1; max-width: 460px;
+    background: var(--bm-soft); border-radius: 999px;
+    padding: 10px 18px;
+    font-size: .85rem; color: var(--bm-muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ch-util-actions { display: flex; gap: 22px; margin-left: auto; font-size: .8rem; color: var(--bm-text); }
+  .ch-util-item { display: flex; align-items: center; gap: 6px; cursor: pointer; transition: color .2s; }
+  .ch-util-item:hover { color: var(--bm-accent); }
+
+  .ch-nav {
+    display: flex; gap: 28px;
+    padding: 18px 0;
+    overflow-x: auto;
+  }
+  .ch-nav-item {
+    font-size: .92rem; color: var(--bm-muted);
+    padding: 4px 0;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+  }
+  .ch-nav-item:hover { color: var(--bm-text); }
+  .ch-nav-item.on { color: var(--bm-text); border-color: var(--bm-accent); font-weight: 600; }
+
+  .ch-promo {
+    position: relative;
+    border-radius: 24px;
+    background: linear-gradient(120deg, var(--bm-accentDeep), var(--bm-accent));
+    color: white;
+    padding: 40px clamp(24px, 4vw, 56px);
+    overflow: hidden;
+    margin: 16px 0 32px;
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: 28px;
+    min-height: 260px;
+  }
+  @media (max-width: 760px) { .ch-promo { grid-template-columns: 1fr; } }
+  .ch-promo::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(120% 80% at -10% 50%, color-mix(in srgb, white 15%, transparent), transparent 60%),
+      radial-gradient(circle at 90% 10%, color-mix(in srgb, white 20%, transparent), transparent 50%);
+    pointer-events: none;
+  }
+  .ch-promo-h {
+    position: relative;
+    font-family: var(--bm-heading-font);
+    font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+    line-height: 1.05; font-weight: 800;
+    letter-spacing: -.025em;
+    z-index: 1;
+  }
+  .ch-promo-p { position: relative; opacity: .9; margin-top: 10px; max-width: 36ch; line-height: 1.55; font-size: .92rem; z-index: 1; }
+  .ch-promo-cta {
+    position: relative; margin-top: 22px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px;
+    background: white; color: var(--bm-accentDeep);
+    border-radius: 999px;
+    font-weight: 700; font-size: .9rem;
+    z-index: 1;
+    transition: transform .2s cubic-bezier(.16,1,.3,1);
+  }
+  .ch-promo-cta:hover { transform: translateX(4px); }
+  .ch-promo-tiles {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    align-content: center;
+  }
+  .ch-tile {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    background: color-mix(in srgb, white 20%, transparent);
+    overflow: hidden;
+  }
+  .ch-tile img { width: 100%; height: 100%; object-fit: cover; }
+
+  .ch-row { margin-bottom: 36px; }
+  .ch-row-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 14px;
+  }
+  .ch-row-title {
+    font-family: var(--bm-heading-font);
+    font-size: 1.5rem; font-weight: 700;
+    letter-spacing: -.02em;
+  }
+  .ch-row-arrows { display: flex; gap: 8px; }
+  .ch-arrow {
+    width: 36px; height: 36px;
+    border-radius: 999px;
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 12%, transparent);
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .ch-arrow:hover { background: var(--bm-text); color: var(--bm-bg); border-color: var(--bm-text); }
+  .ch-scroll {
+    display: flex; gap: 14px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+    margin: 0 calc(-1 * clamp(16px, 3vw, 36px));
+    padding-left: clamp(16px, 3vw, 36px);
+    padding-right: clamp(16px, 3vw, 36px);
+  }
+  .ch-card {
+    flex: 0 0 200px;
+    scroll-snap-align: start;
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 8%, transparent);
+    border-radius: 18px;
+    padding: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s;
+    cursor: pointer;
+    position: relative;
+  }
+  .ch-card:hover { transform: translateY(-4px); box-shadow: 0 16px 28px -16px color-mix(in srgb, var(--bm-text) 22%, transparent); }
+  .ch-card-photo {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bm-soft);
+    position: relative;
+  }
+  .ch-card-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.16,1,.3,1); }
+  .ch-card:hover .ch-card-photo img { transform: scale(1.08); }
+  .ch-card-heart {
+    position: absolute; top: 10px; right: 10px;
+    width: 28px; height: 28px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.85);
+    display: grid; place-items: center;
+    cursor: pointer;
+    transition: transform .2s, background .2s;
+    backdrop-filter: blur(8px);
+  }
+  .ch-card-heart:hover { transform: scale(1.1); background: white; }
+  .ch-card-heart.on svg { fill: var(--bm-accent); stroke: var(--bm-accent); }
+  .ch-card-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: color-mix(in srgb, var(--bm-accent) 16%, white);
+    color: var(--bm-accentDeep);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: .68rem; font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .ch-card-name { font-weight: 600; font-size: .9rem; margin-top: 6px; padding: 0 4px; }
+  .ch-card-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 4px 4px 0;
+  }
+  .ch-card-price { font-weight: 700; font-size: .95rem; }
+  .ch-plus {
+    width: 28px; height: 28px; border-radius: 999px;
+    background: var(--bm-text); color: var(--bm-bg);
+    display: grid; place-items: center;
+    cursor: pointer; border: none;
+    font-size: 1rem; font-weight: 400;
+    transition: transform .25s cubic-bezier(.16,1,.3,1);
+  }
+  .ch-plus:hover { transform: scale(1.15) rotate(90deg); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     BOUTIQUE — Editorial shop with sidebar filters + percentage off.
+     ═══════════════════════════════════════════════════════════════════ */
+  [data-layout="boutique"] body { background: var(--bm-bg); }
+  .bq-utility {
+    background: var(--bm-accent);
+    color: white;
+    font-size: .78rem;
+    padding: 10px clamp(16px, 3vw, 36px);
+    display: flex; align-items: center; gap: 22px;
+    justify-content: space-between;
+  }
+  .bq-utility-left { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+  .bq-utility-cta { text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .bq-utility-socials { display: flex; gap: 12px; }
+  .bq-utility-socials a { color: white; opacity: .85; transition: opacity .2s; }
+  .bq-utility-socials a:hover { opacity: 1; }
+
+  .bq-header {
+    padding: 22px clamp(16px, 3vw, 36px);
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; gap: clamp(20px, 4vw, 48px);
+  }
+  .bq-brand {
+    font-family: var(--bm-heading-font);
+    font-size: 1.5rem; font-weight: 400;
+    letter-spacing: -.01em;
+    color: var(--bm-text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .bq-brand-mark {
+    width: 22px; height: 22px; border-radius: 999px;
+    background: var(--bm-soft);
+    display: grid; place-items: center;
+    color: var(--bm-accent);
+    font-size: .8rem;
+  }
+  .bq-nav { display: flex; gap: 28px; font-size: .92rem; }
+  .bq-nav-item { color: var(--bm-text); cursor: pointer; position: relative; padding: 4px 0; }
+  .bq-nav-item.on { font-weight: 600; }
+  .bq-nav-item.on::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -2px;
+    height: 2px; background: var(--bm-accent);
+  }
+  .bq-nav-item:hover { color: var(--bm-accent); }
+  .bq-header-icons { margin-left: auto; display: flex; gap: 18px; color: var(--bm-text); }
+  .bq-header-icons svg { cursor: pointer; transition: color .2s; }
+  .bq-header-icons svg:hover { color: var(--bm-accent); }
+
+  .bq-hero {
+    background: var(--bm-soft);
+    padding: 56px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .bq-hero-title {
+    font-family: var(--bm-heading-font);
+    font-size: clamp(2.8rem, 6vw, 4.2rem);
+    line-height: 1; font-weight: 400; letter-spacing: -.02em;
+  }
+  .bq-hero-crumb {
+    margin-top: 12px; font-size: .85rem; color: var(--bm-muted);
+  }
+  .bq-hero-crumb a { color: var(--bm-text); }
+
+  .bq-body {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 40px clamp(16px, 3vw, 36px);
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: clamp(20px, 4vw, 56px);
+  }
+  @media (max-width: 900px) { .bq-body { grid-template-columns: 1fr; } .bq-filter { display: none; } }
+
+  .bq-filter { position: sticky; top: 20px; align-self: start; font-size: .85rem; }
+  .bq-filter-h { font-weight: 700; font-size: 1rem; padding-bottom: 16px; border-bottom: 1px solid color-mix(in srgb, var(--bm-text) 14%, transparent); }
+  .bq-fgroup { padding: 16px 0; }
+  .bq-fgroup-h { font-weight: 600; font-size: .85rem; padding-bottom: 8px; }
+  .bq-flist { display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; }
+  .bq-fopt { display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--bm-text); }
+  .bq-fopt input { accent-color: var(--bm-accent); }
+  .bq-frange { position: relative; height: 28px; margin: 12px 0 4px; }
+  .bq-frange::before { content: ""; position: absolute; left: 0; right: 0; top: 12px; height: 3px; background: var(--bm-softDeep); border-radius: 999px; }
+  .bq-frange::after { content: ""; position: absolute; left: 5%; right: 35%; top: 12px; height: 3px; background: var(--bm-accent); border-radius: 999px; }
+  .bq-fknob { position: absolute; top: 8px; width: 12px; height: 12px; border-radius: 999px; background: var(--bm-accent); }
+  .bq-fprice-lbl { font-size: .78rem; color: var(--bm-text); }
+  .bq-stars { display: inline-flex; gap: 1px; color: #F5B400; }
+  .bq-stars-row { display: flex; align-items: center; gap: 10px; }
+
+  .bq-results-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid color-mix(in srgb, var(--bm-text) 10%, transparent);
+  }
+  .bq-results-count { font-size: .82rem; color: var(--bm-text); }
+  .bq-sort {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .82rem; color: var(--bm-text);
+  }
+  .bq-sort-box {
+    border: 1px solid color-mix(in srgb, var(--bm-text) 16%, transparent);
+    padding: 8px 16px; border-radius: 8px;
+    background: var(--bm-surface);
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .bq-active-filters { display: flex; align-items: center; gap: 8px; padding: 14px 0; flex-wrap: wrap; }
+  .bq-af-label { font-size: .78rem; color: var(--bm-text); font-weight: 600; }
+  .bq-af-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 6px;
+    background: var(--bm-surface);
+    border: 1px solid color-mix(in srgb, var(--bm-text) 12%, transparent);
+    font-size: .76rem;
+  }
+  .bq-af-x { color: var(--bm-muted); cursor: pointer; }
+  .bq-clear { font-size: .78rem; color: var(--bm-accent); text-decoration: underline; cursor: pointer; margin-left: auto; }
+
+  .bq-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-top: 14px; }
+  @media (max-width: 720px) { .bq-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .bq-grid { grid-template-columns: 1fr; } }
+
+  .bq-card { display: flex; flex-direction: column; cursor: pointer; }
+  .bq-card-photo {
+    aspect-ratio: 4 / 5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bm-soft);
+    position: relative;
+  }
+  .bq-card-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.16,1,.3,1); }
+  .bq-card:hover .bq-card-photo img { transform: scale(1.08); }
+  .bq-off {
+    position: absolute; top: 14px; left: 14px;
+    background: var(--bm-accent); color: white;
+    padding: 6px 12px; border-radius: 8px;
+    font-size: .72rem; font-weight: 600;
+  }
+  .bq-actions {
+    position: absolute; top: 14px; right: 14px;
+    display: flex; flex-direction: column; gap: 6px;
+    opacity: 0; transform: translateX(8px);
+    transition: opacity .35s cubic-bezier(.16,1,.3,1), transform .35s cubic-bezier(.16,1,.3,1);
+  }
+  .bq-card:hover .bq-actions { opacity: 1; transform: translateX(0); }
+  .bq-action-btn {
+    width: 32px; height: 32px; border-radius: 999px;
+    background: white; color: var(--bm-text);
+    display: grid; place-items: center;
+    cursor: pointer; border: none;
+    transition: background .2s, color .2s;
+  }
+  .bq-action-btn:hover { background: var(--bm-accent); color: white; }
+  .bq-card-meta { padding: 12px 4px 4px; }
+  .bq-card-cat { font-size: .75rem; color: var(--bm-muted); }
+  .bq-card-rating {
+    float: right;
+    display: flex; align-items: center; gap: 4px;
+    font-size: .78rem; color: var(--bm-text);
+  }
+  .bq-card-name { font-weight: 600; font-size: 1.05rem; margin: 4px 0; }
+  .bq-card-prices { display: flex; align-items: baseline; gap: 8px; color: var(--bm-accent); font-weight: 700; }
+  .bq-card-price-strike { color: var(--bm-muted); font-weight: 400; font-size: .85rem; text-decoration: line-through; }
+
+  .bq-pages { display: flex; justify-content: center; align-items: center; gap: 8px; padding-top: 32px; }
+  .bq-page {
+    width: 32px; height: 32px; border-radius: 999px;
+    display: grid; place-items: center;
+    color: var(--bm-text); cursor: pointer;
+    font-size: .85rem;
+    transition: all .2s;
+    border: none;
+    background: transparent;
+  }
+  .bq-page:hover { background: var(--bm-soft); }
+  .bq-page.on { background: var(--bm-accent); color: white; }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     SHACK — Shake-Shack-style bold modernist diner.
+     ═══════════════════════════════════════════════════════════════════ */
+  [data-layout="shack"] body { background: var(--bm-bg); }
+  .sh-shell { max-width: 1280px; margin: 0 auto; }
+  .sh-utility {
+    background: var(--bm-text); color: var(--bm-bg);
+    padding: 10px clamp(16px, 3vw, 36px);
+    display: flex; gap: 20px; align-items: center;
+    font-size: .76rem;
+    letter-spacing: .02em;
+    overflow: hidden;
+  }
+  .sh-utility-marquee {
+    display: flex; gap: 36px; white-space: nowrap;
+    animation: shMarquee 28s linear infinite;
+  }
+  @keyframes shMarquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  .sh-utility-item { display: inline-flex; align-items: center; gap: 6px; color: var(--bm-bg); opacity: .85; }
+  .sh-utility-dot::before { content: "●"; color: var(--bm-accent); margin-right: 8px; opacity: .8; }
+
+  .sh-nav {
+    display: flex; align-items: center; gap: clamp(16px, 3vw, 36px);
+    padding: 22px clamp(16px, 3vw, 36px);
+    border-bottom: 2px solid var(--bm-text);
+    background: var(--bm-bg);
+    position: sticky; top: 0; z-index: 20;
+  }
+  .sh-brand {
+    font-family: var(--bm-heading-font);
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    letter-spacing: .04em;
+    color: var(--bm-text);
+    text-transform: uppercase;
+    line-height: 1;
+    padding: 4px 16px;
+    background: var(--bm-accent);
+    color: white;
+    border-radius: 4px;
+    transform: skewX(-6deg);
+  }
+  .sh-brand span { display: inline-block; transform: skewX(6deg); }
+  .sh-nav-items { display: flex; gap: clamp(14px, 2vw, 28px); margin-left: clamp(8px, 2vw, 24px); }
+  .sh-nav-item {
+    font-family: var(--bm-heading-font);
+    font-size: .92rem; letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--bm-text);
+    cursor: pointer; padding: 4px 2px;
+    border-bottom: 2px solid transparent;
+    transition: border-color .2s;
+  }
+  .sh-nav-item.on { border-color: var(--bm-accent); }
+  .sh-nav-item:hover { border-color: var(--bm-text); }
+  .sh-order {
+    margin-left: auto;
+    background: var(--bm-text); color: var(--bm-bg);
+    font-family: var(--bm-heading-font); letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 12px 22px;
+    font-size: .82rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform .2s cubic-bezier(.16,1,.3,1), background .2s;
+    border: none;
+  }
+  .sh-order:hover { background: var(--bm-accent); transform: rotate(-1deg) scale(1.03); }
+
+  .sh-hero {
+    padding: clamp(40px, 8vw, 88px) clamp(16px, 3vw, 36px) clamp(40px, 6vw, 64px);
+    display: grid; grid-template-columns: 1fr; gap: 24px;
+    border-bottom: 2px solid var(--bm-text);
+    position: relative;
+    overflow: hidden;
+  }
+  .sh-hero::before {
+    content: ""; position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(80% 60% at 100% 0%, color-mix(in srgb, var(--bm-accent) 22%, transparent), transparent 60%),
+      radial-gradient(60% 60% at 0% 100%, color-mix(in srgb, var(--bm-accent) 14%, transparent), transparent 60%);
+    pointer-events: none;
+  }
+  .sh-eyebrow {
+    font-family: var(--bm-heading-font);
+    font-size: .88rem; letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--bm-accent);
+    position: relative;
+  }
+  .sh-h1 {
+    position: relative;
+    font-family: var(--bm-heading-font);
+    font-size: clamp(3.4rem, 12vw, 9rem);
+    line-height: .88; font-weight: 400;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    color: var(--bm-text);
+  }
+  .sh-h1 .ital { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; text-transform: lowercase; color: var(--bm-accent); letter-spacing: -.02em; }
+  .sh-sub { position: relative; max-width: 50ch; font-size: 1.05rem; line-height: 1.55; color: var(--bm-text); opacity: .85; margin-top: 8px; }
+
+  .sh-cats {
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 22px clamp(16px, 3vw, 36px);
+    border-bottom: 2px solid var(--bm-text);
+    position: sticky; top: 76px; z-index: 10;
+    background: var(--bm-bg);
+  }
+  .sh-cat {
+    font-family: var(--bm-heading-font);
+    font-size: .92rem; letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: 2px solid var(--bm-text);
+    border-radius: 999px;
+    background: var(--bm-bg);
+    color: var(--bm-text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .25s cubic-bezier(.16,1,.3,1);
+  }
+  .sh-cat:hover { background: var(--bm-text); color: var(--bm-bg); }
+  .sh-cat[aria-pressed="true"] { background: var(--bm-accent); border-color: var(--bm-accent); color: white; }
+
+  .sh-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    padding: 0 clamp(16px, 3vw, 36px) 80px;
+  }
+  @media (max-width: 760px) { .sh-grid { grid-template-columns: 1fr; } }
+
+  .sh-card {
+    display: grid; grid-template-columns: 1.3fr 1fr;
+    align-items: center;
+    gap: clamp(16px, 3vw, 32px);
+    padding: clamp(24px, 4vw, 44px) 0;
+    border-bottom: 2px solid var(--bm-text);
+    position: relative;
+  }
+  .sh-grid > .sh-card:nth-child(odd) { padding-right: clamp(24px, 4vw, 44px); border-right: 2px solid var(--bm-text); }
+  .sh-grid > .sh-card:nth-child(even) { padding-left: clamp(24px, 4vw, 44px); }
+  @media (max-width: 760px) {
+    .sh-grid > .sh-card { padding: 24px 0; border-right: 0 !important; }
+    .sh-grid > .sh-card:nth-child(even) { padding-left: 0; }
+  }
+  .sh-card-body { min-width: 0; }
+  .sh-card-cat {
+    font-family: var(--bm-heading-font);
+    font-size: .72rem; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--bm-accent); margin-bottom: 8px;
+  }
+  .sh-card-name {
+    font-family: var(--bm-heading-font);
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    line-height: .98; letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--bm-text);
+  }
+  .sh-card-desc { font-size: .92rem; line-height: 1.55; color: var(--bm-text); opacity: .8; margin-top: 10px; max-width: 38ch; }
+  .sh-card-foot { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+  .sh-card-price {
+    font-family: var(--bm-heading-font);
+    font-size: 1.8rem; line-height: 1;
+    color: var(--bm-text);
+    letter-spacing: .02em;
+  }
+  .sh-card-cta {
+    background: var(--bm-text); color: var(--bm-bg);
+    font-family: var(--bm-heading-font);
+    letter-spacing: .12em; text-transform: uppercase;
+    padding: 10px 18px; font-size: .78rem;
+    border-radius: 999px; border: none;
+    cursor: pointer;
+    transition: background .2s, transform .2s cubic-bezier(.16,1,.3,1);
+  }
+  .sh-card-cta:hover { background: var(--bm-accent); transform: translateX(3px); }
+  .sh-card-photo {
+    aspect-ratio: 1;
+    background: var(--bm-soft);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 28px 40px -28px color-mix(in srgb, var(--bm-text) 60%, transparent);
+  }
+  .sh-card-photo img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 1.2s cubic-bezier(.16,1,.3,1);
+  }
+  .sh-card:hover .sh-card-photo img { transform: scale(1.06) rotate(-1deg); }
+
+  .sh-empty { padding: 48px 24px; text-align: center; color: var(--bm-muted); }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     Empty state (no menu / no items) — shared.
+     ═══════════════════════════════════════════════════════════════════ */
+  .bm-empty {
+    padding: 96px 24px;
+    text-align: center;
+    color: var(--bm-muted);
+    font-size: .95rem;
+  }
+</style>
+</head>
+
+<body>
+  <div id="grid-root"></div>
+
+<script src="./js/store.js"></script>
+<script>
+  // URL overrides for previews / shared links.
+  const params = new URLSearchParams(location.search);
+  const tplOverride = params.get("template");
+  const palOverride = params.get("palette");
+  const configParam = params.get("config");
+
+  // Used when /menu?template=X is opened with no real state to back it.
+  // Gives template previews something believable to render so the page
+  // doesn't go blank the first time someone follows a preview link.
+  const SAMPLE_MENU = {
+    name: "Sample Bistro",
+    tagline: "A taste of how your menu could look",
+    subtagline: "Replace this preview by finishing the onboarding flow.",
+    template: "sprout",
+    palette: "ed-burgundy",
+    categories: ["Mains", "Sides", "Drinks", "Dessert"],
+    items: [
+      { name: "Heirloom Tomato Salad", price: 14, category: "Mains",   description: "Stone fruit, burrata, basil oil." },
+      { name: "Wood-Fired Margherita", price: 18, category: "Mains",   description: "San Marzano, mozzarella di bufala, basil." },
+      { name: "Roast Chicken Plate",   price: 22, category: "Mains",   description: "Pan jus, charred lemon, soft herbs." },
+      { name: "Roasted Carrots",       price:  9, category: "Sides",   description: "Honey, cumin, yogurt." },
+      { name: "Crispy Potatoes",       price:  8, category: "Sides",   description: "Sea salt, smoked paprika aioli." },
+      { name: "House Spritz",          price: 12, category: "Drinks",  description: "Aperol, prosecco, soda." },
+      { name: "Cold Brew",             price:  5, category: "Drinks",  description: "Single origin, milk on side." },
+      { name: "Olive Oil Cake",        price:  9, category: "Dessert", description: "Citrus, candied almond." },
+      { name: "Affogato",              price:  8, category: "Dessert", description: "Vanilla gelato, espresso." },
+    ],
+  };
+
+  function getState() {
+    if (window.__demoState) return JSON.parse(JSON.stringify(window.__demoState));
+    // Remote menu fetched by slug takes precedence over localStorage so a
+    // phone scanning a QR sees the published menu, not whatever this
+    // browser happens to have locally.
+    if (window.__remoteMenu) {
+      const s = JSON.parse(JSON.stringify(window.__remoteMenu));
+      if (tplOverride && BMStore.TEMPLATES[tplOverride]) s.template = tplOverride;
+      if (palOverride && BMStore.PALETTES[palOverride]) s.palette = palOverride;
+      return s;
+    }
+    let s = configParam ? BMStore.decodeState(configParam) : BMStore.load();
+    if (!s) {
+      // No real state. For a tenant URL (?r=slug) we'd rather show the
+      // "not published yet" message than fake data — but for everything
+      // else (e.g. /menu?template=X preview links) fall back to a sample
+      // menu so the template actually renders.
+      if (params.get("r")) return null;
+      s = JSON.parse(JSON.stringify(SAMPLE_MENU));
+    }
+    if (tplOverride && BMStore.TEMPLATES[tplOverride]) s.template = tplOverride;
+    if (palOverride && BMStore.PALETTES[palOverride]) s.palette = palOverride;
+    return s;
+  }
+
+  function render() {
+    const state = getState();
+    const root = document.getElementById("grid-root");
+    if (!state) {
+      const r = params.get("r");
+      root.innerHTML = r
+        ? `<p class="bm-empty">This menu hasn't been published yet. Ask the restaurant to finish setting it up.</p>`
+        : `<p class="bm-empty">No menu yet. Open the builder to add items.</p>`;
+      return;
+    }
+    BMStore.applyTheme(state);
+    const layout = BMStore.TEMPLATES[state.template].layout;
+
+    root.innerHTML = renderForLayout(layout, state);
+    armReveals();
+    applyMotion();
+  }
+
+  function renderForLayout(layout, state) {
+    switch (layout) {
+      case "sprout":   return renderSprout(state);
+      case "chain":    return renderChain(state);
+      case "boutique": return renderBoutique(state);
+      case "shack":    return renderShack(state);
+      case "purr":
+      default:         return renderPurr(state);
+    }
+  }
+
+  // ─── PURR — Counter dashboard ────────────────────────────────────────
+  function renderPurr(state) {
+    const cats = state.categories || [];
+    const activeCat = window.__activeCat || cats[0] || "";
+    const items = activeCat ? state.items.filter(it => it.category === activeCat) : state.items;
+    const cartItems = state.items.slice(0, 2);
+    const itemsSubtotal = cartItems.reduce((s, it) => s + (Number(it.price) || 0), 0);
+    const discount = 3.0;
+    const total = Math.max(0, itemsSubtotal - discount);
+
+    return `
+      <div class="purr-shell">
+        <aside class="purr-side">
+          <div class="purr-brand"><span class="a">${escapeHTML((state.name || "Brand").split(" ")[0] || "Brand")}'</span><span class="b">${escapeHTML((state.name || "Brand").split(" ").slice(1).join(" ") || "Menu")}</span></div>
+          <nav class="purr-nav">
+            <div class="purr-nav-item"><span class="purr-nav-ico">${icoHome()}</span> Home page</div>
+            <div class="purr-nav-item active"><span class="purr-nav-ico">${icoGrid()}</span> Menu</div>
+            <div class="purr-nav-item"><span class="purr-nav-ico">${icoBag()}</span> My orders <span class="purr-badge">${state.items.length}</span></div>
+            <div class="purr-nav-item"><span class="purr-nav-ico">${icoClock()}</span> History</div>
+          </nav>
+          <div class="purr-side-rule"></div>
+          <nav class="purr-nav">
+            <div class="purr-nav-item"><span class="purr-nav-ico">${icoUsers()}</span> Partners</div>
+            <div class="purr-nav-item"><span class="purr-nav-ico">${icoCog()}</span> Settings</div>
+            <div class="purr-nav-item purr-donate"><span class="purr-nav-ico">${icoHeart()}</span> Donate to shelter</div>
+          </nav>
+          <div class="purr-side-footer">
+            <div class="purr-nav-item"><span class="purr-nav-ico">${icoLogout()}</span> Log out</div>
+          </div>
+        </aside>
+
+        <main class="purr-main">
+          <div class="purr-top">
+            <div class="purr-search">${icoSearch()} <span>Search...</span></div>
+            <button class="purr-filter">${icoFilter()} Filter</button>
+          </div>
+          <div class="purr-cats">
+            ${cats.map(c => `<button class="purr-cat" data-c="${escapeAttr(c)}" aria-pressed="${c === activeCat}">${escapeHTML(c)}</button>`).join("")}
+          </div>
+          <h2 class="purr-section-h">${escapeHTML(activeCat || "Menu")}</h2>
+          <div class="purr-grid">
+            ${items.map((it, i) => `
+              <article class="purr-card reveal" style="--i:${i}" data-purr-card>
+                <div class="purr-photo">${imgOr(it)}</div>
+                <div class="purr-body">
+                  <div class="purr-name-row">
+                    <div class="purr-name">${escapeHTML(it.name)}</div>
+                    <div class="purr-price">${money(it.price)}</div>
+                  </div>
+                  ${it.description ? `<div class="purr-desc">${escapeHTML(it.description)}</div>` : ""}
+                  <div class="purr-sizes">Size
+                    <button class="purr-size-pill on">Small</button>
+                    <button class="purr-size-pill">Large</button>
+                  </div>
+                  <button class="purr-add ${i === 0 ? "added" : ""}">${i === 0 ? "Added to cart" : "Add to cart"}</button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </main>
+
+        <aside class="purr-cart">
+          <div class="purr-cart-header">
+            <div class="purr-cart-h">Cart</div>
+            <div class="purr-order-id">Order #${Math.floor(1000 + Math.random() * 8999)}</div>
+          </div>
+          <div class="purr-mode">
+            <button class="purr-mode-btn on">Delivery</button>
+            <button class="purr-mode-btn">Dine in</button>
+            <button class="purr-mode-btn">Take away</button>
+          </div>
+          <div class="purr-cart-items">
+            ${cartItems.map((it, i) => `
+              <div class="purr-cart-item">
+                <div class="purr-cart-thumb">${imgOr(it)}</div>
+                <div class="purr-cart-meta">
+                  <div class="purr-cart-name">${escapeHTML(it.name)}</div>
+                  <div class="purr-cart-spec">Small &middot; 200g</div>
+                  <div class="purr-cart-row">
+                    <div class="purr-cart-price">${money(it.price)}</div>
+                    <div class="purr-qty">
+                      <button>−</button><span>${i + 1}</span><button>+</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="purr-totals">
+            <div class="purr-totals-row"><span>Items</span><span>${money(itemsSubtotal)}</span></div>
+            <div class="purr-totals-row"><span>Discounts</span><span>−${money(discount)}</span></div>
+            <div class="purr-total-row"><span>Total</span><span>${money(total)}</span></div>
+          </div>
+          <button class="purr-place">Place an order</button>
+        </aside>
+      </div>
+    `;
+  }
+
+  // ─── SPROUT — Market with filters ─────────────────────────────────────
+  function renderSprout(state) {
+    const items = state.items;
+    const cats = state.categories || [];
+    return `
+      <div class="sp-shell">
+        <div class="sp-top">
+          <div class="sp-brand"><span>${escapeHTML((state.name || "SPROUT").toUpperCase().split(" ")[0])}</span></div>
+          <div class="sp-search">${icoSearch()} <span>Search</span></div>
+          <div class="sp-top-pill">${icoGift()} Bonus: <strong>15%</strong></div>
+          <div class="sp-top-pill">${icoBag()} Cart: ${items.length}</div>
+        </div>
+
+        <div class="sp-body">
+          <aside class="sp-filter">
+            <div class="sp-filter-h">Filter</div>
+            <div class="sp-fgroup">
+              <div class="sp-fgroup-h">Price</div>
+              <div class="sp-fgroup-body">
+                <div class="sp-range">
+                  <span class="sp-knob" style="left:18%"></span>
+                  <span class="sp-knob" style="left:68%"></span>
+                </div>
+                <div style="display:flex; gap:8px; font-size:.78rem;">
+                  <div style="flex:1; border:1px solid color-mix(in srgb,var(--bm-text) 12%,transparent); padding:6px 10px; border-radius:6px;">From $0</div>
+                  <div style="flex:1; border:1px solid color-mix(in srgb,var(--bm-text) 12%,transparent); padding:6px 10px; border-radius:6px;">To $${Math.ceil(Math.max(...items.map(i => Number(i.price) || 0), 20))}</div>
+                </div>
+              </div>
+            </div>
+            <div class="sp-fgroup">
+              <div class="sp-fgroup-h">Category</div>
+              <div class="sp-fgroup-body">
+                ${cats.map((c, i) => `
+                  <label class="sp-check"><input type="checkbox" ${i < 2 ? "checked" : ""}/> ${escapeHTML(c)}</label>
+                `).join("")}
+              </div>
+            </div>
+            <div class="sp-fgroup">
+              <div class="sp-fgroup-h">Form</div>
+              <div class="sp-fgroup-body">
+                <label class="sp-check"><input type="checkbox"/> Prepackaged</label>
+                <label class="sp-check"><input type="checkbox" checked/> On weight</label>
+              </div>
+            </div>
+            <div class="sp-fgroup">
+              <div class="sp-fgroup-h">Volume</div>
+              <div class="sp-fgroup-body">
+                <label class="sp-check"><input type="checkbox" checked/> No matter</label>
+                <label class="sp-check"><input type="checkbox"/> &lt; 10g (2)</label>
+                <label class="sp-check"><input type="checkbox"/> 10g — 60g (6)</label>
+                <label class="sp-check"><input type="checkbox"/> 60g — 200g (22)</label>
+                <label class="sp-check"><input type="checkbox"/> &gt; 200g (54)</label>
+              </div>
+            </div>
+            <div class="sp-fgroup">
+              <div class="sp-fgroup-h">Special features</div>
+            </div>
+            <div class="sp-fgroup">
+              <div class="sp-fgroup-h">Country</div>
+            </div>
+          </aside>
+
+          <main>
+            <div class="sp-results-head">
+              <div>
+                <div class="sp-crumb"><strong>${escapeHTML(state.name || "Home")}</strong> / ${escapeHTML(cats[0] || "All")}</div>
+                <h1 class="sp-title">${escapeHTML(state.tagline || cats[0] || "Today's menu")}</h1>
+              </div>
+            </div>
+            <div class="sp-count">
+              <div>Showed ${items.length} goods</div>
+              <div class="sp-sort">Sort by: <span class="sp-sort-box">Relevancy ▾</span></div>
+            </div>
+            <div class="sp-chips">
+              <div class="sp-chip"><strong>Price:</strong> $0–$20 <span class="sp-chip-x">×</span></div>
+              <div class="sp-chip"><strong>Form:</strong> On weight <span class="sp-chip-x">×</span></div>
+              <span class="sp-chips-clear">Clear all filters</span>
+            </div>
+            <div class="sp-grid">
+              ${items.map((it, i) => {
+                const isSale = i % 3 === 0;
+                const orig = isSale ? (Number(it.price) * 1.25).toFixed(2) : null;
+                return `
+                  <article class="sp-card reveal" style="--i:${i}">
+                    <div class="sp-rate">${(4.3 + (i % 6) * 0.1).toFixed(1)}/5</div>
+                    ${isSale ? `<div class="sp-sale">On sale</div>` : ""}
+                    <div class="sp-circle">${imgOr(it)}</div>
+                    <div class="sp-card-name">${escapeHTML(it.name)}</div>
+                    <div class="sp-card-cat">${escapeHTML(it.category || "")}</div>
+                    <div class="sp-card-row">
+                      <button class="sp-add">Add</button>
+                      <div class="sp-pricewrap">
+                        ${orig ? `<div class="sp-price-strike">$${orig}</div>` : ""}
+                        <div class="sp-price">${money(it.price)}</div>
+                        <div class="sp-price-unit">/ 500g</div>
+                      </div>
+                    </div>
+                  </article>
+                `;
+              }).join("")}
+            </div>
+          </main>
+        </div>
+      </div>
+    `;
+  }
+
+  // ─── CHAIN — Storefront with promo and horizontal rows ────────────────
+  function renderChain(state) {
+    const groups = (state.categories || []).map(c => [c, state.items.filter(i => i.category === c)]).filter(([, l]) => l.length > 0);
+    const promoCells = state.items.slice(0, 8);
+    return `
+      <div class="ch-shell">
+        <div class="ch-utility">
+          <div class="ch-brand bm-head">${initials(state.name)}</div>
+          <div class="ch-loc"><span class="ch-loc-pin">${icoPin()}</span> Today's location</div>
+          <div class="ch-search-box">${icoSearch()} Search coffee and more</div>
+          <div class="ch-util-actions">
+            <span class="ch-util-item">${icoUser()} Account</span>
+            <span class="ch-util-item">${icoClipboard()} Orders</span>
+            <span class="ch-util-item">${icoHeart()} Favorite</span>
+            <span class="ch-util-item">${icoBag()} Cart</span>
+          </div>
+        </div>
+        <nav class="ch-nav hide-scrollbar">
+          ${(state.categories || []).map((c, i) => `<span class="ch-nav-item ${i === 0 ? "on" : ""}">${escapeHTML(c)}</span>`).join("")}
+          <span class="ch-nav-item">At Home</span>
+          <span class="ch-nav-item">Merchandise</span>
+          <span class="ch-nav-item">Rewards</span>
+          <span class="ch-nav-item">Gift Cards</span>
+        </nav>
+
+        <section class="ch-promo">
+          <div>
+            <div class="ch-promo-h">${escapeHTML(state.tagline || "Today's brightest new drinks")}</div>
+            <p class="ch-promo-p">${escapeHTML(state.subtagline || "Introducing this season's lineup, fresh on the menu and ready to order in seconds.")}</p>
+            <a class="ch-promo-cta">Order now →</a>
+          </div>
+          <div class="ch-promo-tiles">
+            ${Array.from({length: 8}, (_, i) => {
+              const it = promoCells[i % Math.max(promoCells.length, 1)] || {};
+              return `<div class="ch-tile">${imgOr(it)}</div>`;
+            }).join("")}
+          </div>
+        </section>
+
+        ${groups.map(([cat, list]) => `
+          <section class="ch-row">
+            <div class="ch-row-head">
+              <h2 class="ch-row-title">${escapeHTML(cat)}</h2>
+              <div class="ch-row-arrows">
+                <button class="ch-arrow" data-scroll="-1">${icoArrowL()}</button>
+                <button class="ch-arrow" data-scroll="1">${icoArrowR()}</button>
+              </div>
+            </div>
+            <div class="ch-scroll hide-scrollbar">
+              ${list.map((it, i) => `
+                <article class="ch-card reveal" style="--i:${i}">
+                  <div class="ch-card-photo">
+                    ${imgOr(it)}
+                    <div class="ch-card-badge">${["Season", "New", "Popular"][i % 3]}</div>
+                    <div class="ch-card-heart">${icoHeartLine()}</div>
+                  </div>
+                  <div class="ch-card-name">${escapeHTML(it.name)}</div>
+                  <div class="ch-card-foot">
+                    <div class="ch-card-price">${money(it.price)}</div>
+                    <button class="ch-plus" aria-label="Add">+</button>
+                  </div>
+                </article>
+              `).join("")}
+            </div>
+          </section>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // ─── BOUTIQUE — Editorial shop with sidebar filters ──────────────────
+  function renderBoutique(state) {
+    const items = state.items;
+    return `
+      <div class="bq-utility">
+        <div class="bq-utility-left">
+          <span>Call Us: +1 (555) 123-0000</span>
+          <span>Sign up and GET <strong>20% OFF</strong> for your first order. <span class="bq-utility-cta">Sign up now</span></span>
+        </div>
+        <div class="bq-utility-socials">
+          <a aria-label="Instagram">${icoInsta()}</a>
+          <a aria-label="Twitter">${icoX()}</a>
+          <a aria-label="Pinterest">${icoPin2()}</a>
+          <a aria-label="YouTube">${icoYT()}</a>
+        </div>
+      </div>
+
+      <header class="bq-header">
+        <div class="bq-brand"><span class="bq-brand-mark">✿</span> ${escapeHTML(state.name || "Boutique")}.</div>
+        <nav class="bq-nav">
+          ${["Home", "Shop", "Skin Care", "Makeup", "Hair Care", "About Us", "Blogs"].map((n, i) => `<span class="bq-nav-item ${i === 1 ? "on" : ""}">${n}</span>`).join("")}
+        </nav>
+        <div class="bq-header-icons">
+          ${icoSearch()} ${icoHeartLine()} ${icoBag()} ${icoUser()}
+        </div>
+      </header>
+
+      <section class="bq-hero">
+        <h1 class="bq-hero-title">Shop</h1>
+        <div class="bq-hero-crumb"><a>Home</a> / Shop</div>
+      </section>
+
+      <div class="bq-body">
+        <aside class="bq-filter">
+          <div class="bq-filter-h">Filter Options</div>
+          <div class="bq-fgroup">
+            <div class="bq-fgroup-h">By Categories</div>
+            <div class="bq-flist">
+              ${(state.categories || []).map((c, i) => `<label class="bq-fopt"><input type="checkbox" ${i === 0 ? "checked" : ""}/> ${escapeHTML(c)}</label>`).join("")}
+            </div>
+          </div>
+          <div class="bq-fgroup">
+            <div class="bq-fgroup-h">By Style</div>
+            <div class="bq-flist">
+              ${["Classic", "Modern", "Seasonal", "Signature", "House"].map((s, i) => `<label class="bq-fopt"><input type="checkbox" ${i === 1 ? "checked" : ""}/> ${s}</label>`).join("")}
+            </div>
+          </div>
+          <div class="bq-fgroup">
+            <div class="bq-fgroup-h">Price</div>
+            <div class="bq-fprice-lbl">$10.00 — $100.00</div>
+            <div class="bq-frange"><span class="bq-fknob" style="left:5%"></span><span class="bq-fknob" style="left:65%"></span></div>
+          </div>
+          <div class="bq-fgroup">
+            <div class="bq-fgroup-h">Review</div>
+            <div class="bq-flist">
+              ${[5, 4, 3, 2, 1].map(n => `<label class="bq-fopt bq-stars-row"><input type="checkbox"/> <span class="bq-stars">${"★".repeat(n)}${"☆".repeat(5 - n)}</span></label>`).join("")}
+            </div>
+          </div>
+          <div class="bq-fgroup">
+            <div class="bq-fgroup-h">By Promotions</div>
+            <div class="bq-flist">
+              <label class="bq-fopt"><input type="checkbox"/> New Arrivals</label>
+              <label class="bq-fopt"><input type="checkbox" checked/> Best Sellers</label>
+              <label class="bq-fopt"><input type="checkbox"/> On Sale</label>
+            </div>
+          </div>
+          <div class="bq-fgroup">
+            <div class="bq-fgroup-h">Availability</div>
+            <div class="bq-flist">
+              <label class="bq-fopt"><input type="checkbox" checked/> In Stock</label>
+              <label class="bq-fopt"><input type="checkbox"/> Out of Stock</label>
+            </div>
+          </div>
+        </aside>
+
+        <main>
+          <div class="bq-results-head">
+            <div class="bq-results-count">Showing 1–${items.length} of ${items.length} results</div>
+            <div class="bq-sort">Sort by: <span class="bq-sort-box">Default Sorting ▾</span></div>
+          </div>
+          <div class="bq-active-filters">
+            <span class="bq-af-label">Active Filter</span>
+            <span class="bq-af-chip">Price: $10.00 — $100.00 <span class="bq-af-x">×</span></span>
+            <span class="bq-af-chip">Best Seller <span class="bq-af-x">×</span></span>
+            <span class="bq-af-chip">In Stock <span class="bq-af-x">×</span></span>
+            <span class="bq-clear">Clear All</span>
+          </div>
+          <div class="bq-grid">
+            ${items.map((it, i) => {
+              const off = [50, 20, 30, 10, 50, 50][i % 6];
+              const rate = (4.5 + (i % 5) * 0.1).toFixed(1);
+              const orig = (Number(it.price) * (100 / (100 - off))).toFixed(2);
+              return `
+                <article class="bq-card reveal" style="--i:${i}">
+                  <div class="bq-card-photo">
+                    ${imgOr(it)}
+                    <div class="bq-off">${off}% off</div>
+                    <div class="bq-actions">
+                      <button class="bq-action-btn" aria-label="Save">${icoHeartLine()}</button>
+                      <button class="bq-action-btn" aria-label="View">${icoExpand()}</button>
+                      <button class="bq-action-btn" aria-label="Add">${icoBag()}</button>
+                    </div>
+                  </div>
+                  <div class="bq-card-meta">
+                    <span class="bq-card-cat">${escapeHTML(it.category || "")}</span>
+                    <span class="bq-card-rating">★ ${rate}</span>
+                    <div class="bq-card-name">${escapeHTML(it.name)}</div>
+                    <div class="bq-card-prices">${money(it.price)} <span class="bq-card-price-strike">$${orig}</span></div>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+          <div class="bq-pages">
+            <button class="bq-page on">1</button>
+            <button class="bq-page">2</button>
+            <button class="bq-page">3</button>
+            <span style="color:var(--bm-muted);font-size:.85rem;">…</span>
+            <button class="bq-page">10</button>
+            <button class="bq-page">›</button>
+          </div>
+        </main>
+      </div>
+    `;
+  }
+
+  // ─── SHACK — Shake-Shack-style diner ─────────────────────────────────
+  function renderShack(state) {
+    const cats = state.categories || [];
+    const activeCat = window.__activeCat || cats[0] || "";
+    const items = activeCat ? state.items.filter(it => it.category === activeCat) : state.items;
+    return `
+      <div class="sh-shell">
+        <div class="sh-utility">
+          <div class="sh-utility-marquee">
+            ${Array.from({length: 2}).map(() => `
+              <span class="sh-utility-item sh-utility-dot">Fresh daily — hand made — in house</span>
+              <span class="sh-utility-item sh-utility-dot">Free delivery over $25</span>
+              <span class="sh-utility-item sh-utility-dot">Open until 11pm</span>
+              <span class="sh-utility-item sh-utility-dot">Online order ready in 15 min</span>
+            `).join("")}
+          </div>
+        </div>
+        <nav class="sh-nav">
+          <div class="sh-brand"><span>${escapeHTML((state.name || "Shack").split(" ")[0])}</span></div>
+          <div class="sh-nav-items">
+            <span class="sh-nav-item on">Menu</span>
+            <span class="sh-nav-item">Locations</span>
+            <span class="sh-nav-item">Story</span>
+            <span class="sh-nav-item">Rewards</span>
+          </div>
+          <button class="sh-order">Order →</button>
+        </nav>
+
+        <section class="sh-hero">
+          <div class="sh-eyebrow">${escapeHTML((state.subtagline || "Made fresh today").toUpperCase())}</div>
+          <h1 class="sh-h1">${heroSplit(state.tagline)}</h1>
+        </section>
+
+        <div class="sh-cats hide-scrollbar">
+          ${cats.map(c => `<button class="sh-cat" data-c="${escapeAttr(c)}" aria-pressed="${c === activeCat}">${escapeHTML(c)}</button>`).join("")}
+        </div>
+
+        <div class="sh-grid">
+          ${items.length === 0 ? `<div class="sh-empty">No items in this category yet.</div>` : items.map((it, i) => `
+            <article class="sh-card reveal" style="--i:${i}">
+              <div class="sh-card-body">
+                <div class="sh-card-cat">${escapeHTML(it.category || "Menu")}</div>
+                <h3 class="sh-card-name">${escapeHTML(it.name)}</h3>
+                ${it.description ? `<p class="sh-card-desc">${escapeHTML(it.description)}</p>` : ""}
+                <div class="sh-card-foot">
+                  <div class="sh-card-price">${money(it.price)}</div>
+                  <button class="sh-card-cta">Order</button>
+                </div>
+              </div>
+              <div class="sh-card-photo">${imgOr(it)}</div>
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  // ─── Small render helpers ─────────────────────────────────────────────
+  function imgOr(it) {
+    if (it && it.image) return `<img src="${escapeAttr(it.image)}" alt="${escapeAttr(it.name || "")}" onerror="this.onerror=null;this.replaceWith(_swatch())"/>`;
+    return `<div style="width:100%;height:100%;background:linear-gradient(135deg, color-mix(in srgb, var(--bm-accent) 25%, var(--bm-surface)), var(--bm-surface));"></div>`;
+  }
+  // Used by onerror to swap a broken image with a swatch.
+  window._swatch = function () {
+    const d = document.createElement("div");
+    d.style.cssText = "width:100%;height:100%;background:linear-gradient(135deg, color-mix(in srgb, var(--bm-accent) 25%, var(--bm-surface)), var(--bm-surface));";
+    return d;
+  };
+  function money(n) { const v = Number(n) || 0; return "$ " + v.toFixed(2); }
+  function escapeHTML(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]); }
+  function escapeAttr(s) { return escapeHTML(s); }
+  function initials(name) {
+    const t = String(name || "BM").trim().split(/\s+/);
+    return (t[0]?.[0] || "B") + (t[1]?.[0] || "");
+  }
+  function heroSplit(t) {
+    const s = String(t || "Fresh today").trim();
+    const parts = s.split(/\s+/);
+    if (parts.length < 2) return escapeHTML(s);
+    const last = parts.pop();
+    return `${escapeHTML(parts.join(" "))} <span class="ital">${escapeHTML(last)}</span>`;
+  }
+
+  // ─── Tiny inline-icon library (no external deps) ─────────────────────
+  function ico(svg) { return svg; }
+  function icoHome()  { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V21h14V9.5"/></svg>`); }
+  function icoGrid()  { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="100%" height="100%"><circle cx="7" cy="7" r="2"/><circle cx="17" cy="7" r="2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>`); }
+  function icoBag()   { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg>`); }
+  function icoClock() { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="100%" height="100%"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>`); }
+  function icoUsers() { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="100%" height="100%"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/></svg>`); }
+  function icoCog()   { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="100%" height="100%"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.5 5.5l2 2M16.5 16.5l2 2M5.5 18.5l2-2M16.5 7.5l2-2"/></svg>`); }
+  function icoHeart() { return ico(`<svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%"><path d="M12 21s-7-4.5-9.5-9C.7 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23.3 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>`); }
+  function icoHeartLine() { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M12 21s-7-4.5-9.5-9C.7 8.5 3 5 6.5 5c2 0 3.5 1 5.5 3 2-2 3.5-3 5.5-3C21 5 23.3 8.5 21.5 12 19 16.5 12 21 12 21z"/></svg>`); }
+  function icoLogout(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M14 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l-5-5 5-5"/><path d="M5 12h12"/></svg>`); }
+  function icoSearch(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`); }
+  function icoFilter(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" width="14" height="14"><circle cx="7" cy="8" r="2"/><circle cx="17" cy="16" r="2"/><path d="M9 8h12M3 16h12"/></svg>`); }
+  function icoGift()  { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="16" height="16"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M3 14h18M12 10v11"/><path d="M8 10c0-3 4-3 4 0M16 10c0-3-4-3-4 0"/></svg>`); }
+  function icoPin()   { return ico(`<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 22s7-7.6 7-13a7 7 0 10-14 0c0 5.4 7 13 7 13zm0-10a3 3 0 110-6 3 3 0 010 6z"/></svg>`); }
+  function icoUser()  { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><circle cx="12" cy="8" r="3.5"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>`); }
+  function icoClipboard(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="16" height="16"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/></svg>`); }
+  function icoArrowL(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" width="16" height="16"><path d="M15 6l-6 6 6 6"/></svg>`); }
+  function icoArrowR(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" width="16" height="16"><path d="M9 6l6 6-6 6"/></svg>`); }
+  function icoExpand(){ return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" width="16" height="16"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>`); }
+  function icoInsta() { return ico(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>`); }
+  function icoX()     { return ico(`<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M17.4 3H21l-7.4 8.5L22 21h-6.8l-5.3-6.5L4 21H.4l7.9-9L1 3h7l4.8 6.1L17.4 3z"/></svg>`); }
+  function icoPin2()  { return ico(`<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 7v9l-1 3 4-3 1-9z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>`); }
+  function icoYT()    { return ico(`<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M10 9.5v5l5-2.5z" fill="white"/></svg>`); }
+
+  // ─── Reveal observer ─────────────────────────────────────────────────
+  let revealObserver = null;
+  function armReveals() {
+    if (revealObserver) revealObserver.disconnect();
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      document.querySelectorAll(".reveal").forEach(el => el.classList.add("in-view"));
+      return;
+    }
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add("in-view");
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: "0px 0px -6% 0px" });
+    document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
+  }
+
+  // ─── Wire up interactions per layout (category click, scroll arrows) ──
+  function wireInteractions() {
+    const layout = document.body.getAttribute("data-layout");
+    document.querySelectorAll("[data-c]").forEach(b => {
+      b.onclick = () => { window.__activeCat = b.dataset.c; render(); };
+    });
+    if (layout === "chain") {
+      document.querySelectorAll("[data-scroll]").forEach(btn => {
+        btn.onclick = () => {
+          const row = btn.closest(".ch-row")?.querySelector(".ch-scroll");
+          if (row) row.scrollBy({ left: Number(btn.dataset.scroll) * 240, behavior: "smooth" });
+        };
+      });
+      document.querySelectorAll(".ch-card-heart").forEach(h => {
+        h.onclick = (e) => { e.stopPropagation(); h.classList.toggle("on"); };
+      });
+    }
+    if (layout === "purr") {
+      document.querySelectorAll(".purr-size-pill").forEach(pill => {
+        pill.onclick = () => {
+          const sib = pill.parentElement.querySelectorAll(".purr-size-pill");
+          sib.forEach(p => p.classList.remove("on"));
+          pill.classList.add("on");
+        };
+      });
+      document.querySelectorAll(".purr-mode-btn").forEach(btn => {
+        btn.onclick = () => {
+          btn.parentElement.querySelectorAll(".purr-mode-btn").forEach(b => b.classList.remove("on"));
+          btn.classList.add("on");
+        };
+      });
+      document.querySelectorAll(".purr-add").forEach(btn => {
+        btn.onclick = () => {
+          btn.classList.toggle("added");
+          btn.textContent = btn.classList.contains("added") ? "Added to cart" : "Add to cart";
+        };
+      });
+    }
+    if (layout === "sprout") {
+      document.querySelectorAll(".sp-fgroup-h").forEach(h => {
+        h.onclick = () => h.parentElement.classList.toggle("collapsed");
+      });
+    }
+  }
+
+  // ─── Motion choreography (per-template signatures via Motion lib) ─────
+  const Motion = window.Motion;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let motionCleanups = [];
+  function disposeMotion() {
+    motionCleanups.forEach(fn => { try { fn(); } catch {} });
+    motionCleanups = [];
+  }
+
+  function applyMotion() {
+    disposeMotion();
+    wireInteractions();
+    if (!Motion || reduceMotion) return;
+    const layout = document.body.getAttribute("data-layout");
+    const ease = [0.16, 1, 0.3, 1];
+
+    // ── PURR — orange filter pill spring, cards stagger, cart slides in
+    if (layout === "purr") {
+      const filter = document.querySelector(".purr-filter");
+      if (filter) Motion.animate(filter, { scale: [0.92, 1], opacity: [0, 1] }, { duration: 0.6, easing: ease, delay: 0.05 });
+      const cart = document.querySelector(".purr-cart");
+      if (cart) Motion.animate(cart, { x: [40, 0], opacity: [0, 1] }, { duration: 0.7, easing: ease, delay: 0.1 });
+      const side = document.querySelector(".purr-side");
+      if (side) Motion.animate(side, { x: [-30, 0], opacity: [0, 1] }, { duration: 0.7, easing: ease });
+      const place = document.querySelector(".purr-place");
+      if (place) {
+        const onE = () => Motion.animate(place, { scale: 1.04 }, { type: "spring", stiffness: 300, damping: 18 });
+        const onL = () => Motion.animate(place, { scale: 1 }, { type: "spring", stiffness: 300, damping: 18 });
+        place.addEventListener("mouseenter", onE); place.addEventListener("mouseleave", onL);
+        motionCleanups.push(() => { place.removeEventListener("mouseenter", onE); place.removeEventListener("mouseleave", onL); });
+      }
+    }
+
+    // ── SPROUT — title type rises, filter pops, chips ripple in
+    if (layout === "sprout") {
+      const title = document.querySelector(".sp-title");
+      if (title) Motion.animate(title, { y: [24, 0], opacity: [0, 1], filter: ["blur(8px)", "blur(0px)"] }, { duration: 0.9, easing: ease });
+      const filter = document.querySelector(".sp-filter");
+      if (filter) Motion.animate(filter, { x: [-20, 0], opacity: [0, 1] }, { duration: 0.7, easing: ease, delay: 0.1 });
+      document.querySelectorAll(".sp-chip").forEach((chip, i) => {
+        Motion.animate(chip, { y: [10, 0], opacity: [0, 1] }, { duration: 0.5, easing: ease, delay: 0.3 + i * 0.08 });
+      });
+      // Sale-badge subtle pulse
+      document.querySelectorAll(".sp-sale").forEach(b => {
+        const stop = Motion.animate(b, { rotate: [-2, 2, -2] }, { duration: 3, repeat: Infinity, easing: "ease-in-out" });
+        motionCleanups.push(() => stop?.cancel?.());
+      });
+    }
+
+    // ── CHAIN — promo headline blur-in, tiles cascade, plus button spin
+    if (layout === "chain") {
+      const h = document.querySelector(".ch-promo-h");
+      if (h) Motion.animate(h, { y: [22, 0], opacity: [0, 1], filter: ["blur(10px)", "blur(0px)"] }, { duration: 1.0, easing: ease, delay: 0.15 });
+      document.querySelectorAll(".ch-tile").forEach((t, i) => {
+        Motion.animate(t, { scale: [0.85, 1], opacity: [0, 1] }, { duration: 0.7, easing: ease, delay: 0.25 + i * 0.05 });
+      });
+      document.querySelectorAll(".ch-plus").forEach(btn => {
+        const onDown = () => Motion.animate(btn, { scale: 0.85 }, { type: "spring", stiffness: 500, damping: 14 });
+        const onUp = () => Motion.animate(btn, { scale: 1 }, { type: "spring", stiffness: 500, damping: 14 });
+        btn.addEventListener("pointerdown", onDown); btn.addEventListener("pointerup", onUp); btn.addEventListener("pointerleave", onUp);
+        motionCleanups.push(() => { btn.removeEventListener("pointerdown", onDown); btn.removeEventListener("pointerup", onUp); btn.removeEventListener("pointerleave", onUp); });
+      });
+      document.querySelectorAll(".ch-card-heart").forEach(h => {
+        h.addEventListener("click", () => {
+          Motion.animate(h, { scale: [1, 1.3, 1] }, { duration: 0.45, easing: ease });
+        });
+      });
+    }
+
+    // ── BOUTIQUE — hero title blur-rise, filter rail slides, ratings stars trickle
+    if (layout === "boutique") {
+      const title = document.querySelector(".bq-hero-title");
+      if (title) Motion.animate(title, { y: [30, 0], opacity: [0, 1], filter: ["blur(12px)", "blur(0px)"] }, { duration: 1.1, easing: ease });
+      const filter = document.querySelector(".bq-filter");
+      if (filter) Motion.animate(filter, { x: [-20, 0], opacity: [0, 1] }, { duration: 0.8, easing: ease, delay: 0.2 });
+      // Page-pill spring on click
+      document.querySelectorAll(".bq-page").forEach(p => {
+        p.addEventListener("click", () => {
+          document.querySelectorAll(".bq-page").forEach(x => x.classList.remove("on"));
+          p.classList.add("on");
+          Motion.animate(p, { scale: [0.9, 1] }, { type: "spring", stiffness: 400, damping: 16 });
+        });
+      });
+    }
+
+    // ── SHACK — H1 letter-rise, brand wiggle, marquee already CSS
+    if (layout === "shack") {
+      const h1 = document.querySelector(".sh-h1");
+      if (h1) Motion.animate(h1, { y: [40, 0], opacity: [0, 1] }, { duration: 1.0, easing: ease });
+      const ital = document.querySelector(".sh-h1 .ital");
+      if (ital) Motion.animate(ital, { rotate: [-6, 0], opacity: [0, 1], y: [22, 0] }, { duration: 0.9, easing: ease, delay: 0.35 });
+      const brand = document.querySelector(".sh-brand");
+      if (brand) {
+        const onE = () => Motion.animate(brand, { rotate: [-6, -4] }, { type: "spring", stiffness: 200, damping: 8 });
+        const onL = () => Motion.animate(brand, { rotate: [-4, -6] }, { type: "spring", stiffness: 200, damping: 8 });
+        brand.addEventListener("mouseenter", onE); brand.addEventListener("mouseleave", onL);
+        motionCleanups.push(() => { brand.removeEventListener("mouseenter", onE); brand.removeEventListener("mouseleave", onL); });
+      }
+      // Each card slides in from the side it sits on
+      document.querySelectorAll(".sh-card").forEach((c, i) => {
+        const fromX = i % 2 === 0 ? -24 : 24;
+        Motion.animate(c, { x: [fromX, 0], opacity: [0, 1] }, { duration: 0.8, easing: ease, delay: 0.05 + (i % 4) * 0.07 });
+      });
+      // Scroll-driven hero parallax on .sh-h1
+      if (Motion.scroll && h1) {
+        const hero = document.querySelector(".sh-hero");
+        const stop = Motion.scroll(
+          Motion.animate(h1, { opacity: [1, 0.3], y: [0, -40], scale: [1, 0.95] }),
+          { target: hero, offset: ["start start", "end start"] }
+        );
+        motionCleanups.push(stop);
+      }
+    }
+  }
+
+  // ─── Message protocol (used by landing demo iframe) ──────────────────
+  window.addEventListener("message", (e) => {
+    const d = e.data;
+    if (!d || typeof d !== "object") return;
+    if (d.type === "bm-refresh") { window.__demoState = null; render(); }
+    else if (d.type === "bm-state") { window.__demoState = d.state; window.__activeCat = null; render(); }
+    else if (d.type === "bm-scroll") { smoothScrollTo(d.y || 0, d.duration || 1200); }
+  });
+  function smoothScrollTo(targetY, duration) {
+    const startY = window.scrollY;
+    const dist = targetY - startY;
+    const start = performance.now();
+    function step(t) {
+      const p = Math.min(1, (t - start) / duration);
+      const eased = 0.5 - 0.5 * Math.cos(Math.PI * p);
+      window.scrollTo(0, startY + dist * eased);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  window.addEventListener("storage", render);
+
+  // Bootstrap: when opened via a tenant URL (?r=slug), fetch the published
+  // menu before the first render so phones without localStorage see the
+  // right thing immediately instead of flashing the empty state.
+  (async function () {
+    const slug = (params.get("r") || "").trim();
+    if (slug) {
+      try {
+        const res = await fetch(`/api/menu?r=${encodeURIComponent(slug)}`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.menu) window.__remoteMenu = data.menu;
+        }
+      } catch (err) {
+        console.warn("[menu] remote fetch failed:", err && err.message);
+      }
+    }
+    render();
+  })();
+</script>
+<script src="./js/order-flow.js"></script>
+</body>
+</html>

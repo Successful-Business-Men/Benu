@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Builder: Better Menu</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body {
+    background-color: #FBF7EE;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .font-serif { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; }
+  .swatch { width: 28px; height: 28px; border-radius: 999px; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  .swatch.active { outline: 2px solid #1a1a1a; outline-offset: 2px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="sticky top-0 z-30 border-b border-neutral-200 bg-[#FBF7EE]/95 backdrop-blur">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-3 sm:px-10">
+    <a href="./index.html" class="flex items-center gap-2">
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#FDA172"/>
+        <path d="M14 22c2-4 6-6 10-6s8 2 10 6M14 26c2 4 6 6 10 6s8-2 10-6"
+              stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <span class="font-serif text-lg text-neutral-900">Better Menu</span>
+      <span class="ml-2 hidden text-xs uppercase tracking-wider text-neutral-500 sm:inline">Builder</span>
+    </a>
+    <div class="flex items-center gap-2">
+      <a href="./menu.html" target="_blank"
+         class="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-100 sm:text-sm sm:px-4 sm:py-2"
+         title="Open the live menu in a new tab">
+        Open menu
+      </a>
+      <a href="./kitchen.html" target="_blank"
+         class="hidden sm:inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-100 sm:text-sm sm:px-4 sm:py-2">
+        Open kitchen
+      </a>
+      <button id="ai-review-btn"
+              class="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-100 sm:text-sm sm:px-4 sm:py-2"
+              title="AI design review of your menu">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M5.6 18.4l12.8-12.8"/></svg>
+        AI review
+      </button>
+      <button id="share-btn"
+              class="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-100 sm:text-sm sm:px-4 sm:py-2"
+              title="Copy a shareable link that works on any device">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Share link
+      </button>
+      <button id="save-btn"
+              class="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-3 py-1.5 text-xs font-medium text-[#FBF7EE] hover:bg-neutral-800 sm:text-sm sm:px-4 sm:py-2">
+        Save
+      </button>
+      <button id="publish-btn"
+              class="hidden items-center gap-2 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-800 sm:text-sm sm:px-4 sm:py-2"
+              title="Push your edits to your live menu — the QR codes already on your tables update instantly">
+        Publish to live
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="mx-auto grid max-w-7xl gap-8 px-6 py-8 sm:px-10 lg:grid-cols-[380px_1fr]">
+
+  <!-- Left: form -->
+  <section class="space-y-6">
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-200">
+      <h2 class="font-serif text-xl text-neutral-900">Restaurant</h2>
+      <label class="mt-3 block text-sm">
+        <span class="text-neutral-700">Name</span>
+        <input id="r-name" type="text" placeholder="Shake Shake Fresh Noodle"
+               class="mt-1 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"/>
+      </label>
+      <label class="mt-3 block text-sm">
+        <span class="text-neutral-700">Tagline</span>
+        <input id="r-tagline" type="text" placeholder="Fresh, hand-pulled."
+               class="mt-1 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"/>
+      </label>
+      <label class="mt-3 block text-sm">
+        <span class="text-neutral-700">Sub-tagline</span>
+        <input id="r-subtagline" type="text" placeholder="Pick a bowl, add a spice level."
+               class="mt-1 w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"/>
+      </label>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-200">
+      <h2 class="font-serif text-xl text-neutral-900">Template</h2>
+      <div id="templates" class="mt-3 grid grid-cols-3 gap-2"></div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-200">
+      <h2 class="font-serif text-xl text-neutral-900">Palette</h2>
+      <div id="palettes" class="mt-3 space-y-2"></div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-200">
+      <div class="flex items-center justify-between">
+        <h2 class="font-serif text-xl text-neutral-900">Custom colors</h2>
+        <button id="reset-colors" class="text-[11px] text-neutral-500 hover:text-neutral-900">Reset to palette</button>
+      </div>
+      <p class="mt-1 text-xs text-neutral-500">Override any color from the palette above. Affects every template.</p>
+      <div id="custom-colors" class="mt-3 grid grid-cols-2 gap-2"></div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-200">
+      <div class="flex items-center justify-between">
+        <h2 class="font-serif text-xl text-neutral-900">Categories</h2>
+        <button id="add-cat" class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-200">+ Add</button>
+      </div>
+      <div id="cats" class="mt-3 space-y-2"></div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-neutral-200">
+      <div class="flex items-center justify-between">
+        <h2 class="font-serif text-xl text-neutral-900">Items</h2>
+        <button id="add-item" class="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-800 hover:bg-neutral-200">+ Add item</button>
+      </div>
+      <div id="items" class="mt-3 space-y-3"></div>
+    </div>
+
+    <div class="rounded-2xl border border-dashed border-neutral-300 p-5 text-sm text-neutral-600">
+      Prefer help? <a href="./index.html#contact" class="font-medium text-[#E88A5C] hover:underline">Have our team build this for you →</a>
+    </div>
+  </section>
+
+  <!-- Right: live preview -->
+  <section class="space-y-3">
+    <div class="flex items-center gap-2">
+      <button id="pv-menu" data-active="true"
+              class="rounded-full bg-neutral-900 px-4 py-2 text-sm font-medium text-[#FBF7EE]">Menu preview</button>
+      <button id="pv-kitchen"
+              class="rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">Kitchen preview</button>
+    </div>
+    <iframe id="preview" src="./menu.html" class="h-[80vh] w-full rounded-2xl border border-neutral-200 bg-white shadow-sm"></iframe>
+  </section>
+</main>
+
+<script src="./js/store.js"></script>
+<script src="./js/images.js"></script>
+<script src="./js/ai-client.js"></script>
+<script>
+  // Read templates and palettes from the shared store so this stays in sync with menu.html.
+  const TEMPLATES = Object.entries(BMStore.TEMPLATES).map(([id, t]) => ({ id, name: t.label }));
+  const PALETTES  = Object.entries(BMStore.PALETTES).map(([id, p]) => ({ id, name: titleCasePalette(id), ...p }));
+  function titleCasePalette(id) { return id[0].toUpperCase() + id.slice(1); }
+
+  // ----- Load / defaults -----
+  const params = new URLSearchParams(location.search);
+  const presetTpl = params.get("template");
+
+  const state = BMStore.load() || {
+    name: "Shake Shake Fresh Noodle",
+    tagline: "Fresh, hand-pulled.",
+    subtagline: "Pick a bowl, add a spice level, pair with a drink.",
+    template: presetTpl || "sprout",
+    palette: "forest",
+    categories: ["Noodles", "Sides", "Dumplings", "Drinks"],
+    items: [
+      { name: "Chili Oil Noodles", price: 12.50, category: "Noodles", description: "Hand-pulled wheat noodles, scallion oil, toasted sesame, crispy garlic.", spice: 2, image: BMImages.forItem("Chili Oil Noodles") },
+      { name: "Wonton Soup",       price: 10.00, category: "Noodles", description: "Eight pork and shrimp wontons in a clear ginger broth.", spice: 0, image: BMImages.forItem("Wonton Soup") },
+      { name: "Dan Dan Mian",      price: 13.50, category: "Noodles", description: "Sichuan pepper, minced pork, preserved mustard greens, peanut.", spice: 3, image: BMImages.forItem("Dan Dan Mian") },
+      { name: "Yuzu Soda",         price: 4.00,  category: "Drinks",  description: "Cold-pressed yuzu, sparkling, lightly sweetened.", spice: 0, image: BMImages.forItem("Yuzu Soda") },
+      { name: "Pork Dumplings",    price: 9.00,  category: "Dumplings", description: "Six pan-fried, sesame, black vinegar dipping sauce.", spice: 0, image: BMImages.forItem("Pork Dumplings") },
+      { name: "Smashed Cucumber",  price: 7.00,  category: "Sides",   description: "Garlic, chili oil, black vinegar, toasted sesame.", spice: 1, image: BMImages.forItem("Smashed Cucumber") },
+    ],
+  };
+  if (presetTpl && TEMPLATES.find(t => t.id === presetTpl)) state.template = presetTpl;
+
+  BMStore.save(state); // ensure preview iframes pick something up immediately
+
+  // ----- Render controls -----
+  const $ = (id) => document.getElementById(id);
+  $("r-name").value = state.name;
+  $("r-tagline").value = state.tagline;
+  $("r-subtagline").value = state.subtagline;
+
+  function renderTemplates() {
+    $("templates").innerHTML = TEMPLATES.map(t => `
+      <button data-tpl="${t.id}"
+              class="rounded-xl border ${state.template === t.id ? "border-neutral-900 bg-neutral-900 text-[#FBF7EE]" : "border-neutral-300 bg-white text-neutral-800 hover:bg-neutral-100"} px-3 py-2 text-sm">
+        ${t.name}
+      </button>
+    `).join("");
+    $("templates").querySelectorAll("button").forEach(b => {
+      b.onclick = () => { state.template = b.dataset.tpl; commit(); };
+    });
+  }
+
+  function renderPalettes() {
+    $("palettes").innerHTML = PALETTES.map(p => `
+      <button data-pal="${p.id}"
+              class="flex w-full items-center gap-3 rounded-xl border ${state.palette === p.id ? "border-neutral-900" : "border-neutral-200 hover:border-neutral-400"} bg-white px-3 py-2 text-left">
+        <span class="flex gap-1">
+          <span class="swatch" style="background:${p.bg}"></span>
+          <span class="swatch" style="background:${p.accent}"></span>
+          <span class="swatch" style="background:${p.soft}"></span>
+        </span>
+        <span class="text-sm text-neutral-800">${p.name}</span>
+      </button>
+    `).join("");
+    $("palettes").querySelectorAll("button").forEach(b => {
+      b.onclick = () => {
+        state.palette = b.dataset.pal;
+        // Switching palettes also wipes custom overrides so the new palette shows cleanly.
+        state.customColors = null;
+        commit();
+      };
+    });
+  }
+
+  // Custom color overrides. Renders 4 color inputs (bg, text, accent, muted).
+  // Saved as state.customColors; applyTheme picks these up over the palette.
+  const COLOR_FIELDS = [
+    { key: "bg",     label: "Background" },
+    { key: "text",   label: "Text" },
+    { key: "accent", label: "Accent" },
+    { key: "muted",  label: "Muted" },
+  ];
+  function renderCustomColors() {
+    const pal = BMStore.PALETTES[state.palette] || {};
+    const cc = state.customColors || {};
+    $("custom-colors").innerHTML = COLOR_FIELDS.map(f => {
+      const value = cc[f.key] || pal[f.key] || "#000000";
+      return `
+        <label class="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-2 py-1.5 cursor-pointer hover:border-neutral-400">
+          <input data-color="${f.key}" type="color" value="${value}" class="h-7 w-7 cursor-pointer rounded border-0 bg-transparent p-0"/>
+          <span class="text-xs text-neutral-700">${f.label}</span>
+        </label>`;
+    }).join("");
+    $("custom-colors").querySelectorAll("input[data-color]").forEach(inp => {
+      inp.addEventListener("input", () => {
+        state.customColors = state.customColors || {};
+        state.customColors[inp.dataset.color] = inp.value;
+        commit(false);
+      });
+    });
+  }
+  $("reset-colors").onclick = () => { state.customColors = null; commit(); };
+
+  function renderCats() {
+    $("cats").innerHTML = state.categories.map((c, i) => `
+      <div class="flex items-center gap-2">
+        <input data-cat-idx="${i}" value="${escapeHTML(c)}"
+               class="flex-1 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-neutral-900 focus:outline-none"/>
+        <button data-del-cat="${i}" class="rounded-full px-2 py-1 text-xs text-neutral-500 hover:bg-neutral-100">Remove</button>
+      </div>
+    `).join("");
+    $("cats").querySelectorAll("input[data-cat-idx]").forEach(inp => {
+      inp.oninput = () => { state.categories[+inp.dataset.catIdx] = inp.value; commit(false); };
+    });
+    $("cats").querySelectorAll("button[data-del-cat]").forEach(btn => {
+      btn.onclick = () => { state.categories.splice(+btn.dataset.delCat, 1); commit(); };
+    });
+  }
+
+  function renderItems() {
+    $("items").innerHTML = state.items.map((it, i) => `
+      <div class="rounded-xl border border-neutral-200 bg-white p-3">
+        <div class="flex items-start gap-3">
+          <label class="relative flex-none h-16 w-16 cursor-pointer overflow-hidden rounded-lg border border-neutral-300 bg-neutral-100 hover:border-neutral-900"
+                 title="Upload a photo">
+            ${it.image ? `<img src="${escapeHTML(it.image)}" alt="" class="h-full w-full object-cover"/>` : `<span class="absolute inset-0 flex items-center justify-center text-[10px] uppercase tracking-wider text-neutral-500">photo</span>`}
+            <input data-i-photo="${i}" type="file" accept="image/*" class="hidden"/>
+            <span class="absolute right-0.5 bottom-0.5 rounded-full bg-neutral-900 px-1.5 py-0.5 text-[9px] font-medium text-white">edit</span>
+          </label>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <input data-i-name="${i}" value="${escapeHTML(it.name)}" placeholder="Item name"
+                     class="flex-1 min-w-0 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-neutral-900 focus:outline-none"/>
+              <input data-i-price="${i}" value="${it.price}" type="number" step="0.01" placeholder="0.00"
+                     class="w-20 flex-none rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm tabular-nums focus:border-neutral-900 focus:outline-none"/>
+            </div>
+            <div class="mt-2 flex items-center gap-2">
+              <select data-i-cat="${i}" class="flex-1 min-w-0 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-neutral-900 focus:outline-none">
+                ${state.categories.map(c => `<option value="${escapeHTML(c)}" ${c === it.category ? "selected" : ""}>${escapeHTML(c)}</option>`).join("")}
+              </select>
+              <select data-i-spice="${i}" class="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-neutral-900 focus:outline-none">
+                ${[0,1,2,3].map(n => `<option value="${n}" ${it.spice === n ? "selected" : ""}>${n === 0 ? "Not spicy" : "🌶️".repeat(n)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 relative">
+          <textarea data-i-desc="${i}" rows="2" placeholder="Short description"
+                    class="w-full rounded-lg border border-neutral-300 bg-white px-2 py-1.5 pr-20 text-sm focus:border-neutral-900 focus:outline-none">${escapeHTML(it.description || "")}</textarea>
+          <button data-i-gen="${i}" type="button"
+                  class="absolute right-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-neutral-900 px-2 py-1 text-[10px] font-medium text-[#FBF7EE] hover:bg-black disabled:opacity-50"
+                  title="Generate description with AI">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M5.6 18.4l12.8-12.8"/></svg>
+            AI
+          </button>
+        </div>
+        ${(it.tags && it.tags.length) ? `<div class="mt-1.5 flex flex-wrap gap-1">${it.tags.map(t => `<span class="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-neutral-700">${escapeHTML(t)}</span>`).join("")}</div>` : ""}
+        <div class="mt-2 flex items-center justify-between gap-2">
+          <button data-reset-photo="${i}" class="text-[11px] text-neutral-500 hover:text-neutral-900">Reset photo</button>
+          <button data-del-i="${i}" class="rounded-full px-2 py-1 text-xs text-neutral-500 hover:bg-neutral-100">Remove</button>
+        </div>
+      </div>
+    `).join("");
+
+    const root = $("items");
+    root.querySelectorAll("input[data-i-name]").forEach(inp => inp.oninput = () => {
+      const idx = +inp.dataset.iName;
+      state.items[idx].name = inp.value;
+      // Only auto-assign an image from the library if the user hasn't uploaded one.
+      if (!state.items[idx].image || !state.items[idx].image.startsWith("data:")) {
+        state.items[idx].image = BMImages.forItem(inp.value);
+      }
+      commit(false);
+    });
+    root.querySelectorAll("input[data-i-price]").forEach(inp => inp.oninput = () => { state.items[+inp.dataset.iPrice].price = parseFloat(inp.value) || 0; commit(false); });
+    root.querySelectorAll("select[data-i-cat]").forEach(sel => sel.onchange = () => { state.items[+sel.dataset.iCat].category = sel.value; commit(); });
+    root.querySelectorAll("select[data-i-spice]").forEach(sel => sel.onchange = () => { state.items[+sel.dataset.iSpice].spice = parseInt(sel.value, 10); commit(); });
+    root.querySelectorAll("textarea[data-i-desc]").forEach(t => t.oninput = () => { state.items[+t.dataset.iDesc].description = t.value; commit(false); });
+    root.querySelectorAll("button[data-del-i]").forEach(b => b.onclick = () => { state.items.splice(+b.dataset.delI, 1); commit(); });
+    root.querySelectorAll("button[data-reset-photo]").forEach(b => b.onclick = () => {
+      const idx = +b.dataset.resetPhoto;
+      state.items[idx].image = BMImages.forItem(state.items[idx].name);
+      commit();
+    });
+    // AI Generate button: write description + tags via /api/generate-description.
+    root.querySelectorAll("button[data-i-gen]").forEach(btn => btn.onclick = async () => {
+      const idx = +btn.dataset.iGen;
+      const it = state.items[idx];
+      if (!it.name || it.name.trim().length < 2) { flash("Add a dish name first"); return; }
+      btn.disabled = true;
+      const original = btn.innerHTML;
+      btn.innerHTML = `<span class="animate-pulse">…</span>`;
+      try {
+        const result = await BMAI.generateDescription(it.name, it.category, state.template);
+        if (!result.ok) {
+          flash(result.notConfigured ? "AI is off on this deploy" : "AI: " + result.error);
+          return;
+        }
+        state.items[idx].description = result.data.description || "";
+        state.items[idx].tags = result.data.tags || [];
+        commit();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+    // Photo upload: read file, downscale, store as data URL.
+    root.querySelectorAll("input[data-i-photo]").forEach(inp => inp.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const idx = +inp.dataset.iPhoto;
+      try {
+        const dataUrl = await fileToDataUrl(file, 800);
+        state.items[idx].image = dataUrl;
+        commit();
+      } catch (err) {
+        console.error(err);
+        flash("Could not read that image.");
+      }
+    }));
+  }
+
+  // Resize and convert an image File to a JPEG data URL, capped at maxSize on
+  // the longer edge. Keeps localStorage usage manageable.
+  function fileToDataUrl(file, maxSize) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(reader.error);
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("decode failed"));
+        img.onload = () => {
+          let { width, height } = img;
+          const scale = Math.min(1, maxSize / Math.max(width, height));
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+          const canvas = document.createElement("canvas");
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.82));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ----- Bindings -----
+  $("r-name").oninput = (e) => { state.name = e.target.value; commit(false); };
+  $("r-tagline").oninput = (e) => { state.tagline = e.target.value; commit(false); };
+  $("r-subtagline").oninput = (e) => { state.subtagline = e.target.value; commit(false); };
+
+  $("add-cat").onclick = () => { state.categories.push("New category"); commit(); };
+  $("add-item").onclick = () => {
+    const name = "New item";
+    state.items.push({ name, price: 0, category: state.categories[0] || "Menu", description: "", spice: 0, image: BMImages.forItem(name) });
+    commit();
+  };
+  $("save-btn").onclick = () => { BMStore.save(state); flash("Saved"); };
+
+  // Publish: push the current draft to the owner's live Supabase row so the
+  // table QR codes (which never change) start serving the latest menu. Only
+  // available once the account has been provisioned — onboarding stashes the
+  // slug + owner token in localStorage on signup.
+  function ownerCreds() {
+    try {
+      const raw = localStorage.getItem("better-menu:owner:v1");
+      const c = raw ? JSON.parse(raw) : null;
+      return c && c.slug && c.token ? c : null;
+    } catch { return null; }
+  }
+  const publishBtn = $("publish-btn");
+  if (ownerCreds()) publishBtn.classList.remove("hidden");
+  publishBtn.onclick = async () => {
+    const creds = ownerCreds();
+    if (!creds) { flash("Sign up first to get a live menu to publish to."); return; }
+    BMStore.save(state);
+    const original = publishBtn.textContent;
+    publishBtn.disabled = true;
+    publishBtn.textContent = "Publishing…";
+    try {
+      const res = await fetch("/api/update-menu", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: creds.slug, token: creds.token, menu: state }),
+      });
+      const data = await res.json().catch(() => ({}));
+      flash(res.ok ? "Published — your live menu is updated." : (data.error || `Couldn't publish (${res.status}).`));
+    } catch (err) {
+      flash((err && err.message) || "Network error while publishing.");
+    } finally {
+      publishBtn.disabled = false;
+      publishBtn.textContent = original;
+    }
+  };
+
+  // AI design review — opens a modal with a punch list of findings.
+  // Slide-out side panel for AI design review. The builder stays interactive
+  // behind it (no backdrop), so users can edit items while reading findings.
+  $("ai-review-btn").onclick = async () => {
+    openReviewPanel();
+    setReviewBody({ loading: true });
+    const result = await BMAI.reviewMenu(state);
+    if (!result.ok) {
+      setReviewBody({ error: result.notConfigured ? "AI is off on this deploy. Set OPENAI_API_KEY in Vercel." : result.error });
+      return;
+    }
+    setReviewBody({ findings: result.data.findings || [] });
+  };
+
+  function ensureReviewPanel() {
+    let panel = document.getElementById("ai-review-panel");
+    if (panel) return panel;
+    panel = document.createElement("aside");
+    panel.id = "ai-review-panel";
+    panel.style.cssText = "position:fixed;top:0;right:0;bottom:0;z-index:50;width:100%;max-width:24rem;background:white;box-shadow:-12px 0 40px rgba(0,0,0,0.12);transform:translateX(100%);transition:transform .35s cubic-bezier(.2,.7,.3,1);display:flex;flex-direction:column;";
+    panel.innerHTML = `
+      <header class="flex items-center justify-between border-b border-neutral-200 px-5 py-4">
+        <div class="min-w-0">
+          <h2 class="font-serif text-lg text-neutral-900 leading-tight">AI design review</h2>
+          <p id="ai-review-summary" class="text-xs text-neutral-500 mt-0.5"></p>
+        </div>
+        <button data-close class="flex-none rounded-full p-2 text-neutral-500 hover:bg-neutral-100" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </header>
+      <div id="ai-review-body" class="flex-1 overflow-y-auto px-4 py-4 text-sm text-neutral-700"></div>
+      <footer class="border-t border-neutral-200 px-5 py-3 text-[11px] text-neutral-500">
+        <span class="block">Tap <strong class="text-green-700">✓</strong> on a finding to mark it handled, <strong class="text-neutral-700">✗</strong> to dismiss.</span>
+      </footer>
+    `;
+    document.body.appendChild(panel);
+    panel.querySelector("[data-close]").addEventListener("click", closeReviewPanel);
+    return panel;
+  }
+
+  function openReviewPanel() {
+    const panel = ensureReviewPanel();
+    requestAnimationFrame(() => { panel.style.transform = "translateX(0)"; });
+  }
+  function closeReviewPanel() {
+    const panel = document.getElementById("ai-review-panel");
+    if (!panel) return;
+    panel.style.transform = "translateX(100%)";
+    setTimeout(() => panel.remove(), 350);
+  }
+
+  function setReviewSummary(text) {
+    const el = document.getElementById("ai-review-summary");
+    if (el) el.textContent = text;
+  }
+
+  function setReviewBody({ loading, error, findings }) {
+    const body = document.getElementById("ai-review-body");
+    if (!body) return;
+
+    if (loading) {
+      setReviewSummary("Reading your menu…");
+      // 3 skeleton cards while we wait
+      body.innerHTML = Array.from({ length: 3 }).map(() => `
+        <div class="mb-3 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-3 animate-pulse">
+          <div class="h-2 w-12 bg-neutral-200 rounded-full"></div>
+          <div class="mt-2.5 h-2 w-full bg-neutral-200 rounded-full"></div>
+          <div class="mt-1.5 h-2 w-3/4 bg-neutral-200 rounded-full"></div>
+        </div>
+      `).join("");
+      return;
+    }
+    if (error) {
+      setReviewSummary("");
+      body.innerHTML = `<p class="rounded-xl bg-amber-50 px-3 py-2 text-amber-800">${escapeHTML(error)}</p>`;
+      return;
+    }
+    if (!findings || findings.length === 0) {
+      setReviewSummary("Nothing to flag");
+      body.innerHTML = `<p class="rounded-xl bg-green-50 px-3 py-3 text-green-800">No major issues found. Looks tight.</p>`;
+      return;
+    }
+
+    const sevTone = {
+      info:     { border: "border-neutral-200", bg: "bg-neutral-50",  text: "text-neutral-700", pill: "bg-neutral-200 text-neutral-700" },
+      warning:  { border: "border-amber-200",   bg: "bg-amber-50",    text: "text-amber-900",   pill: "bg-amber-200 text-amber-900" },
+      critical: { border: "border-red-200",     bg: "bg-red-50",      text: "text-red-900",     pill: "bg-red-200 text-red-900" },
+    };
+
+    setReviewSummary(`${findings.length} finding${findings.length === 1 ? "" : "s"}`);
+    body.innerHTML = findings.map((f, i) => {
+      const tone = sevTone[f.severity] || sevTone.info;
+      const tag = [f.item, f.category].filter(Boolean).join(" · ");
+      return `
+        <div class="finding-card mb-3 rounded-xl border ${tone.border} ${tone.bg} ${tone.text} overflow-hidden transition-all duration-300" data-i="${i}" style="max-height:400px;">
+          <div class="px-3 py-3">
+            <div class="flex items-start gap-2">
+              <span class="mt-0.5 flex-none inline-block rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${tone.pill}">${escapeHTML(f.severity)}</span>
+              <div class="flex-1 min-w-0">
+                <p class="leading-relaxed">${escapeHTML(f.message)}</p>
+                ${tag ? `<p class="mt-1 text-[10px] uppercase tracking-wider opacity-60">${escapeHTML(tag)}</p>` : ""}
+              </div>
+            </div>
+            <div class="mt-2.5 flex justify-end gap-1.5">
+              <button data-act="accept" class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-100 text-green-800 hover:bg-green-200 transition" aria-label="Accept">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <button data-act="dismiss" class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white border border-neutral-200 text-neutral-500 hover:bg-neutral-100 transition" aria-label="Dismiss">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+
+    body.querySelectorAll(".finding-card").forEach(card => {
+      card.querySelector('[data-act="accept"]').addEventListener("click", () => resolveFinding(card, "accept"));
+      card.querySelector('[data-act="dismiss"]').addEventListener("click", () => resolveFinding(card, "dismiss"));
+    });
+  }
+
+  function resolveFinding(card, action) {
+    const isAccept = action === "accept";
+    // Brief confirmation flash before the card collapses
+    card.style.background = isAccept ? "rgb(220 252 231)" : "rgb(243 244 246)";
+    card.style.borderColor = isAccept ? "rgb(134 239 172)" : "rgb(229 231 235)";
+    requestAnimationFrame(() => {
+      card.style.maxHeight = "0";
+      card.style.opacity = "0";
+      card.style.marginBottom = "0";
+      card.style.borderWidth = "0";
+    });
+    setTimeout(() => {
+      card.remove();
+      const remaining = document.querySelectorAll("#ai-review-body .finding-card").length;
+      if (remaining === 0) {
+        setReviewBody({ findings: [] }); // shows "Nothing to flag"
+      } else {
+        setReviewSummary(`${remaining} finding${remaining === 1 ? "" : "s"}`);
+      }
+    }, 350);
+  }
+
+  // Share link: encode state into a URL so it works across devices without a backend.
+  $("share-btn").onclick = async () => {
+    BMStore.save(state);
+    const config = BMStore.encodeState(state);
+    const url = `${location.origin}${location.pathname.replace(/[^/]*$/, "")}menu.html?config=${config}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      flash("Link copied. Paste it anywhere to share.");
+    } catch {
+      // Clipboard blocked (insecure context, etc.) — surface the URL in a prompt.
+      window.prompt("Copy this share link:", url);
+    }
+  };
+
+  $("pv-menu").onclick = () => switchPreview("menu");
+  $("pv-kitchen").onclick = () => switchPreview("kitchen");
+
+  function switchPreview(which) {
+    const isMenu = which === "menu";
+    $("pv-menu").className = isMenu
+      ? "rounded-full bg-neutral-900 px-4 py-2 text-sm font-medium text-[#FBF7EE]"
+      : "rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100";
+    $("pv-kitchen").className = !isMenu
+      ? "rounded-full bg-neutral-900 px-4 py-2 text-sm font-medium text-[#FBF7EE]"
+      : "rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100";
+    $("preview").src = isMenu ? "./menu.html" : "./kitchen.html";
+  }
+
+  // ----- Helpers -----
+  let saveTimer = null;
+  function commit(rerender = true) {
+    BMStore.save(state);
+    if (rerender) { renderTemplates(); renderPalettes(); renderCustomColors(); renderCats(); renderItems(); }
+    // Refresh the iframe (debounced) so changes show up
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { $("preview").contentWindow?.postMessage({ type: "bm-refresh" }, "*"); }, 150);
+  }
+
+  function escapeHTML(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+
+  function flash(msg) {
+    const el = document.createElement("div");
+    el.textContent = msg;
+    el.className = "fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-neutral-900 px-4 py-2 text-sm text-[#FBF7EE] shadow-lg";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1400);
+  }
+
+  // initial render
+  renderTemplates();
+  renderPalettes();
+  renderCustomColors();
+  renderCats();
+  renderItems();
+</script>
+
+</body>
+</html>

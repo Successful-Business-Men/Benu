@@ -1,0 +1,889 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Get started - Better Menu</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body {
+    background-color: #FBF7EE;
+    color: #1a1a1a;
+    -webkit-font-smoothing: antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .font-serif { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; }
+
+  /* Choice card */
+  .choice {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    border: 1px solid rgba(0,0,0,0.10);
+    background: white;
+    border-radius: 16px;
+    padding: 16px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s, transform .12s cubic-bezier(.16,1,.3,1), background .15s;
+  }
+  .choice:hover { border-color: rgba(0,0,0,0.45); transform: translateY(-1px); }
+  .choice:active { transform: translateY(0) scale(.99); }
+  .choice[aria-pressed="true"] {
+    border-color: #1a1a1a;
+    background: #1a1a1a;
+    color: #FBF7EE;
+  }
+  .choice[aria-pressed="true"] .choice-blurb { color: #FBF7EE; opacity: .7; }
+  .choice-title { font-family: ui-serif, Georgia, serif; font-size: 1.0625rem; line-height: 1.25; }
+  .choice-blurb { font-size: .8125rem; color: #6b7280; line-height: 1.4; }
+
+  /* Step enter motion */
+  .step { display: none; }
+  .step.active { display: block; animation: stepIn .35s cubic-bezier(.16,1,.3,1); }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Progress strip - dots, not "step 1 / step 2" labels */
+  .progress { display: flex; align-items: center; gap: 10px; }
+  .progress-dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: rgba(0,0,0,0.15);
+    transition: all .25s cubic-bezier(.16,1,.3,1);
+  }
+  .progress-dot.active { width: 28px; border-radius: 4px; background: #1a1a1a; }
+  .progress-dot.done   { background: #1a1a1a; }
+  .progress-label {
+    font-size: .8125rem;
+    color: rgba(0,0,0,0.55);
+    letter-spacing: .01em;
+  }
+
+  /* PDF drop zone */
+  .drop-zone {
+    border: 1.5px dashed rgba(0,0,0,0.25);
+    background: white;
+    border-radius: 24px;
+    transition: border-color .15s, background .15s;
+  }
+  .drop-zone:hover, .drop-zone.dragging { border-color: #1a1a1a; background: #FFFBF2; }
+
+  /* Template gallery */
+  .template-card {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: transform .2s cubic-bezier(.16,1,.3,1), border-color .15s, box-shadow .2s;
+    display: flex; flex-direction: column;
+    container-type: inline-size;
+  }
+  .template-card:hover { border-color: rgba(0,0,0,0.4); box-shadow: 0 12px 32px rgba(0,0,0,0.08); transform: translateY(-3px); }
+  .template-card.recommended {
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 2px #1a1a1a, 0 8px 24px rgba(0,0,0,0.06);
+  }
+  .template-card.in-cart {
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 2px #1a1a1a, 0 12px 28px rgba(0,0,0,0.08);
+  }
+  .template-card.in-cart::after {
+    content: "In shortlist";
+    position: absolute; top: 12px; right: 12px;
+    background: #1a1a1a; color: #FBF7EE;
+    font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+    font-weight: 600;
+    z-index: 2;
+  }
+  .template-preview {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: #FBF7EE;
+    /* Bottom fade so the preview blends out instead of clipping mid-section. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+  }
+  .template-preview iframe {
+    border: 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1280px;
+    height: 1600px;
+    transform: translateX(-50%) scale(0.24);
+    transform-origin: top center;
+    pointer-events: none;
+  }
+  .template-preview .preview-shield {
+    position: absolute; inset: 0;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 3;
+  }
+  .recommended-tag {
+    position: absolute; top: 12px; left: 12px;
+    background: #1a1a1a; color: #FBF7EE;
+    font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+    font-weight: 600;
+    z-index: 2;
+  }
+  .pick-btn {
+    margin: 16px;
+    padding: 11px 16px;
+    border-radius: 999px;
+    background: #1a1a1a;
+    color: #FBF7EE;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background .15s, transform .15s;
+  }
+  .pick-btn:hover { background: #000; transform: scale(1.02); }
+  .pick-btn:active { transform: scale(.98); }
+  .template-card.recommended .pick-btn { background: #1a1a1a; }
+  .template-card-meta {
+    padding: 18px 18px 4px;
+  }
+  .template-card-meta h3 {
+    font-family: ui-serif, Georgia, serif;
+    font-size: 1.25rem;
+    line-height: 1.15;
+    color: #1a1a1a;
+  }
+  .template-card-meta p {
+    margin-top: .5rem;
+    font-size: .8125rem;
+    line-height: 1.55;
+    color: #6b7280;
+  }
+  .template-card-tags {
+    margin-top: .65rem;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .template-card-tag {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #6b7280;
+    border: 1px solid rgba(0,0,0,0.12);
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<header class="mx-auto flex max-w-3xl items-center justify-between px-6 py-5 sm:px-10">
+  <a href="./index.html" class="flex items-center gap-2">
+    <svg width="32" height="32" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <circle cx="24" cy="24" r="22" fill="#FDA172"/>
+      <path d="M14 22c2-4 6-6 10-6s8 2 10 6M14 26c2 4 6 6 10 6s8-2 10-6"
+            stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <span class="font-serif text-lg">Better Menu</span>
+  </a>
+  <a href="./builder.html" class="text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900">Skip setup</a>
+</header>
+
+<main class="mx-auto max-w-3xl px-6 pb-24 sm:px-10">
+
+  <!-- Progress: dots only, no numbered "step N of M" labels (banned pattern) -->
+  <div class="mb-10 flex items-center justify-between">
+    <div class="progress" aria-label="Setup progress">
+      <span id="dot-1" class="progress-dot active"></span>
+      <span id="dot-2" class="progress-dot"></span>
+      <span id="dot-3" class="progress-dot"></span>
+      <span id="dot-4" class="progress-dot"></span>
+    </div>
+    <span id="progress-label" class="progress-label">Restaurant</span>
+  </div>
+
+  <!-- Step 1: type -->
+  <section id="step-1" class="step active">
+    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">What kind of place are you running?</h1>
+    <p class="mt-3 text-neutral-600" style="max-width: 50ch;">Pick the closest fit. We use it to seed your menu with sensible starter items and copy.</p>
+    <div class="mt-8 grid gap-3 sm:grid-cols-2">
+      <button class="choice" data-type="noodle"><span class="choice-title">Noodle bar</span><span class="choice-blurb">Ramen, pho, hand-pulled, dumplings</span></button>
+      <button class="choice" data-type="cafe"><span class="choice-title">Cafe</span><span class="choice-blurb">Coffee, pastries, light lunch</span></button>
+      <button class="choice" data-type="pizza"><span class="choice-title">Pizza</span><span class="choice-blurb">Pies, slices, calzones</span></button>
+      <button class="choice" data-type="sushi"><span class="choice-title">Sushi</span><span class="choice-blurb">Nigiri, maki, sashimi</span></button>
+      <button class="choice" data-type="burger"><span class="choice-title">Burgers</span><span class="choice-blurb">Burgers, fries, shakes</span></button>
+      <button class="choice" data-type="fine"><span class="choice-title">Fine dining</span><span class="choice-blurb">Tasting menu, seasonal</span></button>
+      <button class="choice" data-type="market"><span class="choice-title">Market / Grocery</span><span class="choice-blurb">Pantry, bakery, retail counter</span></button>
+      <button class="choice" data-type="chain"><span class="choice-title">Chain / Storefront</span><span class="choice-blurb">Multi-location, promo-led menu</span></button>
+      <button class="choice sm:col-span-2" data-type="other"><span class="choice-title">Something else</span><span class="choice-blurb">A neutral starting point you can shape</span></button>
+    </div>
+    <div class="mt-10 flex justify-end">
+      <button id="to-2" disabled class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] disabled:cursor-not-allowed disabled:opacity-40 hover:bg-black">Continue</button>
+    </div>
+  </section>
+
+  <!-- Step 2: vibe -->
+  <section id="step-2" class="step">
+    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">What should it feel like?</h1>
+    <p class="mt-3 text-neutral-600" style="max-width: 50ch;">This guides the typography and color we pre-select. You can change it later.</p>
+    <div class="mt-8 grid gap-3 sm:grid-cols-2">
+      <button class="choice" data-vibe="warm"><span class="choice-title">Warm and inviting</span><span class="choice-blurb">Cream, soft orange, friendly</span></button>
+      <button class="choice" data-vibe="modern"><span class="choice-title">Modern and minimal</span><span class="choice-blurb">Quiet whites, sharp type</span></button>
+      <button class="choice" data-vibe="bold"><span class="choice-title">Bold and playful</span><span class="choice-blurb">Bright color, big type</span></button>
+      <button class="choice" data-vibe="cozy"><span class="choice-title">Cozy and traditional</span><span class="choice-blurb">Wood tones, classic feel</span></button>
+    </div>
+    <div class="mt-10 flex justify-between">
+      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
+      <button id="to-3" disabled class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] disabled:cursor-not-allowed disabled:opacity-40 hover:bg-black">Continue</button>
+    </div>
+  </section>
+
+  <!-- Step 3: PDF upload (primary) or brief description (fallback) -->
+  <section id="step-3" class="step">
+    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Drop your existing menu.</h1>
+    <p class="mt-3 text-neutral-600" style="max-width: 60ch;">Upload a PDF and we will pull out items and prices automatically. Your file stays in your browser. This step is optional.</p>
+
+    <label id="drop-zone" class="drop-zone mt-8 block cursor-pointer p-10 text-center">
+      <input id="pdf-input" type="file" accept="application/pdf" class="hidden"/>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+           class="mx-auto mb-3 text-neutral-400">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <path d="M12 18v-6M9 15l3-3 3 3"/>
+      </svg>
+      <p class="font-serif text-lg">Drop a PDF here</p>
+      <p class="mt-1 text-sm text-neutral-500">or click to browse</p>
+    </label>
+
+    <!-- AI extraction toggle -->
+    <label class="mt-4 flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 cursor-pointer">
+      <input id="ai-toggle" type="checkbox" class="mt-1 h-4 w-4 accent-neutral-900 cursor-pointer"/>
+      <div class="flex-1">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-neutral-900">Use AI to read the menu</span>
+          <span id="ai-status" class="hidden text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full"></span>
+        </div>
+        <span class="block text-xs text-neutral-500 mt-0.5">Catches items the rule-based parser misses. We send the extracted text to OpenAI and keep the result. Your PDF never leaves your browser.</span>
+        <span id="ai-status-detail" class="hidden mt-1.5 text-[11px] text-amber-700"></span>
+      </div>
+    </label>
+
+    <div id="pdf-status" class="mt-4 hidden rounded-2xl bg-white p-4 text-sm shadow-sm ring-1 ring-black/5"></div>
+
+    <!-- Fallback: no existing menu? Describe what you're planning. -->
+    <details class="mt-6 rounded-2xl bg-white shadow-sm ring-1 ring-black/5 open:pb-4">
+      <summary class="cursor-pointer list-none p-4 text-sm font-medium text-neutral-900 flex items-center justify-between">
+        <span>No existing menu yet? Describe what you're planning instead.</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-neutral-500"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="px-4">
+        <p class="text-xs text-neutral-500">For brand-new restaurants only. AI will draft a starter set of items you can edit. Most users should upload a PDF above.</p>
+        <textarea id="brief-input" rows="2" placeholder='e.g. "Sichuan noodle bar in Brooklyn, signature is dan dan mian"'
+                  class="mt-2 w-full resize-none rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none"></textarea>
+        <div class="mt-2 flex items-center justify-between gap-2">
+          <span id="brief-status" class="text-xs text-neutral-500"></span>
+          <button id="brief-go"
+                  class="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-4 py-2 text-xs font-medium text-[#FBF7EE] hover:bg-black disabled:cursor-not-allowed disabled:opacity-40">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M5.6 18.4l12.8-12.8"/></svg>
+            Draft a starter menu
+          </button>
+        </div>
+      </div>
+    </details>
+
+    <div class="mt-10 flex justify-between">
+      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
+      <button id="to-4" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Continue</button>
+    </div>
+  </section>
+
+  <!-- Step 4: pick a look -->
+  <section id="step-4" class="step">
+    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Pick how your menu looks.</h1>
+    <p class="mt-3 text-neutral-600" style="max-width: 60ch;">Shortlist up to two templates. We'll send previews of each one with your QR codes and kitchen links so you can decide on a tablet, not a phone.</p>
+    <div id="template-gallery" class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+    <!-- Shopping cart / shortlist -->
+    <div id="cart-panel" class="hidden mt-10 rounded-2xl bg-white p-6 ring-1 ring-black/10 shadow-sm">
+      <div class="flex items-center justify-between">
+        <h2 class="font-serif text-2xl">Your shortlist</h2>
+        <span id="cart-count" class="text-xs uppercase tracking-wider text-neutral-500">0 of 2</span>
+      </div>
+      <ul id="cart-items" class="mt-4 space-y-2"></ul>
+      <p id="cart-hint" class="mt-3 text-xs text-neutral-500">Add up to two templates above. Click a card again to remove it.</p>
+
+      <div class="mt-6">
+        <label for="cart-email" class="block text-xs uppercase tracking-wider text-neutral-500 mb-2">Where should we send your QR pack?</label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="cart-email" type="email" required placeholder="you@yourrestaurant.com" autocomplete="email"
+                 class="flex-1 rounded-full border border-neutral-300 bg-white px-4 py-3 text-sm focus:border-neutral-900 focus:outline-none"/>
+          <button id="cart-send" disabled
+                  class="rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black disabled:cursor-not-allowed disabled:opacity-40">
+            Send my QR pack
+          </button>
+        </div>
+        <p id="cart-status" class="mt-3 text-xs text-neutral-500" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div class="mt-10 flex justify-between">
+      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
+    </div>
+  </section>
+
+</main>
+
+<script src="./js/store.js"></script>
+<script src="./js/images.js"></script>
+<script src="./js/recommend.js"></script>
+<script src="./js/pdf-parse.js"></script>
+<script src="./js/ai-extract.js"></script>
+<script src="./js/ai-client.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const state = { type: null, vibe: null, items: null };
+  let current = 1;
+
+  const LABELS = { 1: "Restaurant", 2: "Vibe", 3: "Existing menu", 4: "Look" };
+
+  function show(step) {
+    current = step;
+    for (let i = 1; i <= 4; i++) {
+      $("step-" + i).classList.toggle("active", i === step);
+      const dot = $("dot-" + i);
+      dot.classList.remove("active", "done");
+      if (i < step) dot.classList.add("done");
+      else if (i === step) dot.classList.add("active");
+    }
+    $("progress-label").textContent = LABELS[step];
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Step 1: type
+  document.querySelectorAll("#step-1 .choice").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll("#step-1 .choice").forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      state.type = btn.dataset.type;
+      $("to-2").disabled = false;
+    };
+  });
+  $("to-2").onclick = () => show(2);
+
+  // Step 2: vibe
+  document.querySelectorAll("#step-2 .choice").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll("#step-2 .choice").forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      state.vibe = btn.dataset.vibe;
+      $("to-3").disabled = false;
+    };
+  });
+  $("to-3").onclick = () => show(3);
+
+  // Step 3: PDF upload + drag-and-drop
+  const dropZone = $("drop-zone");
+  ["dragenter", "dragover"].forEach(ev => dropZone.addEventListener(ev, (e) => {
+    e.preventDefault(); dropZone.classList.add("dragging");
+  }));
+  ["dragleave", "drop"].forEach(ev => dropZone.addEventListener(ev, (e) => {
+    e.preventDefault(); dropZone.classList.remove("dragging");
+  }));
+  dropZone.addEventListener("drop", (e) => {
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.type === "application/pdf") handlePdf(file);
+  });
+  $("pdf-input").addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if (file) handlePdf(file);
+  });
+
+  // Continue-button gating. Disabled whenever a PDF is being read so the user
+  // can't escape to step 4 mid-parse and arrive with empty state.
+  function setPdfBusy(busy) {
+    const btn = $("to-4");
+    if (!btn) return;
+    btn.disabled = busy;
+    btn.classList.toggle("opacity-40", busy);
+    btn.classList.toggle("cursor-not-allowed", busy);
+    btn.textContent = busy ? "Reading menu..." : "Continue";
+  }
+
+  async function handlePdf(file) {
+    const status = $("pdf-status");
+    status.classList.remove("hidden");
+    const useAI = BMAIExtract.isEnabled();
+    status.innerHTML = `<p class="text-neutral-700">Reading <strong>${escapeHTML(file.name)}</strong>${useAI ? " with AI" : ""}...</p>`;
+
+    setPdfBusy(true);
+    let items = [];
+    let source = "rules";
+    let aiError = null;
+    try {
+      try {
+        const parsed = await BMPdfParse.parseFile(file);
+        if (useAI) {
+          try {
+            // Send extracted text to our serverless function, which calls OpenAI.
+            const rawText = parsed.lines.join("\n");
+            items = await BMAIExtract.extract(rawText);
+            source = "ai";
+          } catch (err) {
+            console.warn("AI extraction failed, falling back to heuristic:", err);
+            items = parsed.items;
+            source = "rules";
+            aiError = err;
+          }
+        } else {
+          items = parsed.items;
+        }
+      } catch (err) {
+        console.error(err);
+        status.innerHTML = `<p class="text-red-700">We could not read that PDF. Continue with a starter menu instead.</p>`;
+        return;
+      }
+
+      if (items.length === 0) {
+        status.innerHTML = `<p class="text-neutral-700">We could not find any items in that PDF. Continue with a starter menu instead.</p>`;
+        state.items = null;
+        return;
+      }
+
+      state.items = items;
+      const badge = source === "ai"
+        ? `<span class="ml-2 inline-block rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#FBF7EE]">AI</span>`
+        : "";
+      const aiNote = aiError
+        ? `<p class="mt-2 text-xs text-amber-700">${aiError.notConfigured
+            ? "AI extraction is off on this deploy. Using the rule-based parser."
+            : "AI extraction failed (" + escapeHTML(aiError.message) + "). Using the rule-based parser."}</p>`
+        : "";
+      status.innerHTML = `
+        <p class="text-neutral-900"><strong>Found ${items.length} items.</strong>${badge}</p>
+        <ul class="mt-2 max-h-44 overflow-auto text-sm text-neutral-600 space-y-0.5">
+          ${items.slice(0, 10).map(i => `<li>· ${escapeHTML(i.name)}${i.category && i.category !== "Menu" ? ` <span class="text-neutral-400">in ${escapeHTML(i.category)}</span>` : ""} <span class="tabular-nums text-neutral-500">$${i.price.toFixed(2)}</span></li>`).join("")}
+          ${items.length > 10 ? `<li class="text-neutral-400">and ${items.length - 10} more</li>` : ""}
+        </ul>
+        ${aiNote}`;
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
+  // Wire AI toggle (default on)
+  $("ai-toggle").checked = BMAIExtract.isEnabled();
+  $("ai-toggle").addEventListener("change", (e) => {
+    BMAIExtract.setEnabled(e.target.checked);
+    if (e.target.checked) probeAI();
+    else hideAIStatus();
+  });
+  if (BMAIExtract.isEnabled()) probeAI();
+
+  function setAIStatus(state, detail) {
+    const badge = $("ai-status");
+    const det = $("ai-status-detail");
+    badge.classList.remove("hidden", "bg-green-100", "text-green-700", "bg-amber-100", "text-amber-700", "bg-neutral-100", "text-neutral-600");
+    if (state === "ok")    badge.classList.add("bg-green-100", "text-green-700");
+    if (state === "fail")  badge.classList.add("bg-amber-100", "text-amber-700");
+    if (state === "check") badge.classList.add("bg-neutral-100", "text-neutral-600");
+    badge.textContent = state === "ok" ? "Ready" : state === "fail" ? "Off" : "Checking…";
+    if (detail) {
+      det.classList.remove("hidden");
+      det.textContent = detail;
+    } else {
+      det.classList.add("hidden");
+      det.textContent = "";
+    }
+  }
+  function hideAIStatus() {
+    $("ai-status").classList.add("hidden");
+    $("ai-status-detail").classList.add("hidden");
+  }
+
+  // Empty-text probe. Endpoint returns 503 if OPENAI_API_KEY isn't set on
+  // Vercel; 400 if it IS set (we just sent no text). The 400 confirms the
+  // endpoint is reachable AND configured, without spending an OpenAI call.
+  async function probeAI() {
+    setAIStatus("check");
+    try {
+      const res = await fetch("/api/extract-menu", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: "" }),
+      });
+      if (res.status === 400) { setAIStatus("ok"); return; }
+      if (res.status === 503) { setAIStatus("fail", "AI is off on this deploy. Set OPENAI_API_KEY in Vercel → Settings → Environment Variables, then redeploy."); return; }
+      if (res.status === 404) { setAIStatus("fail", "The /api/extract-menu endpoint is not deployed. Push the latest build to Vercel."); return; }
+      let msg = `Server returned ${res.status}.`;
+      try { const j = await res.json(); if (j && j.error) msg = j.error; } catch {}
+      setAIStatus("fail", msg);
+    } catch (err) {
+      setAIStatus("fail", "Could not reach /api/extract-menu. Are you on a Vercel deployment? Local file:// won't work.");
+    }
+  }
+
+  function flash(msg) {
+    const el = document.createElement("div");
+    el.textContent = msg;
+    el.className = "fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-neutral-900 px-4 py-2 text-sm text-[#FBF7EE] shadow-lg";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1400);
+  }
+
+  $("to-4").onclick = () => { seedPreviewState(); renderTemplateGallery(); show(4); };
+
+  // Brief → full menu via /api/generate-menu. Overrides type/vibe selections
+  // if successful, then jumps straight to step 4 with the generated state.
+  $("brief-go").onclick = async () => {
+    const brief = $("brief-input").value.trim();
+    if (!brief || brief.length < 8) {
+      $("brief-status").textContent = "Add a few more words...";
+      $("brief-status").className = "text-xs text-amber-700";
+      return;
+    }
+    $("brief-go").disabled = true;
+    setPdfBusy(true);
+    $("brief-status").textContent = "AI is writing your menu...";
+    $("brief-status").className = "text-xs text-neutral-700";
+    try {
+      const result = await BMAI.generateMenu(brief);
+      if (!result.ok) {
+        $("brief-status").textContent = result.notConfigured
+          ? "AI is off on this deploy. Set OPENAI_API_KEY in Vercel."
+          : `Could not generate: ${result.error}`;
+        $("brief-status").className = "text-xs text-amber-700";
+        return;
+      }
+      const m = result.data;
+      // Build state directly and skip to step 4 with this draft.
+      const items = (m.items || []).map(it => ({
+        ...it,
+        image: BMImages.forItem(it.name),
+      }));
+      const draft = {
+        name: m.name,
+        tagline: m.tagline,
+        subtagline: m.subtagline,
+        template: m.suggested.template,
+        palette: m.suggested.palette,
+        categories: m.categories,
+        items,
+      };
+      BMStore.save(draft);
+      window.__rec = {
+        primary: { template: m.suggested.template, palette: m.suggested.palette, reason: "Recommended by AI from your brief." },
+        copy: { tagline: m.tagline, subtagline: m.subtagline },
+        type: state.type || "other",
+      };
+      $("brief-status").textContent = `Generated ${items.length} items. Pick a look →`;
+      $("brief-status").className = "text-xs text-green-700";
+      renderTemplateGallery();
+      show(4);
+    } catch (err) {
+      $("brief-status").textContent = "Something went wrong. Try again.";
+      $("brief-status").className = "text-xs text-amber-700";
+    } finally {
+      $("brief-go").disabled = false;
+      setPdfBusy(false);
+    }
+  };
+
+  // Back buttons
+  document.querySelectorAll(".back").forEach(b => b.onclick = () => show(current - 1));
+
+  // ─── Step 4: write a draft state to localStorage, then render gallery of previews ───
+  function seedPreviewState() {
+    const rec = BMRecommend.suggest(state);
+    const seeded = (state.items && state.items.length > 0
+      ? state.items.map(it => ({ ...it, image: BMImages.forItem(it.name) }))
+      : starterItems(state.type));
+    const categories = [...new Set(seeded.map(i => i.category))];
+
+    const draft = {
+      name: defaultName(state.type),
+      tagline: rec.copy.tagline,
+      subtagline: rec.copy.subtagline,
+      template: rec.primary.template,
+      palette: rec.primary.palette,
+      categories,
+      items: seeded,
+    };
+    BMStore.save(draft);
+    window.__rec = rec; // remember which template we'd recommend
+  }
+
+  // ─── Shortlist (shopping cart) state ───
+  const MAX_CART = 2;
+  const cart = []; // array of { template, palette }
+
+  function inCart(id) { return cart.some(c => c.template === id); }
+  function cartFull() { return cart.length >= MAX_CART; }
+
+  function toggleCart(template, palette) {
+    const i = cart.findIndex(c => c.template === template);
+    if (i >= 0) {
+      cart.splice(i, 1);
+    } else {
+      if (cartFull()) return false;
+      cart.push({ template, palette });
+    }
+    renderTemplateGallery();
+    renderCart();
+    return true;
+  }
+
+  function pickLabel(id, isRec) {
+    if (inCart(id)) return "Remove from shortlist";
+    if (cartFull()) return "Shortlist full";
+    return isRec ? "Add (recommended)" : "Add to shortlist";
+  }
+
+  function renderTemplateGallery() {
+    const rec = window.__rec;
+    const recommendedTpl = rec.primary.template;
+    // Every preview renders in the vibe palette so the user sees their color
+    // story across each layout — type picks layout, vibe picks color.
+    const vibePalette = rec.primary.palette;
+    const tpls = Object.keys(BMStore.TEMPLATES);
+    $("template-gallery").innerHTML = tpls.map(id => {
+      const t = BMStore.TEMPLATES[id];
+      const pal = BMStore.PALETTES[vibePalette] || BMStore.PALETTES[t.defaultPalette];
+      const isRec = id === recommendedTpl;
+      const inC = inCart(id);
+      const disabled = !inC && cartFull();
+      const tags = (t.tags || []).map(tag => `<span class="template-card-tag">${escapeHTML(tag)}</span>`).join("");
+      return `
+        <div class="template-card ${isRec ? "recommended" : ""} ${inC ? "in-cart" : ""}" data-tpl="${id}" data-pal="${vibePalette}">
+          ${isRec && !inC ? `<span class="recommended-tag">Recommended</span>` : ""}
+          <div class="template-preview" style="background:${pal.bg};">
+            <iframe loading="lazy" src="./menu.html?template=${id}&palette=${vibePalette}" title="${t.label} preview"></iframe>
+            <div class="preview-shield" data-pick="${id}" data-pal="${vibePalette}" aria-label="Add ${t.label} to shortlist"></div>
+          </div>
+          <div class="template-card-meta">
+            <h3>${escapeHTML(t.label)}</h3>
+            <p>${escapeHTML(t.blurb)}</p>
+            ${tags ? `<div class="template-card-tags">${tags}</div>` : ""}
+          </div>
+          <button class="pick-btn" type="button" data-pick="${id}" data-pal="${vibePalette}"
+                  ${disabled ? "disabled style=\"opacity:.4;cursor:not-allowed;\"" : ""}
+                  aria-label="${inC ? "Remove" : "Add"} ${t.label}">
+            ${pickLabel(id, isRec)}
+          </button>
+        </div>
+      `;
+    }).join("");
+    // Both the pick button and the preview-shield (covering the iframe) toggle cart membership.
+    $("template-gallery").querySelectorAll("[data-pick]").forEach(el => {
+      el.onclick = (e) => {
+        e.stopPropagation();
+        if (el.hasAttribute("disabled")) return;
+        const added = toggleCart(el.dataset.pick, el.dataset.pal);
+        if (!added && !inCart(el.dataset.pick)) flash("Shortlist is full (max 2). Remove one to swap.");
+      };
+    });
+  }
+
+  function renderCart() {
+    const panel = $("cart-panel");
+    const items = $("cart-items");
+    const count = $("cart-count");
+    const send = $("cart-send");
+    const emailEl = $("cart-email");
+    count.textContent = `${cart.length} of ${MAX_CART}`;
+    if (cart.length === 0) {
+      panel.classList.add("hidden");
+      send.disabled = true;
+      return;
+    }
+    panel.classList.remove("hidden");
+    items.innerHTML = cart.map(c => {
+      const t = BMStore.TEMPLATES[c.template] || { label: c.template };
+      return `
+        <li class="flex items-center justify-between rounded-xl border border-neutral-200 bg-[#FBF7EE] px-3 py-2 text-sm">
+          <span><strong class="font-serif">${escapeHTML(t.label)}</strong> <span class="text-neutral-500">· ${escapeHTML(c.template)}</span></span>
+          <button type="button" data-remove="${c.template}" class="text-neutral-500 hover:text-neutral-900" aria-label="Remove ${escapeHTML(t.label)}">×</button>
+        </li>
+      `;
+    }).join("");
+    items.querySelectorAll("[data-remove]").forEach(btn => {
+      btn.onclick = () => {
+        const id = btn.dataset.remove;
+        const slot = cart.find(c => c.template === id);
+        if (slot) toggleCart(slot.template, slot.palette);
+      };
+    });
+    send.disabled = !emailEl.checkValidity() || cart.length === 0;
+    // Save the first shortlisted template into the local draft so a follow-up
+    // "Skip setup" route still lands on something sensible.
+    const draft = BMStore.load();
+    draft.template = cart[0].template;
+    draft.palette = cart[0].palette;
+    BMStore.save(draft);
+  }
+
+  // Email input gating + submit
+  document.addEventListener("input", (e) => {
+    if (e.target && e.target.id === "cart-email") {
+      $("cart-send").disabled = !e.target.checkValidity() || cart.length === 0;
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target || e.target.id !== "cart-send") return;
+    e.preventDefault();
+    const emailEl = $("cart-email");
+    if (!emailEl.checkValidity()) { emailEl.reportValidity(); return; }
+    if (cart.length === 0) return;
+
+    const btn = $("cart-send");
+    const status = $("cart-status");
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    status.className = "mt-3 text-xs text-neutral-500";
+    status.textContent = "Building your QR pack…";
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailEl.value.trim(),
+          templates: cart.map(c => c.template),
+          // The local draft built up in steps 1-3 — name, items, categories,
+          // tagline, etc. Without it the QR codes in the welcome email lead
+          // to an empty menu on devices that don't have localStorage.
+          menu: BMStore.load(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        status.className = "mt-3 text-xs text-amber-700";
+        status.textContent = (data && data.error) || `Server ${res.status}. Try again in a moment.`;
+        btn.disabled = false;
+        btn.textContent = original;
+        return;
+      }
+      // Stash the slug + owner token so the builder can re-publish menu edits
+      // straight to this account (POST /api/update-menu) without a new signup.
+      if (data && data.slug && data.ownerToken) {
+        try {
+          localStorage.setItem("better-menu:owner:v1", JSON.stringify({ slug: data.slug, token: data.ownerToken }));
+        } catch { /* private mode / quota — re-publishing just won't be available */ }
+      }
+      status.className = "mt-3 text-xs text-green-700";
+      status.textContent = "Sent. Check your inbox — your printable QR sheet and kitchen links are on the way.";
+      btn.textContent = "Sent ✓";
+    } catch (err) {
+      status.className = "mt-3 text-xs text-amber-700";
+      status.textContent = (err && err.message) || "Network error. Try again.";
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  // ─── Seed helpers ───
+  function defaultName(type) {
+    return ({
+      noodle: "Hand-Pulled Noodle Co.",
+      cafe:   "Daybreak Cafe",
+      pizza:  "Hearthstone Pizza",
+      sushi:  "Omakase Bar",
+      burger: "Smash and Co.",
+      fine:   "The Tasting Room",
+      market: "Sprout Market",
+      chain:  "Brew House",
+      other:  "Your Restaurant",
+    })[type] || "Your Restaurant";
+  }
+
+  function starterItems(type) {
+    const tag = (name, price, category, description, spice = 0) => ({
+      name, price, category, description, spice, image: BMImages.forItem(name),
+    });
+    switch (type) {
+      case "noodle": return [
+        tag("Chili Oil Noodles", 12.50, "Noodles",   "Hand-pulled wheat noodles, scallion oil, toasted sesame.", 2),
+        tag("Wonton Soup",       10.00, "Noodles",   "Eight pork and shrimp wontons in clear ginger broth."),
+        tag("Dan Dan Mian",      13.50, "Noodles",   "Sichuan pepper, minced pork, preserved greens, peanut.", 3),
+        tag("Pork Dumplings",     9.00, "Dumplings", "Six pan-fried, sesame, black vinegar dipping sauce."),
+        tag("Smashed Cucumber",   7.00, "Sides",     "Garlic, chili oil, black vinegar, sesame.", 1),
+        tag("Yuzu Soda",          4.00, "Drinks",    "Cold-pressed yuzu, sparkling."),
+      ];
+      case "cafe": return [
+        tag("Latte",              5.00, "Drinks",   "Whole milk, double shot."),
+        tag("Matcha",              5.50, "Drinks",   "Ceremonial grade, lightly sweetened."),
+        tag("Almond Croissant",    4.50, "Pastry",   "Laminated dough, almond cream, toasted almonds."),
+        tag("Avocado Toast",      11.00, "Plates",   "Sourdough, smashed avocado, chili crisp, soft egg."),
+        tag("Iced Americano",      4.50, "Drinks",   "Double shot over ice."),
+        tag("Banana Bread",        4.00, "Pastry",   "Brown butter, walnuts, sea salt."),
+      ];
+      case "pizza": return [
+        tag("Margherita",         16.00, "Pizza", "San Marzano, fior di latte, basil."),
+        tag("Pepperoni",          18.00, "Pizza", "Tomato, mozzarella, cup and char pepperoni."),
+        tag("White Mushroom",     19.00, "Pizza", "Ricotta, mozzarella, roasted mushrooms, thyme."),
+        tag("House Salad",         9.00, "Sides", "Little gems, shaved parm, lemon vinaigrette."),
+        tag("Garlic Knots",        7.00, "Sides", "Sea salt, olive oil, oregano."),
+        tag("Tiramisu",            8.00, "Dessert", "Espresso, mascarpone, cocoa."),
+      ];
+      case "sushi": return [
+        tag("Salmon Nigiri",       8.00, "Nigiri", "Two pieces, Norwegian salmon."),
+        tag("Tuna Sashimi",       16.00, "Sashimi", "Five pieces, daily cut maguro."),
+        tag("Spicy Tuna Maki",    12.00, "Maki",   "Tuna, scallion, chili mayo.", 2),
+        tag("Chef Selection",     45.00, "Omakase", "Twelve pieces, today's catch."),
+        tag("Edamame",             5.00, "Sides", "Sea salt."),
+        tag("Miso Soup",           4.00, "Sides", "House dashi, scallion, tofu."),
+      ];
+      case "burger": return [
+        tag("Single Smash",       10.00, "Burgers", "Beef, American, pickles, special sauce."),
+        tag("Double Smash",       13.00, "Burgers", "Two patties, double cheese, special sauce."),
+        tag("Mushroom Swiss",     14.00, "Burgers", "Roasted mushrooms, swiss, garlic aioli."),
+        tag("Fries",                5.00, "Sides",   "Hand-cut, sea salt."),
+        tag("Chocolate Shake",      6.50, "Drinks",  "Whole milk, valrhona cocoa."),
+        tag("Strawberry Shake",     6.50, "Drinks",  "Fresh strawberry."),
+      ];
+      case "fine": return [
+        tag("Five-Course Tasting", 120.00, "Tasting",  "Seasonal, served between six and nine pm."),
+        tag("Wine Pairing",         75.00, "Pairings", "Five glasses, sommelier's selection."),
+        tag("Caviar Service",       95.00, "Tasting",  "Osetra, creme fraiche, blini."),
+        tag("Cheese Course",        28.00, "Tasting",  "Three selections, seasonal accompaniments."),
+      ];
+      case "market": return [
+        tag("Seedless Prune",       2.00, "Dried fruits",  "Plump, soft-dried, no added sugar."),
+        tag("Red Grape Raisins",    4.00, "Dried fruits",  "Extra series, slow-dried for two weeks."),
+        tag("Seedless Red Plums",   9.80, "Dried fruits",  "Tart finish, candy-sweet middle."),
+        tag("Chocolate Apricots",   2.60, "Confections",   "Dark cocoa dust, no added oils."),
+        tag("Gold Apricots Jumbo",  5.40, "Confections",   "Limited series, hand-sorted."),
+        tag("Natural Mango",       12.00, "Tropicals",     "King-size, soft-dry, pure fruit."),
+      ];
+      case "chain": return [
+        tag("Cold Brew",            2.95, "Cold Brew",   "Slow steeped, 14 hours."),
+        tag("Pumpkin Spice Cream",  4.25, "Cold Brew",   "Seasonal, lightly sweetened."),
+        tag("Salted Caramel Cream", 4.25, "Cold Brew",   "Slow steeped with salted caramel cold foam."),
+        tag("Vanilla Sweet Cream",  3.95, "Cold Brew",   "Vanilla, milk, ice."),
+        tag("Iced Pumpkin Latte",   4.25, "Lattes",      "Espresso, pumpkin, milk, spice."),
+        tag("Latte Macchiato",      3.96, "Lattes",      "Layered milk, double shot."),
+        tag("Iced Caffè Latte",     3.75, "Lattes",      "Cold milk, double shot."),
+        tag("Caffè Latte",          3.46, "Lattes",      "Hot, classic."),
+      ];
+      default: return [
+        tag("Sample Dish A",       12.00, "Menu", "Replace this with your own item."),
+        tag("Sample Dish B",       14.00, "Menu", "Add as many items as you like."),
+        tag("Sample Drink",         5.00, "Menu", "A signature beverage."),
+        tag("Sample Dessert",       8.00, "Menu", "Something sweet to finish."),
+      ];
+    }
+  }
+
+  function escapeHTML(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+</script>
+
+</body>
+</html>

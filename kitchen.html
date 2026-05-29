@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Kitchen</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bm-bg: #FBF7EE;
+    --bm-surface: #FFFFFF;
+    --bm-accent: #FDA172;
+    --bm-accentDeep: #E88A5C;
+    --bm-soft: #FFD93D;
+    --bm-softDeep: #D4A91A;
+    --bm-sage: #A9BBA0;
+    --bm-text: #1a1a1a;
+    --bm-muted: #6b7280;
+    --bm-card-radius: 28px;
+    --bm-card-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    --bm-heading-font: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  }
+  html, body {
+    background: var(--bm-bg);
+    color: var(--bm-text);
+    -webkit-font-smoothing: antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .bm-heading { font-family: var(--bm-heading-font); }
+  .bm-card {
+    background: var(--bm-surface);
+    border-radius: var(--bm-card-radius);
+    box-shadow: var(--bm-card-shadow);
+  }
+  @keyframes bm-pulse-ring {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bm-accent) 55%, transparent); }
+    70%  { box-shadow: 0 0 0 10px color-mix(in srgb, var(--bm-accent) 0%, transparent); }
+    100% { box-shadow: 0 0 0 0  color-mix(in srgb, var(--bm-accent) 0%, transparent); }
+  }
+  .pulse-ring { animation: bm-pulse-ring 1.8s ease-out infinite; }
+</style>
+</head>
+<body class="min-h-screen pb-16">
+<div class="mx-auto w-full max-w-6xl">
+
+  <header class="flex items-center justify-between gap-3 px-6 pt-4 sm:px-10">
+    <div class="flex items-center gap-2">
+      <svg width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="var(--bm-accent)"/>
+        <path d="M14 22c2-4 6-6 10-6s8 2 10 6M14 26c2 4 6 6 10 6s8-2 10-6"
+              stroke="var(--bm-text)" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <div class="flex flex-col">
+        <span id="r-name" class="bm-heading text-xl leading-tight">Kitchen</span>
+        <span class="text-xs" style="color: var(--bm-muted)">
+          <span class="font-semibold" style="color: var(--bm-accentDeep)">live</span>
+          · <span id="active-count">0</span> active orders
+        </span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="seed-btn"
+              class="inline-flex items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 hover:bg-neutral-100">
+        + Demo order
+      </button>
+    </div>
+  </header>
+
+  <section id="tickets" class="mt-6 grid grid-cols-1 gap-6 px-6 sm:grid-cols-2 sm:px-10 lg:grid-cols-3"></section>
+
+  <aside class="mt-8 grid grid-cols-2 gap-4 px-6 sm:grid-cols-4 sm:px-10">
+    <div class="bm-card p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--bm-muted)">Avg prep</p>
+      <p class="bm-heading mt-1 text-2xl tabular-nums">6:42</p>
+    </div>
+    <div class="bm-card p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--bm-muted)">Tickets · last hr</p>
+      <p class="bm-heading mt-1 text-2xl tabular-nums">28</p>
+    </div>
+    <div class="bm-card p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--bm-muted)">On time</p>
+      <p class="bm-heading mt-1 text-2xl tabular-nums">96%</p>
+    </div>
+    <div class="bm-card p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--bm-muted)">In queue</p>
+      <p class="bm-heading mt-1 text-2xl tabular-nums"><span id="queue-count">0</span></p>
+    </div>
+  </aside>
+</div>
+
+<script src="./js/store.js"></script>
+<script>
+  const URL_PARAMS = new URLSearchParams(location.search);
+  const LIVE_SLUG = (URL_PARAMS.get("r") || "").trim();
+  // Owner token from the kitchen link (&k=). The orders API requires it to
+  // read the live queue and advance tickets, so a stranger with only the
+  // slug can't watch or tamper with the kitchen.
+  const KDS_TOKEN = (URL_PARAMS.get("k") || "").trim();
+  const IS_LIVE = !!LIVE_SLUG;
+  const POLL_MS = 4000;
+
+  // Statuses move new → cooking → ready → done. The KDS list query filters
+  // "done" out so handing off closes the ticket.
+  const NEXT_STATUS = { new: "cooking", cooking: "ready", ready: "done" };
+  const ACTION_LABEL = { new: "Start cooking", cooking: "Mark ready", ready: "Hand off & close" };
+
+  function statusChip(status) {
+    if (status === "new") return { label: "New", bg: "var(--bm-accent)", ring: "color-mix(in srgb, var(--bm-accent) 40%, transparent)" };
+    if (status === "cooking") return { label: "Cooking", bg: "var(--bm-soft)", ring: "color-mix(in srgb, var(--bm-soft) 50%, transparent)" };
+    if (status === "ready") return { label: "Ready", bg: "var(--bm-sage)", ring: "var(--bm-sage)" };
+    return { label: status, bg: "var(--bm-soft)", ring: "var(--bm-soft)" };
+  }
+
+  function timeAgo(iso) {
+    const ms = Date.now() - new Date(iso).getTime();
+    if (ms < 60_000) return "just now";
+    const mins = Math.floor(ms / 60_000);
+    return mins === 1 ? "1 min" : `${mins} min`;
+  }
+
+  // Preview/demo mode: when no ?r= slug is present (e.g. inside the builder
+  // template-picker iframe) we want the page to look alive without hitting
+  // the real orders API.
+  function demoTickets(items) {
+    const pool = items.length ? items : [{ name: "Sample dish", spice: 0 }];
+    const pick = (n) => pool[n % pool.length];
+    return [
+      { id: "A-1042", channel: "Table 7",  age: "just now",     status: "new",     items: [{ qty: 2, name: pick(0).name }, { qty: 1, name: pick(4).name }, { qty: 1, name: pick(3).name }], note: "peanut allergy, no peanut topping." },
+      { id: "A-1043", channel: "Pickup",   age: "1 min ago",    status: "new",     items: [{ qty: 1, name: pick(2).name }, { qty: 1, name: pick(5).name }] },
+      { id: "A-1041", channel: "Table 3",  age: "4 min",        status: "cooking", items: [{ qty: 1, name: pick(1).name }, { qty: 1, name: pick(0).name }] },
+      { id: "A-1040", channel: "Table 12", age: "5 min",        status: "cooking", items: [{ qty: 3, name: pick(4).name }, { qty: 2, name: pick(3).name }, { qty: 1, name: pick(5).name }] },
+      { id: "A-1037", channel: "Pickup",   age: "waiting 0:32", status: "ready",   items: [{ qty: 1, name: pick(1).name }, { qty: 1, name: pick(4).name }] },
+    ];
+  }
+
+  async function fetchLiveTickets() {
+    try {
+      const res = await fetch(`/api/orders?r=${encodeURIComponent(LIVE_SLUG)}&k=${encodeURIComponent(KDS_TOKEN)}`, { cache: "no-store" });
+      if (res.status === 401) { console.warn("[kds] missing/invalid kitchen token — open the link from your welcome email."); return []; }
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.orders || []).map(o => ({
+        id: String(o.id).slice(0, 6).toUpperCase(),
+        idFull: o.id,
+        channel: o.table_number ? `Table ${o.table_number}` : "Counter",
+        age: timeAgo(o.created_at),
+        status: o.status,
+        items: (o.items || []).map(it => ({ qty: it.qty, name: it.name })),
+        note: o.note || "",
+      }));
+    } catch (err) {
+      console.warn("[kds] fetch failed:", err && err.message);
+      return [];
+    }
+  }
+
+  async function updateStatus(idFull, status) {
+    try {
+      await fetch("/api/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: idFull, status, slug: LIVE_SLUG, token: KDS_TOKEN }),
+      });
+    } catch (err) {
+      console.warn("[kds] update failed:", err && err.message);
+    }
+    render();
+  }
+
+  function escapeHTML(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  }
+
+  function ticketCard(t) {
+    const chip = statusChip(t.status);
+    const isNew = t.status === "new";
+    const next = NEXT_STATUS[t.status];
+    const action = ACTION_LABEL[t.status] || "Update";
+    const actionBtn = IS_LIVE
+      ? `<button data-advance="${escapeHTML(t.idFull)}" data-next="${escapeHTML(next)}"
+                  class="flex-1 rounded-full px-4 py-2.5 text-sm font-medium"
+                  style="background: var(--bm-text); color: var(--bm-bg);">${action}</button>`
+      : `<button class="flex-1 rounded-full px-4 py-2.5 text-sm font-medium"
+                  style="background: var(--bm-text); color: var(--bm-bg);">${action}</button>`;
+    return `
+      <article class="bm-card flex flex-col p-5 ${isNew ? "pulse-ring" : ""}" style="box-shadow: 0 0 0 4px ${chip.ring}, var(--bm-card-shadow);">
+        <header class="flex items-start justify-between">
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--bm-muted)">Order</p>
+            <h2 class="bm-heading text-2xl">#${escapeHTML(t.id)}</h2>
+            <p class="mt-0.5 text-xs" style="color: var(--bm-muted)">${escapeHTML(t.channel)} · ${escapeHTML(t.age)}</p>
+          </div>
+          <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider" style="background:${chip.bg}; color: var(--bm-text);">
+            ${chip.label}
+          </span>
+        </header>
+        <ul class="mt-4 space-y-2 text-base">
+          ${t.items.map(li => `
+            <li><span class="tabular-nums" style="color: var(--bm-muted)">${li.qty}× </span>${escapeHTML(li.name)}</li>
+          `).join("")}
+        </ul>
+        ${t.note ? `<div class="mt-4 rounded-2xl px-3 py-2 text-xs" style="background: color-mix(in srgb, var(--bm-soft) 25%, #fff); color: var(--bm-accentDeep);"><span class="font-semibold">Note:</span> ${escapeHTML(t.note)}</div>` : ""}
+        <div class="mt-5 flex gap-2">${actionBtn}</div>
+      </article>
+    `;
+  }
+
+  function emptyState() {
+    return `
+      <div class="col-span-full bm-card flex flex-col items-center justify-center px-6 py-16 text-center">
+        <div class="text-4xl mb-3">🍽️</div>
+        <h2 class="bm-heading text-2xl mb-2">Waiting for orders</h2>
+        <p class="text-sm" style="color: var(--bm-muted); max-width: 38ch;">
+          Orders placed from the menu QR codes will appear here in real time. Keep this screen open in the kitchen.
+        </p>
+      </div>
+    `;
+  }
+
+  async function render() {
+    const configParam = URL_PARAMS.get("config");
+    const state = configParam ? BMStore.decodeState(configParam) : BMStore.load();
+    if (state) BMStore.applyTheme(state);
+    document.getElementById("r-name").textContent = IS_LIVE
+      ? "Kitchen"
+      : ((state?.name || "Restaurant") + " Kitchen");
+
+    const tickets = IS_LIVE ? await fetchLiveTickets() : demoTickets(state?.items || []);
+
+    document.getElementById("active-count").textContent = tickets.filter(t => t.status !== "ready").length;
+    document.getElementById("queue-count").textContent = tickets.length;
+
+    const host = document.getElementById("tickets");
+    if (tickets.length === 0) {
+      host.innerHTML = emptyState();
+    } else {
+      host.innerHTML = tickets.map(ticketCard).join("");
+    }
+
+    // Wire status-advance buttons (live mode only).
+    if (IS_LIVE) {
+      host.querySelectorAll("[data-advance]").forEach(btn => {
+        btn.onclick = () => updateStatus(btn.dataset.advance, btn.dataset.next);
+      });
+    }
+  }
+
+  // The "+ Demo order" button is a no-op visual cue in preview mode; in
+  // live mode we hide it so staff don't accidentally inject fake tickets.
+  const seedBtn = document.getElementById("seed-btn");
+  if (IS_LIVE) {
+    seedBtn.remove();
+  } else {
+    seedBtn.onclick = render;
+  }
+
+  window.addEventListener("message", (e) => { if (e.data?.type === "bm-refresh") render(); });
+  window.addEventListener("storage", render);
+  render();
+  if (IS_LIVE) setInterval(render, POLL_MS);
+</script>
+</body>
+</html>
