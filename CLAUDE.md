@@ -10,11 +10,15 @@ Benu (also called Better Menu) turns a restaurant menu into a website, QR orderi
 - Live URL: https://better-menu-eight.vercel.app/
 
 ## How Work Gets Saved
-- Local branch `main` pushes to the `static-html-version` branch on GitHub, which is what Vercel deploys. A plain `git push` works.
-- Always commit and push after making changes, so the live site updates. Do not wait to be asked.
+- Local branch `main` pushes to the `static-html-version` branch on GitHub. A plain `git push` works.
+- Always commit and push after making changes. Do not wait to be asked.
 - Before every push, run `git pull --rebase` first. This stops parallel sessions from overwriting each other.
 - Use short, clear commit messages.
-- Changes go live about 10 to 60 seconds after the push.
+
+## How The Live Site Updates (Important)
+- A `git push` saves to GitHub but does not reliably publish the live site. Auto-deploy from GitHub is currently not firing.
+- To publish, run `npx vercel --prod --yes` from the project root. The Vercel CLI is already signed in.
+- The change is live at https://better-menu-eight.vercel.app within a few seconds. Always verify by loading the URL.
 
 ## Running Multiple Sessions
 - It is fine to run several Claude sessions on this project at the same time.
