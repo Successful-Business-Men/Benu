@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root{
   --bg:#FAFBF7; --surface:#FFFFFF; --raised:#F2F6EB; --tinted:#E8F0D9; --outer:#ECEEE7; --cream:#FBF7EE;
@@ -62,11 +61,28 @@ h1,h2,h3,h4{margin:0;font-weight:600}
 .iconbtn{width:44px;height:44px;border-radius:11px;flex-shrink:0;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;cursor:pointer;transition:all .15s}
 .iconbtn:hover{background:var(--raised);border-color:var(--border-strong)}
 .iconbtn-mini{width:28px;height:28px;border-radius:8px}
-.dropzone{border:2px dashed var(--border-strong);background:var(--cream);border-radius:var(--r-md);padding:40px 20px;text-align:center;cursor:pointer;transition:all .18s}
+.dropzone{display:block;position:relative;border:2px dashed var(--border-strong);background:var(--cream);border-radius:var(--r-md);padding:40px 20px;text-align:center;cursor:pointer;transition:all .18s}
 .dropzone:hover{border-color:var(--mint-500);background:var(--mint-50)}
 input::placeholder,textarea::placeholder{color:var(--soft)}
 input:focus,textarea:focus{border-color:var(--mint-500) !important}
 button{font-family:var(--sans)}
+/* Home-style header (ported from index.html) */
+.site-header{position:sticky;top:0;z-index:40;background:rgba(250,251,247,0.86);backdrop-filter:saturate(150%) blur(14px);border-bottom:1px solid var(--border)}
+.hdr-container{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:20px;max-width:1180px;margin:0 auto;padding:16px 32px}
+.brand{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--serif);font-style:italic;font-weight:600;font-size:1.4rem;letter-spacing:-0.01em;color:var(--text);text-decoration:none;justify-self:start}
+.brand .mark{display:grid;place-items:center;width:30px;height:30px;border-radius:999px;background:var(--mint-900);color:#fff;font-style:normal;font-weight:600;font-size:.85rem;box-shadow:0 2px 8px rgba(33,49,22,.20)}
+.pill-nav{display:inline-flex;align-items:center;gap:4px;padding:5px;background:var(--surface);border:1px solid var(--border);border-radius:999px;box-shadow:0 2px 8px rgba(20,23,26,.04);justify-self:center}
+.pill-nav a{padding:7px 16px;font-size:.85rem;font-weight:500;color:var(--text);border-radius:999px;transition:background .2s,color .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;text-decoration:none}
+.pill-nav a:hover{background:var(--mint-50)}
+.pill-nav a.active{background:var(--mint-200);color:var(--mint-900)}
+.pill-nav a .pill-ico{display:inline-flex;opacity:.65}
+.pill-nav a.active .pill-ico{opacity:1;color:var(--mint-700)}
+.nav-actions{display:inline-flex;align-items:center;gap:10px;justify-self:end}
+.nav-actions .signin{font-size:.85rem;color:var(--muted);padding:6px 10px;border-radius:999px;text-decoration:none}
+.nav-actions .signin:hover{color:var(--text)}
+.hdr-progress{height:2px;background:var(--outer)}
+.hdr-progress > div{height:100%;background:var(--mint-600);transition:width .5s cubic-bezier(.2,.7,.3,1)}
+@media (max-width:880px){.pill-nav{display:none}.hdr-container{grid-template-columns:1fr auto}}
 @media (max-width:880px){
   .import-grid,.mod-grid,.tpl-grid,.pub-grid,.alg-grid,.cater-grid{grid-template-columns:1fr !important}
   .loc-grid{grid-template-columns:1fr !important}
@@ -214,7 +230,7 @@ const allergyState={
 /* ---------- STATE ---------- */
 const state={
   screen:(function(){var n=parseInt(localStorage.getItem("benu_screen")||"0",10);return isNaN(n)?0:Math.min(Math.max(n,0),8);})(),
-  import:{files:[{name:"olive-branch-dinner.pdf",size:"2.4 MB",pct:100,state:"done"},{name:"wine-list-2026.pdf",size:"1.1 MB",pct:100,state:"done"}],link:"oliv ebranchkitchen.com",logo:true},
+  import:{files:[],link:"ssfreshnoodle.com",logo:null},
   build:{sel:{qr:true,takeout:true,catering:false,multi:false,home:true,codes:true},areas:{dining:8,patio:4,bar:6}},
   gen:{active:0,done:false},
   review:{states:{},vals:{},editing:null,editVal:""},
@@ -236,14 +252,18 @@ function setModel(path,val){var parts=path.split(".");var o=state;for(var i=0;i<
 function topBar(){
   var screen=state.screen,total=STEPS.length;
   var pct=screen>=total?100:(screen/(total-1))*100;
-  var pills=STEPS.map(function(s,i){return `<button data-act="jump" data-i="${i}" class="steptab" data-active="${i===screen}" data-done="${i<screen}">${s}</button>`;}).join("");
-  return `<header style="position:sticky;top:0;z-index:40;background:rgba(250,251,247,0.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)">
-    <div style="max-width:1180px;margin:0 auto;padding:16px 32px" class="row spread">
-      ${logoHtml(20)}
-      <div class="row gap-2" style="display:flex">${pills}</div>
-      <div class="row gap-3"><span class="metalabel" style="color:var(--muted)">The Olive Branch</span><div style="width:30px;height:30px;border-radius:999px;background:var(--mint-200);display:grid;place-items:center;color:var(--mint-900);font-weight:600;font-size:13px">O</div></div>
+  return `<header class="site-header">
+    <div class="hdr-container">
+      <a href="./index.html#top" class="brand"><span class="mark">B</span> Benu</a>
+      <nav class="pill-nav" aria-label="Primary">
+        <a href="./index.html#top"><span class="pill-ico">${icon("home",{size:15})}</span> Home</a>
+        <a href="./index.html#bundle"><span class="pill-ico">${icon("box",{size:15})}</span> Bundle</a>
+        <a href="./index.html#templates"><span class="pill-ico">${icon("layout",{size:15})}</span> Templates</a>
+        <a href="./index.html#pricing"><span class="pill-ico">${icon("price",{size:15})}</span> Pricing</a>
+      </nav>
+      <div class="nav-actions"><a href="./index.html#concierge" class="signin">Talk to us</a></div>
     </div>
-    <div style="height:2px;background:var(--outer)"><div style="height:100%;width:${pct}%;background:var(--mint-600);transition:width .5s cubic-bezier(.2,.7,.3,1)"></div></div>
+    <div class="hdr-progress"><div style="width:${pct}%"></div></div>
   </header>`;
 }
 function screenWrap(inner,max){max=max||1080;return `<main class="scroll" style="flex:1;overflow-y:auto;overflow-x:hidden"><div style="max-width:${max}px;margin:0 auto;padding:44px 32px 140px">${inner}</div></main>`;}
@@ -254,30 +274,36 @@ function tick(on){return `<div style="width:24px;height:24px;border-radius:7px;f
 
 /* ---------- SCREEN 1: IMPORT ---------- */
 function viewImport(){
-  var files=state.import.files.map(function(f){return `<div class="row gap-3" style="padding:12px 14px;border-radius:12px;background:${f.state==="fail"?"var(--danger-bg)":"var(--raised)"}">${pdfTile(32)}<div class="grow"><div class="row spread"><span style="font-size:14px;font-weight:500">${f.name}</span><span style="font-size:12px;color:var(--soft);font-family:var(--mono)">${f.state==="done"?f.size:f.pct+"%"}</span></div>${f.state==="done"?`<div class="st st-ok" style="margin-top:6px">${icon("check",{size:11,stroke:2.6})} Read by Benu</div>`:`<div style="height:5px;background:var(--outer);border-radius:9px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${f.pct}%;background:var(--warm);transition:width .2s"></div></div>`}</div></div>`;}).join("");
+  var files=state.import.files.map(function(f,i){return `<div class="row gap-3" style="padding:12px 14px;border-radius:12px;background:var(--raised)">${pdfTile(32)}<div class="grow" style="min-width:0"><div class="row spread"><span style="font-size:14px;font-weight:500;word-break:break-all">${f.name}</span><span style="font-size:12px;color:var(--soft);font-family:var(--mono);white-space:nowrap;margin-left:8px">${f.size}</span></div><div class="st st-ok" style="margin-top:6px">${icon("check",{size:11,stroke:2.6})} Uploaded</div></div><button class="iconbtn" data-act="rmfile" data-i="${i}" title="Remove" aria-label="Remove file">${icon("x",{size:16,color:"var(--muted)"})}</button></div>`;}).join("");
+  var fileList=state.import.files.length?`<div class="col gap-2" style="margin-top:18px">${files}</div>`:"";
+  var logoBlock=state.import.logo
+    ?`<div class="row spread" style="background:var(--mint-50);border:1px solid var(--mint-200);border-radius:12px;padding:10px 12px"><div class="row gap-3" style="min-width:0"><img src="${state.import.logo.url}" alt="Logo preview" style="width:38px;height:38px;border-radius:9px;object-fit:cover;background:var(--surface);border:1px solid var(--border);flex-shrink:0"/><div style="min-width:0"><div style="font-size:13.5px;font-weight:500;word-break:break-all">${state.import.logo.name}</div><div class="metalabel">Uploaded</div></div></div><button class="iconbtn" data-act="rmlogo" title="Remove logo" aria-label="Remove logo">${icon("x",{size:16,color:"var(--muted)"})}</button></div>`
+    :`<label style="position:relative;width:100%;border:2px dashed var(--border-strong);background:var(--cream);border-radius:12px;padding:16px;cursor:pointer;color:var(--muted);font-size:13.5px;display:flex;gap:8px;justify-content:center;align-items:center">${icon("upload",{size:16})} Upload logo<input id="logo-input" type="file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0"/></label>`;
+  var n=state.import.files.length;
+  var statusChips=n
+    ?`<span class="st st-ok">${icon("check",{size:12,stroke:2.6})} ${n} ${n===1?"menu":"menus"} added</span><span class="metalabel" style="color:var(--muted)">${state.import.link?"Website linked":"No website yet"}${state.import.logo?" · Logo added":""}</span>`
+    :`<span class="metalabel" style="color:var(--muted)">Add your menu to get started</span>`;
   var inner=`
     ${pageHead({title:"Let’s Start With Your <em>Menu</em>",sub:"Hand us whatever you already have, a PDF, a photo, or a link to your current site, and Benu turns it into a beautiful online menu in minutes. You stay in charge and approve every detail before a single guest sees it."})}
     <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:22px" class="import-grid">
       <div class="card" style="padding:22px">
         <div class="row spread" style="margin-bottom:16px"><div class="metalabel" style="color:var(--muted)">Primary Source</div><span class="chip">${icon("sparkle",{size:13,color:"var(--pill-text)"})} Recommended</span></div>
-        <div class="dropzone" data-act="upload"><div style="margin-bottom:14px">${pdfTile(52)}</div><div style="font-size:17px;font-weight:500">Drop your menu here, or <span style="color:var(--mint-600);font-weight:600">Browse</span></div><div style="color:var(--soft);font-size:13px;margin-top:6px">PDF, JPG or PNG · up to 90 MB</div></div>
-        <div class="col gap-2" style="margin-top:18px">${files}</div>
+        <label class="dropzone" id="dropzone"><div style="margin-bottom:14px">${pdfTile(52)}</div><div style="font-size:17px;font-weight:500">Drop your menu here, or <span style="color:var(--mint-600);font-weight:600">Browse</span></div><div style="color:var(--soft);font-size:13px;margin-top:6px">PDF, JPG or PNG · up to 90 MB</div><input id="pdf-input" type="file" accept="application/pdf,image/png,image/jpeg" multiple style="position:absolute;width:1px;height:1px;opacity:0"/></label>
+        ${fileList}
       </div>
       <div class="col gap-4">
         <div class="card" style="padding:18px">
           <div class="row gap-2" style="margin-bottom:12px">${icon("link",{size:18,color:"var(--mint-600)"})}<span style="font-weight:600;font-size:15px">Existing Website</span></div>
-          <div class="row" style="border:1px solid var(--border-strong);border-radius:999px;overflow:hidden;background:var(--surface)"><span style="padding:10px 4px 10px 14px;color:var(--soft);font-size:14px">https://</span><input value="${state.import.link}" data-model="import.link" style="flex:1;border:none;outline:none;padding:10px 8px;font-size:14px;font-family:var(--sans);background:transparent"/></div>
+          <div class="row" style="border:1px solid var(--border-strong);border-radius:999px;overflow:hidden;background:var(--surface)"><span style="padding:10px 4px 10px 14px;color:var(--soft);font-size:14px">https://</span><input value="${state.import.link}" data-model="import.link" placeholder="yourrestaurant.com" style="flex:1;border:none;outline:none;padding:10px 8px;font-size:14px;font-family:var(--sans);background:transparent"/></div>
           <div class="metalabel" style="margin-top:9px">We’ll pull hours, photos and contact too</div>
         </div>
         <div class="card" style="padding:18px">
           <div class="row gap-2" style="margin-bottom:12px">${icon("image",{size:18,color:"var(--mint-600)"})}<span style="font-weight:600;font-size:15px">Logo</span></div>
-          ${state.import.logo
-            ?`<div class="row spread" style="background:var(--mint-50);border:1px solid var(--mint-200);border-radius:12px;padding:10px 12px"><div class="row gap-3"><div style="width:38px;height:38px;border-radius:9px;background:var(--mint-900);color:#CBE0A8;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:18px">O</div><div><div style="font-size:13.5px;font-weight:500">logo-olive.svg</div><div class="metalabel">512 × 512</div></div></div><button data-act="logo-toggle" class="btn btn-ghost btn-sm">${icon("x",{size:15})}</button></div>`
-            :`<button data-act="logo-toggle" style="width:100%;border:2px dashed var(--border-strong);background:var(--cream);border-radius:12px;padding:16px;cursor:pointer;color:var(--muted);font-size:13.5px;display:flex;gap:8px;justify-content:center;align-items:center">${icon("upload",{size:16})} Upload logo</button>`}
+          ${logoBlock}
         </div>
       </div>
     </div>`;
-  var foot=`<div class="row gap-3"><span class="st st-ok">${icon("check",{size:12,stroke:2.6})} 2 menus read</span><span class="metalabel" style="color:var(--muted)">Website linked · Logo added</span></div><button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
+  var foot=`<div class="row gap-3">${statusChips}</div><button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
   return screenWrap(inner)+footerBar(foot);
 }
 
@@ -452,8 +478,8 @@ app.addEventListener("click",function(e){
   if(act==="jump"){go(parseInt(t.dataset.i,10));return;}
   if(act==="later"){go(8);return;}
   if(act==="toPublish"){go(7);return;}
-  if(act==="upload"){addUploading();return;}
-  if(act==="logo-toggle"){state.import.logo=!state.import.logo;render();return;}
+  if(act==="rmfile"){state.import.files.splice(parseInt(t.dataset.i,10),1);render();return;}
+  if(act==="rmlogo"){if(state.import.logo&&state.import.logo.url)URL.revokeObjectURL(state.import.logo.url);state.import.logo=null;render();return;}
   if(act==="mod"){state.build.sel[id]=!state.build.sel[id];render();return;}
   if(act==="selall"){var all=Object.values(state.build.sel).filter(Boolean).length===MODULES.length;var v=!all;MODULES.forEach(function(m){state.build.sel[m.id]=v;});render();return;}
   if(act==="bump"){var area=t.dataset.area,d=parseInt(t.dataset.d,10);state.build.areas[area]=Math.max(0,Math.min(60,state.build.areas[area]+d));render();return;}
@@ -479,20 +505,13 @@ app.addEventListener("input",function(e){
 app.addEventListener("keydown",function(e){
   if(e.key==="Enter"){var t=e.target.closest("[data-enter]");if(t){e.preventDefault();var k=t.dataset.k;state.review.vals[k]=state.review.editVal;state.review.states[k]="approved";state.review.editing=null;render();}}
 });
+app.addEventListener("change",function(e){var t=e.target;if(t.id==="pdf-input"){handlePdfFiles(t.files);}else if(t.id==="logo-input"){handleLogoFile(t.files&&t.files[0]);}});
+app.addEventListener("dragover",function(e){if(e.target.closest&&e.target.closest("#dropzone")){e.preventDefault();}});
+app.addEventListener("drop",function(e){var dz=e.target.closest&&e.target.closest("#dropzone");if(dz){e.preventDefault();handlePdfFiles(e.dataTransfer.files);}});
 
-function addUploading(){
-  var id="draft-menu-"+(Math.floor(Math.random()*90+10))+".pdf";
-  state.import.files.push({name:id,size:"3.0 MB",pct:8,state:"up"});
-  render();
-  var p=8;
-  var timer=setInterval(function(){
-    p+=Math.random()*22;
-    var f=state.import.files.find(function(x){return x.name===id;});
-    if(!f){clearInterval(timer);return;}
-    if(p>=100){p=100;f.pct=100;f.state="done";clearInterval(timer);}else{f.pct=Math.round(p);}
-    render();
-  },240);
-}
+function formatSize(bytes){if(bytes>=1048576)return (bytes/1048576).toFixed(1)+" MB";if(bytes>=1024)return Math.round(bytes/1024)+" KB";return bytes+" B";}
+function handlePdfFiles(fileList){if(!fileList||!fileList.length)return;Array.prototype.forEach.call(fileList,function(file){state.import.files.push({name:file.name,size:formatSize(file.size)});});render();}
+function handleLogoFile(file){if(!file)return;if(state.import.logo&&state.import.logo.url)URL.revokeObjectURL(state.import.logo.url);state.import.logo={name:file.name,url:URL.createObjectURL(file)};render();}
 
 /* ---------- BOOT ---------- */
 initState();
