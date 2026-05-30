@@ -3,1007 +3,501 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Get started - Better Menu</title>
+<title>Get Started With Benu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  html, body {
-    background-color: #FBF7EE;
-    color: #1a1a1a;
-    -webkit-font-smoothing: antialiased;
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  .font-serif { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; }
-
-  /* Choice / module card */
-  .choice {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-    border: 1px solid rgba(0,0,0,0.10);
-    background: white;
-    border-radius: 16px;
-    padding: 16px 18px;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color .15s, transform .12s cubic-bezier(.16,1,.3,1), background .15s;
-  }
-  .choice:hover { border-color: rgba(0,0,0,0.45); transform: translateY(-1px); }
-  .choice:active { transform: translateY(0) scale(.99); }
-  .choice[aria-pressed="true"] { border-color: #1a1a1a; background: #1a1a1a; color: #FBF7EE; }
-  .choice[aria-pressed="true"] .choice-blurb { color: #FBF7EE; opacity: .7; }
-  .choice-title { font-family: ui-serif, Georgia, serif; font-size: 1.0625rem; line-height: 1.25; }
-  .choice-blurb { font-size: .8125rem; color: #6b7280; line-height: 1.4; }
-
-  /* Module card with a checkbox affordance */
-  .module-card {
-    position: relative;
-    display: flex; align-items: flex-start; gap: 12px;
-    border: 1px solid rgba(0,0,0,0.10);
-    background: white; border-radius: 16px; padding: 16px 18px;
-    cursor: pointer; text-align: left;
-    transition: border-color .15s, transform .12s cubic-bezier(.16,1,.3,1), box-shadow .15s;
-  }
-  .module-card:hover { border-color: rgba(0,0,0,0.45); transform: translateY(-1px); }
-  .module-card[aria-pressed="true"] { border-color: #1a1a1a; box-shadow: 0 0 0 1.5px #1a1a1a; }
-  .module-check {
-    flex: none; width: 22px; height: 22px; border-radius: 7px;
-    border: 1.5px solid rgba(0,0,0,0.25); display: grid; place-items: center;
-    transition: background .15s, border-color .15s;
-  }
-  .module-card[aria-pressed="true"] .module-check { background: #1a1a1a; border-color: #1a1a1a; }
-  .module-check svg { opacity: 0; color: #FBF7EE; }
-  .module-card[aria-pressed="true"] .module-check svg { opacity: 1; }
-  .module-title { font-family: ui-serif, Georgia, serif; font-size: 1.0625rem; line-height: 1.2; }
-  .module-blurb { font-size: .8125rem; color: #6b7280; line-height: 1.4; margin-top: 2px; }
-
-  /* Step enter motion */
-  .step { display: none; }
-  .step.active { display: block; animation: stepIn .35s cubic-bezier(.16,1,.3,1); }
-  @keyframes stepIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Progress strip - phase dots, no "step N of M" */
-  .progress { display: flex; align-items: center; gap: 10px; }
-  .progress-dot { width: 8px; height: 8px; border-radius: 999px; background: rgba(0,0,0,0.15); transition: all .25s cubic-bezier(.16,1,.3,1); }
-  .progress-dot.active { width: 28px; border-radius: 4px; background: #1a1a1a; }
-  .progress-dot.done { background: #1a1a1a; }
-  .progress-label { font-size: .8125rem; color: rgba(0,0,0,0.55); letter-spacing: .01em; }
-
-  /* Drop zone */
-  .drop-zone { border: 1.5px dashed rgba(0,0,0,0.25); background: white; border-radius: 24px; transition: border-color .15s, background .15s; }
-  .drop-zone:hover, .drop-zone.dragging { border-color: #1a1a1a; background: #FFFBF2; }
-
-  /* Import option tabs */
-  .imp-tab {
-    display: inline-flex; align-items: center; gap: 7px;
-    border: 1px solid rgba(0,0,0,0.12); background: white;
-    border-radius: 999px; padding: 8px 14px; font-size: .8125rem; cursor: pointer;
-    transition: border-color .15s, background .15s, color .15s;
-  }
-  .imp-tab[aria-selected="true"] { background: #1a1a1a; color: #FBF7EE; border-color: #1a1a1a; }
-  .imp-panel { display: none; }
-  .imp-panel.active { display: block; animation: stepIn .25s cubic-bezier(.16,1,.3,1); }
-
-  /* Cards used across review / catering / locations / allergy */
-  .card { background: white; border: 1px solid rgba(0,0,0,0.10); border-radius: 16px; }
-  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; letter-spacing: .04em; padding: 3px 9px; border-radius: 999px; font-weight: 600; }
-  .pill-amber { background: #FEF3C7; color: #92400e; }
-  .pill-green { background: #DCFCE7; color: #166534; }
-  .pill-neutral { background: #F3F4F6; color: #4b5563; }
-  .pill-ink { background: #1a1a1a; color: #FBF7EE; }
-
-  .tiny-btn { font-size: 12px; font-weight: 500; padding: 6px 12px; border-radius: 999px; transition: background .15s, border-color .15s, transform .12s; }
-  .tiny-btn:active { transform: scale(.97); }
-  .tiny-approve { background: #1a1a1a; color: #FBF7EE; }
-  .tiny-approve:hover { background: #000; }
-  .tiny-ghost { background: white; color: #4b5563; border: 1px solid rgba(0,0,0,0.15); }
-  .tiny-ghost:hover { border-color: rgba(0,0,0,0.4); }
-
-  .field-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; margin-bottom: 4px; display: block; }
-  .field-input { width: 100%; border: 1px solid rgba(0,0,0,0.18); background: white; border-radius: 10px; padding: 8px 11px; font-size: .875rem; }
-  .field-input:focus { outline: none; border-color: #1a1a1a; }
-
-  /* Template gallery (recommendations) */
-  .template-card { position: relative; background: white; border-radius: 16px; overflow: hidden; border: 1px solid rgba(0,0,0,0.08); transition: transform .2s cubic-bezier(.16,1,.3,1), border-color .15s, box-shadow .2s; display: flex; flex-direction: column; }
-  .template-card:hover { border-color: rgba(0,0,0,0.4); box-shadow: 0 12px 32px rgba(0,0,0,0.08); transform: translateY(-3px); }
-  .template-card.recommended { border-color: #1a1a1a; box-shadow: 0 0 0 2px #1a1a1a, 0 8px 24px rgba(0,0,0,0.06); }
-  .template-card.chosen { border-color: #1a1a1a; box-shadow: 0 0 0 2px #1a1a1a, 0 12px 28px rgba(0,0,0,0.08); }
-  .template-preview { position: relative; width: 100%; aspect-ratio: 16 / 11; overflow: hidden; background: #FBF7EE; }
-  .template-preview iframe { border: 0; position: absolute; top: 0; left: 0; width: 400%; height: 400%; transform: scale(0.25); transform-origin: top left; pointer-events: none; }
-  .template-preview .preview-shield { position: absolute; inset: 0; pointer-events: auto; cursor: pointer; z-index: 3; }
-  .recommended-tag { position: absolute; top: 12px; left: 12px; background: #1a1a1a; color: #FBF7EE; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; font-weight: 600; z-index: 2; }
-  .template-card.chosen::after { content: "Selected"; position: absolute; top: 12px; right: 12px; background: #1a1a1a; color: #FBF7EE; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; font-weight: 600; z-index: 2; }
-  .template-card-meta { padding: 16px 16px 4px; }
-  .template-card-meta h3 { font-family: ui-serif, Georgia, serif; font-size: 1.2rem; line-height: 1.15; color: #1a1a1a; }
-  .template-card-meta p { margin-top: .4rem; font-size: .8125rem; line-height: 1.5; color: #6b7280; }
-  .pick-btn { margin: 14px; padding: 10px 16px; border-radius: 999px; background: #1a1a1a; color: #FBF7EE; font-size: 13px; font-weight: 500; transition: background .15s, transform .15s; }
-  .pick-btn:hover { background: #000; transform: scale(1.02); }
-
-  /* Faux QR preview */
-  .qr-box { display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; width: 72px; height: 72px; padding: 5px; background: white; border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; }
-  .qr-box i { background: #1a1a1a; border-radius: 1px; }
-  .qr-box i.off { background: transparent; }
-
-  /* AI progress lines */
-  .ai-line { display: flex; align-items: center; gap: 12px; padding: 10px 0; opacity: .35; transition: opacity .3s; }
-  .ai-line.done, .ai-line.active { opacity: 1; }
-  .ai-dot { flex: none; width: 22px; height: 22px; border-radius: 999px; border: 2px solid rgba(0,0,0,0.2); display: grid; place-items: center; }
-  .ai-line.active .ai-dot { border-color: #1a1a1a; }
-  .ai-line.done .ai-dot { background: #1a1a1a; border-color: #1a1a1a; }
-  .ai-line.done .ai-dot svg { color: #FBF7EE; }
-  .ai-spin { width: 12px; height: 12px; border: 2px solid rgba(0,0,0,0.25); border-top-color: #1a1a1a; border-radius: 999px; animation: spin .7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+:root{
+  --bg:#FAFBF7; --surface:#FFFFFF; --raised:#F2F6EB; --tinted:#E8F0D9; --outer:#ECEEE7; --cream:#FBF7EE;
+  --text:#14171A; --muted:#6B7269; --soft:#ADB3A9;
+  --mint-50:#F4F8EC; --mint-100:#E8F0D9; --mint-200:#D4E5B5; --mint-300:#C0D896; --mint-400:#A8C879;
+  --mint-500:#82A85C; --mint-600:#618440; --mint-700:#44602C; --mint-900:#213116;
+  --pill-bg:#CBE0A8; --pill-text:#1F3013; --warm:#FDA172;
+  --border:rgba(20,23,26,0.08); --border-strong:rgba(20,23,26,0.14);
+  --shadow-sm:0 1px 2px rgba(20,23,26,0.04),0 1px 3px rgba(20,23,26,0.05);
+  --shadow-md:0 4px 12px rgba(20,23,26,0.05),0 2px 6px rgba(20,23,26,0.04);
+  --shadow-lg:0 16px 40px rgba(20,23,26,0.08),0 4px 12px rgba(20,23,26,0.05);
+  --shadow-green:0 10px 28px rgba(33,49,22,0.18);
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-pill:999px;
+  --serif:"Cormorant Garamond",Georgia,serif; --sans:"Inter",-apple-system,system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --ok:#2F7D32; --ok-bg:#E6F2E2; --warn:#B8791F; --warn-bg:#FBF0DC; --danger:#C0492C; --danger-bg:#FBEAE3; --info:#2F6E7D;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4{margin:0;font-weight:600}
+.display{font-family:var(--serif);font-weight:500;line-height:1.08;letter-spacing:-0.01em;color:var(--text)}
+.display em{font-style:italic;color:var(--mint-700)}
+.serif{font-family:var(--serif)}
+.eyebrow{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--mint-600)}
+.metalabel{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--soft)}
+.btn{font-family:var(--sans);font-size:15px;font-weight:500;border-radius:var(--r-pill);border:1px solid transparent;height:44px;padding:0 24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:9px;transition:background .18s ease,border-color .18s ease,color .18s ease;white-space:nowrap;line-height:1}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--mint-900);color:#fff;box-shadow:var(--shadow-green)}
+.btn-primary:hover{background:var(--mint-700)}
+.btn-primary:disabled{background:var(--outer);color:var(--soft);box-shadow:none;cursor:not-allowed}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border-strong)}
+.btn-secondary:hover{background:var(--raised);border-color:var(--mint-400)}
+.btn-soft{background:var(--mint-200);color:var(--mint-900)}
+.btn-soft:hover{background:var(--mint-300)}
+.btn-ghost{background:transparent;color:var(--muted)}
+.btn-ghost:hover{color:var(--text);background:var(--raised)}
+.btn-lg{height:52px;padding:0 32px;font-size:16px}
+.btn-sm{height:44px;padding:0 16px;font-size:13.5px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:5px 12px;border-radius:var(--r-pill);background:var(--pill-bg);color:var(--pill-text);line-height:1}
+.chip-mono{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase}
+.st{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:var(--r-pill);font-weight:500}
+.st-ok{background:var(--ok-bg);color:var(--ok)}
+.st-warn{background:var(--warn-bg);color:var(--warn)}
+.st-danger{background:var(--danger-bg);color:var(--danger)}
+.st-ai{background:var(--mint-100);color:var(--mint-700)}
+.st-neutral{background:var(--outer);color:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.steptab{font:500 11px/1 var(--sans);letter-spacing:.01em;padding:8px 13px;border-radius:999px;border:1px solid transparent;cursor:pointer;transition:none;background:transparent;color:var(--soft)}
+.steptab[data-done="true"]{color:var(--mint-700)}
+.steptab[data-active="true"]{background:var(--mint-900);color:#fff}
+@media (max-width:1080px){.steptab{padding:7px 9px;font-size:10.5px}}
+.iconbtn{width:44px;height:44px;border-radius:11px;flex-shrink:0;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;cursor:pointer;transition:all .15s}
+.iconbtn:hover{background:var(--raised);border-color:var(--border-strong)}
+.iconbtn-mini{width:28px;height:28px;border-radius:8px}
+.dropzone{border:2px dashed var(--border-strong);background:var(--cream);border-radius:var(--r-md);padding:40px 20px;text-align:center;cursor:pointer;transition:all .18s}
+.dropzone:hover{border-color:var(--mint-500);background:var(--mint-50)}
+input::placeholder,textarea::placeholder{color:var(--soft)}
+input:focus,textarea:focus{border-color:var(--mint-500) !important}
+button{font-family:var(--sans)}
+@media (max-width:880px){
+  .import-grid,.mod-grid,.tpl-grid,.pub-grid,.alg-grid,.cater-grid{grid-template-columns:1fr !important}
+  .loc-grid{grid-template-columns:1fr !important}
+  .loc-grid>div{border-left:none !important;border-top:1px solid var(--border)}
+  .steptab{display:none}
+  .display{font-size:34px !important}
+}
+.row{display:flex;align-items:center}
+.col{display:flex;flex-direction:column}
+.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}.gap-5{gap:20px}.gap-6{gap:24px}
+.spread{justify-content:space-between}
+.center{align-items:center;justify-content:center}
+.wrap{flex-wrap:wrap}
+.grow{flex:1}
+.scroll::-webkit-scrollbar{width:10px;height:10px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(20,23,26,.12);border-radius:10px;border:3px solid transparent;background-clip:content-box}
+.scroll::-webkit-scrollbar-track{background:transparent}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 </style>
 </head>
-<body class="min-h-screen">
-
-<header class="mx-auto flex max-w-3xl items-center justify-between px-6 py-5 sm:px-10">
-  <a href="./index.html" class="flex items-center gap-2">
-    <svg width="32" height="32" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-      <circle cx="24" cy="24" r="22" fill="#FDA172"/>
-      <path d="M14 22c2-4 6-6 10-6s8 2 10 6M14 26c2 4 6 6 10 6s8-2 10-6" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round"/>
-    </svg>
-    <span class="font-serif text-lg">Better Menu</span>
-  </a>
-  <a href="./builder.html" class="text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900">Skip setup</a>
-</header>
-
-<main class="mx-auto max-w-3xl px-6 pb-24 sm:px-10">
-
-  <!-- Progress: 5 phase dots -->
-  <div class="mb-10 flex items-center justify-between">
-    <div class="progress" aria-label="Setup progress">
-      <span data-phase="0" class="progress-dot active"></span>
-      <span data-phase="1" class="progress-dot"></span>
-      <span data-phase="2" class="progress-dot"></span>
-      <span data-phase="3" class="progress-dot"></span>
-      <span data-phase="4" class="progress-dot"></span>
-    </div>
-    <span id="progress-label" class="progress-label">Import</span>
-  </div>
-
-  <!-- ============ STEP: IMPORT ============ -->
-  <section id="step-import" class="step active">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Let's bring your menu in.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 56ch;">Give us whatever you already have. Better Menu reads it and drafts your setup — you just check and approve.</p>
-
-    <div class="mt-7 flex flex-wrap gap-2" role="tablist" aria-label="Import options">
-      <button class="imp-tab" data-tab="upload" aria-selected="true">Upload menu</button>
-      <button class="imp-tab" data-tab="website" aria-selected="false">Paste website link</button>
-      <button class="imp-tab" data-tab="logo" aria-selected="false">Add your logo</button>
-      <button class="imp-tab" data-tab="describe" aria-selected="false">No menu yet</button>
-    </div>
-
-    <!-- Upload (PDF or photo) -->
-    <div id="panel-upload" class="imp-panel active mt-6">
-      <label id="drop-zone" class="drop-zone block cursor-pointer p-10 text-center">
-        <input id="file-input" type="file" accept="application/pdf,image/*" class="hidden"/>
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mx-auto mb-3 text-neutral-400">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6M9 15l3-3 3 3"/>
-        </svg>
-        <p class="font-serif text-lg">Drop a PDF or photo of your menu</p>
-        <p class="mt-1 text-sm text-neutral-500">or click to browse · your file stays in your browser</p>
-      </label>
-      <div id="upload-status" class="mt-4 hidden rounded-2xl bg-white p-4 text-sm shadow-sm ring-1 ring-black/5"></div>
-    </div>
-
-    <!-- Website link -->
-    <div id="panel-website" class="imp-panel mt-6">
-      <label class="field-label">Your current website</label>
-      <div class="flex flex-col gap-2 sm:flex-row">
-        <input id="website-input" type="url" inputmode="url" placeholder="https://yourrestaurant.com"
-               class="flex-1 rounded-full border border-neutral-300 bg-white px-4 py-3 text-sm focus:border-neutral-900 focus:outline-none"/>
-      </div>
-      <p class="mt-2 text-xs text-neutral-500">We'll read your existing site and draft a menu from it. You'll review everything before it goes live.</p>
-    </div>
-
-    <!-- Logo -->
-    <div id="panel-logo" class="imp-panel mt-6">
-      <label id="logo-zone" class="drop-zone block cursor-pointer p-8 text-center">
-        <input id="logo-input" type="file" accept="image/*" class="hidden"/>
-        <div id="logo-preview" class="hidden mx-auto mb-3"></div>
-        <p class="font-serif text-lg">Add your logo</p>
-        <p class="mt-1 text-sm text-neutral-500">PNG, JPG, or SVG. Optional — we'll match colors to it.</p>
-      </label>
-    </div>
-
-    <!-- Describe (no menu yet) -->
-    <div id="panel-describe" class="imp-panel mt-6">
-      <label class="field-label">Tell us about the place</label>
-      <textarea id="brief-input" rows="3" placeholder='e.g. "Sichuan noodle bar in Brooklyn, signature is dan dan mian"'
-                class="w-full resize-none rounded-2xl border border-neutral-300 bg-white px-4 py-3 text-sm focus:border-neutral-900 focus:outline-none"></textarea>
-      <p class="mt-2 text-xs text-neutral-500">For brand-new spots with no menu yet. AI drafts a starter menu you can edit.</p>
-    </div>
-
-    <div class="mt-10 flex items-center justify-between">
-      <span id="import-summary" class="text-xs text-neutral-500"></span>
-      <button id="import-continue" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Continue</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP: MODULES ============ -->
-  <section id="step-modules" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">What should AI build for you?</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 56ch;">Pick what you need. You can change this later — nothing is locked in.</p>
-
-    <button id="select-all" class="choice mt-7 w-full sm:w-auto" aria-pressed="false">
-      <span class="choice-title">Select everything</span>
-      <span class="choice-blurb">The full setup — recommended for most restaurants.</span>
-    </button>
-
-    <div id="module-grid" class="mt-4 grid gap-3 sm:grid-cols-2"></div>
-
-    <div class="mt-10 flex justify-between">
-      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <button id="modules-continue" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Build my draft</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP: DRAFT (progress) ============ -->
-  <section id="step-draft" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Building your draft.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 56ch;">This takes a few seconds. We'll show you everything to review next.</p>
-    <div id="ai-progress" class="mt-8 card p-5"></div>
-    <div class="mt-10 flex justify-end">
-      <button id="draft-continue" disabled class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed">Review AI suggestions</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP: REVIEW ============ -->
-  <section id="step-review" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Here's what AI found.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 60ch;">Better Menu did the heavy lifting. Approve the safe fixes, answer a few quick questions, and you're done.</p>
-
-    <div id="review-summary" class="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
-
-    <!-- Safe fixes -->
-    <div id="safe-fixes-block" class="mt-8 hidden">
-      <div class="flex items-center justify-between gap-3">
-        <h2 class="font-serif text-2xl">Safe fixes</h2>
-        <button id="approve-all-fixes" class="tiny-btn tiny-approve">Approve all safe fixes</button>
-      </div>
-      <p class="mt-1 text-sm text-neutral-500">Obvious spelling and formatting corrections.</p>
-      <div id="safe-fixes" class="mt-4 space-y-2"></div>
-    </div>
-
-    <!-- Needs your answer -->
-    <div id="questions-block" class="mt-9 hidden">
-      <h2 class="font-serif text-2xl">Needs your answer</h2>
-      <p class="mt-1 text-sm text-neutral-500">Only the things AI wasn't sure about.</p>
-      <div id="questions" class="mt-4 space-y-3"></div>
-    </div>
-
-    <div id="review-clear" class="mt-8 hidden card p-5 text-center">
-      <p class="font-serif text-xl">Nothing needs your attention.</p>
-      <p class="mt-1 text-sm text-neutral-500">AI read your menu cleanly. You can keep going.</p>
-    </div>
-
-    <div class="mt-10 flex items-center justify-between">
-      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <div class="flex items-center gap-3">
-        <span id="review-remaining" class="text-xs text-neutral-500"></span>
-        <button id="review-continue" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Approve and continue</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ STEP: CATERING ============ -->
-  <section id="step-catering" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Catering, drafted for you.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 60ch;">These are built from your existing menu items — nothing invented. Edit anything, then approve what you want to offer. Nothing publishes until you approve it.</p>
-    <div id="catering-list" class="mt-8 space-y-4"></div>
-    <button id="add-package" class="mt-4 tiny-btn tiny-ghost">+ Add a package</button>
-    <div class="mt-10 flex justify-between">
-      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <button id="catering-continue" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Continue</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP: LOCATIONS ============ -->
-  <section id="step-locations" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Your locations.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 62ch;">Each location gets its own direct link and QR code, so guests skip straight to the right menu. Shared menu, with per-location overrides where you need them.</p>
-
-    <div class="mt-7 flex flex-col gap-2 sm:flex-row">
-      <input id="loc-name" type="text" placeholder="Location name, e.g. Downtown"
-             class="flex-1 rounded-full border border-neutral-300 bg-white px-4 py-3 text-sm focus:border-neutral-900 focus:outline-none"/>
-      <button id="loc-add" class="rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Add location</button>
-    </div>
-
-    <div id="loc-list" class="mt-6 space-y-4"></div>
-    <p id="loc-empty" class="mt-6 text-sm text-neutral-500">Add at least one location to generate its link and QR code.</p>
-
-    <div class="mt-10 flex justify-between">
-      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <button id="locations-continue" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Continue</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP: TEMPLATES ============ -->
-  <section id="step-templates" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Your top template picks.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 60ch;">Chosen for your cuisine, menu size, and what you're building. Pick the one you like — you can fine-tune colors later.</p>
-    <div id="template-gallery" class="mt-9 grid gap-5 sm:grid-cols-3"></div>
-    <div class="mt-10 flex justify-between">
-      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <button id="templates-continue" disabled class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed">Continue</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP: FINISH ============ -->
-  <section id="step-finish" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">You're almost live.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 60ch;">AI built the draft. You approved the details. Here's what's ready.</p>
-
-    <div id="finish-summary" class="mt-7 card p-5"></div>
-
-    <div class="mt-6 card p-6">
-      <label for="finish-email" class="field-label">Where should we send your QR pack?</label>
-      <div class="flex flex-col gap-2 sm:flex-row">
-        <input id="finish-email" type="email" required placeholder="you@yourrestaurant.com" autocomplete="email"
-               class="flex-1 rounded-full border border-neutral-300 bg-white px-4 py-3 text-sm focus:border-neutral-900 focus:outline-none"/>
-        <button id="finish-send" disabled class="rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed">Send my QR pack</button>
-      </div>
-      <p id="finish-status" class="mt-3 text-xs text-neutral-500" aria-live="polite"></p>
-    </div>
-
-    <div class="mt-6 card p-5 flex items-center justify-between gap-4">
-      <div>
-        <p class="font-serif text-lg">Ingredients & allergies</p>
-        <p class="text-sm text-neutral-500">Optional, and best done later. AI can pre-fill likely tags for you to verify.</p>
-      </div>
-      <button id="to-allergy" class="tiny-btn tiny-ghost flex-none">Set up later</button>
-    </div>
-
-    <div class="mt-8 flex justify-between">
-      <button class="back rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <a href="./builder.html" class="rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Open the builder</a>
-    </div>
-  </section>
-
-  <!-- ============ STEP: ALLERGY (deferred / optional) ============ -->
-  <section id="step-allergy" class="step">
-    <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">Ingredient & allergy setup.</h1>
-    <p class="mt-3 text-neutral-600" style="max-width: 62ch;">AI suggested likely dietary tags from how each dish is usually made. These stay <strong>suggestions</strong> until you verify them — we never show an allergy claim you haven't confirmed.</p>
-    <div id="allergy-list" class="mt-8 space-y-3"></div>
-    <div class="mt-10 flex justify-between">
-      <button id="allergy-back" class="rounded-full border border-neutral-300 bg-white px-6 py-3 text-sm font-medium text-neutral-800 hover:bg-neutral-100">Back</button>
-      <a href="./builder.html" class="rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-[#FBF7EE] hover:bg-black">Done</a>
-    </div>
-  </section>
-
-</main>
-
-<script src="./js/store.js"></script>
-<script src="./js/images.js"></script>
-<script src="./js/recommend.js"></script>
-<script src="./js/pdf-parse.js"></script>
-<script src="./js/ai-extract.js"></script>
-<script src="./js/ai-client.js"></script>
-<script src="./js/onboard-ai.js"></script>
+<body>
+<div id="app"></div>
 <script>
-  const $ = (id) => document.getElementById(id);
-  const escapeHTML = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const slugify = (s) => String(s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "menu";
+/* ============================================================
+   BENU / BETTER MENU — AI Onboarding Flow (vanilla port)
+   ============================================================ */
+const ICONS={
+  upload:"M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 20h14",
+  link:"M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 1 0-5.66-5.66l-1.5 1.5M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 1 0 5.66 5.66l1.5-1.5",
+  image:"M4 5h16v14H4zM4 15l4.5-4.5L13 15m-2-2l2.5-2.5L20 17",
+  text:"M5 6h14M5 12h14M5 18h9",
+  qr:"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z",
+  cart:"M4 5h2l2 11h9l2-7H7M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
+  catering:"M12 3v2M5 11a7 7 0 0 1 14 0zM3 11h18M4 15h16M6 19h12",
+  home:"M4 11l8-7 8 7M6 10v9h12v-9",
+  locations:"M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11zM12 10.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
+  check:"M5 12.5l4.5 4.5L19 7.5",
+  checkCircle:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8.5 12l2.5 2.5L15.5 9.5",
+  edit:"M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3zM14 7l3 3",
+  x:"M6 6l12 12M18 6L6 18",
+  arrowR:"M5 12h14m0 0l-6-6m6 6l-6 6",
+  arrowL:"M19 12H5m0 0l6-6m-6 6l6 6",
+  sparkle:"M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z",
+  alert:"M12 3l9 16H3zM12 9v5M12 17.5v.5",
+  info:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v6M12 7.5v.5",
+  clock:"M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3.5 2",
+  price:"M7 12h10M7 8h10M5 4h14v16l-2.5-1.5L14 20l-2-1.5L10 20l-2.5-1.5L5 20z",
+  users:"M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 20a6 6 0 0 1 12 0M17 11a3 3 0 1 0-1.5-5.6M21 20a6 6 0 0 0-4-5.7",
+  box:"M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9",
+  leaf:"M5 19c0-8 6-14 14-14 0 8-6 14-14 14zM5 19c3-3 6-5 10-7",
+  menu:"M7 4h10a1 1 0 0 1 1 1v15l-3-2-3 2-3-2-3 2V5a1 1 0 0 1 1-1zM9 8h6M9 12h6M9 16h3",
+  shield:"M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6zM9 12l2 2 4-4",
+  eye:"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  layout:"M4 5h16v14H4zM4 9h16M9 9v10",
+  copy:"M9 9h10v10H9zM5 15H4V5h10v1",
+  refresh:"M4 12a8 8 0 0 1 13.5-5.8L20 8M20 4v4h-4M20 12a8 8 0 0 1-13.5 5.8L4 16M4 20v-4h4",
+  plus:"M12 5v14M5 12h14",
+  minus:"M5 12h14",
+};
+function icon(name,o){o=o||{};const size=o.size||20,stroke=o.stroke||1.6,color=o.color||"currentColor",fill=o.fill||"none",style=o.style||"";
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" style="${style}"><path d="${ICONS[name]}"/></svg>`;}
+function pdfTile(size){size=size||40;return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><path d="M8 6a2 2 0 0 1 2-2h12l10 10v18a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" fill="#0E7C66"/><path d="M22 4l10 10h-8a2 2 0 0 1-2-2z" fill="#0B5E4D"/><text x="20" y="29" text-anchor="middle" font-family="Inter, sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg>`;}
+function logoHtml(size){size=size||20;return `<div class="row gap-2" style="align-items:center"><div style="width:${size+6}px;height:${size+6}px;border-radius:8px;background:var(--mint-900);display:grid;place-items:center;box-shadow:var(--shadow-green)"><svg width="${size-4}" height="${size-4}" viewBox="0 0 24 24" fill="none"><path d="M7 4h7a4 4 0 0 1 0 8H7zM7 12h8a4 4 0 0 1 0 8H7zM7 4v16" stroke="#CBE0A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-family:var(--serif);font-size:${size+4}px;font-weight:600;letter-spacing:-0.01em">Benu</span></div>`;}
 
-  // ─── State + autosave ───────────────────────────────────────────
-  const SKEY = "better-menu:onboard:v2";
-  const state = {
-    step: "import",
-    import: { source: null, type: null, vibe: "warm", pdfName: null, pdfItems: null, websiteUrl: "", logoDataUrl: null, brief: "" },
-    modules: { qrMenu: true, homepage: true, pickup: false, catering: false, multiLocation: false, tableQr: false },
-    draft: null,
-    review: { fixes: [], questions: [] },
-    catering: { packages: [] },
-    locations: [],
-    template: { chosen: null, palette: null },
-  };
-  function persist() { try { localStorage.setItem(SKEY, JSON.stringify(state)); } catch {} }
-  function restore() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(SKEY));
-      if (raw && typeof raw === "object") {
-        Object.assign(state.import, raw.import || {});
-        Object.assign(state.modules, raw.modules || {});
-        if (raw.draft) state.draft = raw.draft;
-        if (raw.catering) state.catering = raw.catering;
-        if (Array.isArray(raw.locations)) state.locations = raw.locations;
-        if (raw.template) state.template = raw.template;
-      }
-    } catch {}
-  }
+const STEPS=["Import","Build","Generate","Review","Catering","Locations","Templates","Publish"];
 
-  // ─── Flow / navigation ──────────────────────────────────────────
-  const FLOW = ["import", "modules", "draft", "review", "catering", "locations", "templates", "finish"];
-  const PHASE_OF = { import: 0, modules: 1, draft: 1, review: 2, catering: 2, locations: 2, templates: 3, finish: 4, allergy: 4 };
-  const PHASE_LABEL = ["Import", "Build", "Review", "Look", "Done"];
+/* ---------- DATA ---------- */
+const MODULES=[
+  {id:"qr",icon:"qr",name:"QR Menu Website",desc:"A clean digital menu your guests open by scanning a code at the table.",rec:true},
+  {id:"takeout",icon:"cart",name:"Takeout And Pickup",desc:"Let guests order ahead and pay for pickup, right from the menu.",rec:true},
+  {id:"catering",icon:"catering",name:"Catering Menu",desc:"Turn your dishes into trays and platters with their own lead times.",rec:false},
+  {id:"multi",icon:"locations",name:"Multi Location Menus",desc:"Separate menus, hours, and prices for each of your locations.",rec:false},
+  {id:"home",icon:"home",name:"Restaurant Homepage",desc:"A full landing page with your story, photos, hours, and links.",rec:true},
+  {id:"codes",icon:"menu",name:"Table And Location QR Codes",desc:"Printable codes for every table and seat, ready to place on day one.",rec:true},
+];
+const AREA_DEFS=[
+  {key:"dining",label:"Dining",unit:"Tables",tile:"Table",icon:"menu"},
+  {key:"patio",label:"Patio",unit:"Tables",tile:"Table",icon:"leaf"},
+  {key:"bar",label:"Bar And Counter",unit:"Seats",tile:"Seat",icon:"cart"},
+];
+const GEN_STEPS=[
+  {k:"read",icon:"eye",label:"Reading your menu",detail:"2 PDFs · 1 website"},
+  {k:"items",icon:"price",label:"Finding items and prices",detail:"64 dishes · 12 sections"},
+  {k:"mistakes",icon:"shield",label:"Checking for possible mistakes",detail:"spelling · OCR · pricing"},
+  {k:"templates",icon:"layout",label:"Preparing template matches",detail:"3 best fits"},
+  {k:"draft",icon:"sparkle",label:"Drafting your selected modules",detail:"QR · Takeout · Homepage · Codes"},
+];
+const FINDING_GROUPS=[
+  {id:"spelling",title:"Spelling Fixes",icon:"edit",tone:"safe",blurb:"Clear typos Benu can tidy up for you.",
+    items:[{from:"Bruchetta",to:"Bruschetta",ctx:"Starters"},{from:"Margherita Pizaa",to:"Margherita Pizza",ctx:"Wood-fired"},{from:"Tiramsu",to:"Tiramisù",ctx:"Dessert"}]},
+  {id:"ocr",title:"Unclear Scans",icon:"eye",tone:"review",blurb:"Benu wasn’t fully sure it read these right.",
+    items:[{from:"Lamb k????a",to:"Lamb kofta",ctx:"Mains",conf:"Low confidence"},{from:"Halloum?",to:"Halloumi",ctx:"Mezze",conf:"Medium confidence"}]},
+  {id:"price",title:"Prices To Confirm",icon:"price",tone:"review",blurb:"These were tricky to read or look a little off.",
+    items:[{from:"Mezze Platter, $1?",to:"$18.00",ctx:"Mezze",conf:"Couldn’t read decimals"},{from:"House Red, no price",to:"Add price",ctx:"Wine",conf:"Price missing"}]},
+  {id:"mods",title:"Possible Add Ons",icon:"box",tone:"suggest",blurb:"Options Benu could turn into easy upsells for guests.",
+    items:[{from:"“add chicken +6”",to:"Protein add-on · $6",ctx:"Salads"},{from:"“gf available”",to:"Gluten-free option",ctx:"Pizza"}]},
+  {id:"desc",title:"Missing Descriptions",icon:"text",tone:"suggest",blurb:"Items with no description yet. Benu can write one for you to approve.",
+    items:[{from:"Branzino",to:"Whole-roasted sea bass, lemon, herbs, olive oil",ctx:"Mains"},{from:"Spanakopita",to:"Flaky filo, spinach and feta",ctx:"Mezze"}]},
+];
+const toneMap={safe:{chip:"st-ok",label:"Safe Fix",color:"var(--ok)"},review:{chip:"st-warn",label:"Needs Review",color:"var(--warn)"},suggest:{chip:"st-ai",label:"Suggestion",color:"var(--mint-700)"}};
+const CATERING=[
+  {id:"mezze",name:"Mezze Feast",based:"Built from your Mezze and Starters",serves:"8 to 10",price:"120",lead:"48 hrs",min:"2 trays",contents:["Hummus and pita","Spanakopita","Falafel","Greek salad","Tzatziki and olives"]},
+  {id:"grill",name:"Wood-Fired Grill Platter",based:"Built from your Mains",serves:"10 to 12",price:"185",lead:"72 hrs",min:"1 tray",contents:["Lamb kofta","Chicken souvlaki","Branzino","Roasted vegetables","Lemon potatoes"]},
+  {id:"brunch",name:"Weekend Brunch Spread",based:"Built from your Brunch menu",serves:"6 to 8",price:"95",lead:"48 hrs",min:"2 trays",contents:["Shakshuka","Labneh and flatbread","Seasonal fruit","Pastry basket"]},
+];
+const CATER_FIELDS=[{label:"Serves",key:"serves",suffix:"guests",icon:"users"},{label:"Package Price",key:"price",suffix:"$",icon:"price"},{label:"Lead Time",key:"lead",suffix:"",icon:"clock"},{label:"Minimum Order",key:"min",suffix:"",icon:"box"}];
+const LOCATIONS=[
+  {id:"main",name:"South Congress",addr:"1401 S Congress Ave, Austin",main:true,hours:"Tue to Sun · 5 to 10pm",pickup:"Curbside and in-store"},
+  {id:"dom",name:"The Domain",addr:"11800 Domain Blvd, Austin",main:false,hours:"Daily · 11am to 10pm",pickup:"In-store only"},
+  {id:"rr",name:"Round Rock",addr:"201 University Blvd, Round Rock",main:false,hours:"Same as main",pickup:"Same as main"},
+];
+const TEMPLATES=[
+  {id:"editorial",name:"Sunlit Editorial",tag:"Best match",why:"Your warm photography and longer dish descriptions shine in this magazine-style layout.",feats:["Serif headlines","Large photo grid","Story section"]},
+  {id:"warm",name:"Hearth and Home",tag:"Great for catering",why:"Split hero and earthy tones suit your wood-fired identity and push the catering CTA.",feats:["Split hero","Catering-forward","Warm palette"]},
+  {id:"minimal",name:"Clean Plate",tag:"Fastest to load",why:"A crisp, no-frills layout that puts the menu and ordering first, ideal for takeout.",feats:["Order-first","Minimal type","Quick load"]},
+];
+const BUILT=[
+  {icon:"qr",name:"QR menu website",detail:"64 items · 12 sections",ok:true},
+  {icon:"cart",name:"Takeout and pickup",detail:"Ordering and payments connected",ok:true},
+  {icon:"catering",name:"Catering menu",detail:"3 packages · 1 needs confirmation",ok:false},
+  {icon:"home",name:"Restaurant Homepage",detail:"Sunlit Editorial template",ok:true},
+  {icon:"locations",name:"Multi Location Menus",detail:"3 locations · 3 QR codes",ok:true},
+  {icon:"menu",name:"Table And Location QR Codes",detail:"Ready to print",ok:true},
+];
+const CHECKLIST=[
+  {id:"items",label:"Menu items and prices approved",req:true,done:true},
+  {id:"catering",label:"Confirm the Weekend Brunch catering package",req:true,done:false},
+  {id:"contact",label:"Contact details and hours verified",req:true,done:true},
+  {id:"payments",label:"Connect payouts for takeout orders",req:true,done:false},
+  {id:"allergy",label:"Ingredient and allergy info (can do after launch)",req:false,done:false},
+];
+const ALLERGY_ITEMS=[
+  {name:"Mezze Platter",section:"Mezze",state:"verified",ingredients:["Chickpeas","Tahini","Olive oil","Pita (wheat)","Garlic"],tags:[{t:"Vegetarian",ok:true},{t:"Contains Gluten",warn:true},{t:"Contains Sesame",warn:true}]},
+  {name:"Lamb Kofta",section:"Mains",state:"review",ingredients:["Ground lamb","Cumin","Parsley","Onion","Egg"],tags:[{t:"Contains Egg",warn:true},{t:"Halal?",q:true}]},
+  {name:"Branzino",section:"Mains",state:"suggested",ingredients:["Sea bass","Lemon","Herbs","Olive oil"],tags:[{t:"Contains Fish",warn:true},{t:"Gluten-free",ok:true},{t:"Dairy-free",ok:true}]},
+  {name:"Tiramisù",section:"Dessert",state:"suggested",ingredients:["Mascarpone","Espresso","Ladyfingers (wheat)","Egg","Cocoa"],tags:[{t:"Contains Dairy",warn:true},{t:"Contains Egg",warn:true},{t:"Contains Gluten",warn:true}]},
+];
+const allergyState={
+  suggested:{label:"AI suggested",cls:"st-ai",icon:"sparkle",dot:"var(--mint-500)"},
+  review:{label:"Needs your review",cls:"st-warn",icon:"alert",dot:"var(--warn)"},
+  verified:{label:"Verified by you",cls:"st-ok",icon:"shield",dot:"var(--ok)"},
+};
 
-  function stepVisible(id) {
-    if (id === "catering") return !!state.modules.catering;
-    if (id === "locations") return !!state.modules.multiLocation;
-    return true;
-  }
-  function activeFlow() { return FLOW.filter(stepVisible); }
+/* ---------- STATE ---------- */
+const state={
+  screen:(function(){var n=parseInt(localStorage.getItem("benu_screen")||"0",10);return isNaN(n)?0:Math.min(Math.max(n,0),8);})(),
+  import:{files:[{name:"olive-branch-dinner.pdf",size:"2.4 MB",pct:100,state:"done"},{name:"wine-list-2026.pdf",size:"1.1 MB",pct:100,state:"done"}],link:"oliv ebranchkitchen.com",logo:true},
+  build:{sel:{qr:true,takeout:true,catering:false,multi:false,home:true,codes:true},areas:{dining:8,patio:4,bar:6}},
+  gen:{active:0,done:false},
+  review:{states:{},vals:{},editing:null,editVal:""},
+  catering:{confirmed:{},fields:{}},
+  loc:{sameAs:{dom:false,rr:true}},
+  tpl:{chosen:"editorial",focus:null},
+  publish:{checks:{},published:false},
+  allergy:{items:null},
+};
+function initState(){
+  FINDING_GROUPS.forEach(function(g){g.items.forEach(function(it,i){var k=g.id+i;state.review.states[k]=null;state.review.vals[k]=it.to;});});
+  CATERING.forEach(function(c){state.catering.fields[c.id]={serves:c.serves,price:c.price,lead:c.lead,min:c.min};});
+  CHECKLIST.forEach(function(c){state.publish.checks[c.id]=c.done;});
+  state.allergy.items=JSON.parse(JSON.stringify(ALLERGY_ITEMS));
+}
+function setModel(path,val){var parts=path.split(".");var o=state;for(var i=0;i<parts.length-1;i++)o=o[parts[i]];o[parts[parts.length-1]]=val;}
 
-  function show(id) {
-    state.step = id;
-    persist();
-    document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
-    $("step-" + id).classList.add("active");
-    const phase = PHASE_OF[id] ?? 0;
-    document.querySelectorAll(".progress-dot").forEach(dot => {
-      const p = Number(dot.dataset.phase);
-      dot.classList.toggle("active", p === phase);
-      dot.classList.toggle("done", p < phase);
-    });
-    $("progress-label").textContent = PHASE_LABEL[phase];
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
+/* ---------- SHARED CHROME ---------- */
+function topBar(){
+  var screen=state.screen,total=STEPS.length;
+  var pct=screen>=total?100:(screen/(total-1))*100;
+  var pills=STEPS.map(function(s,i){return `<button data-act="jump" data-i="${i}" class="steptab" data-active="${i===screen}" data-done="${i<screen}">${s}</button>`;}).join("");
+  return `<header style="position:sticky;top:0;z-index:40;background:rgba(250,251,247,0.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)">
+    <div style="max-width:1180px;margin:0 auto;padding:16px 32px" class="row spread">
+      ${logoHtml(20)}
+      <div class="row gap-2" style="display:flex">${pills}</div>
+      <div class="row gap-3"><span class="metalabel" style="color:var(--muted)">The Olive Branch</span><div style="width:30px;height:30px;border-radius:999px;background:var(--mint-200);display:grid;place-items:center;color:var(--mint-900);font-weight:600;font-size:13px">O</div></div>
+    </div>
+    <div style="height:2px;background:var(--outer)"><div style="height:100%;width:${pct}%;background:var(--mint-600);transition:width .5s cubic-bezier(.2,.7,.3,1)"></div></div>
+  </header>`;
+}
+function screenWrap(inner,max){max=max||1080;return `<main class="scroll" style="flex:1;overflow-y:auto;overflow-x:hidden"><div style="max-width:${max}px;margin:0 auto;padding:44px 32px 140px">${inner}</div></main>`;}
+function footerBar(inner){return `<div style="position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(250,251,247,0.86);backdrop-filter:blur(14px);border-top:1px solid var(--border)"><div style="max-width:1080px;margin:0 auto;padding:16px 32px" class="row spread">${inner}</div></div>`;}
+function pageHead(o){return `<div class="row spread" style="align-items:flex-end;margin-bottom:34px;gap:24px;flex-wrap:wrap"><div style="flex:1 1 460px;min-width:0"><h1 class="display" style="font-size:44px;margin-bottom:${o.sub?16:0}px;display:block">${o.title}</h1>${o.sub?`<p style="font-size:17px;color:var(--muted);margin:0;line-height:1.5;max-width:560px;display:block">${o.sub}</p>`:""}</div>${o.aside?`<div style="flex-shrink:0">${o.aside}</div>`:""}</div>`;}
+function aiNote(inner,ic){ic=ic||"sparkle";return `<div class="row gap-3" style="align-items:flex-start;background:var(--mint-50);border:1px solid var(--mint-200);border-radius:var(--r-md);padding:13px 16px;color:var(--mint-900)"><div style="flex-shrink:0;margin-top:1px">${icon(ic,{size:17,color:"var(--mint-600)"})}</div><div style="font-size:13.5px;line-height:1.5;color:var(--mint-900)">${inner}</div></div>`;}
+function tick(on){return `<div style="width:24px;height:24px;border-radius:7px;flex-shrink:0;border:${on?"none":"2px solid var(--border-strong)"};background:${on?"var(--mint-900)":"transparent"};display:grid;place-items:center;transition:all .15s">${on?icon("check",{size:15,color:"#fff",stroke:2.4}):""}</div>`;}
 
-  function go(dir) {
-    const flow = activeFlow();
-    const i = flow.indexOf(state.step);
-    const next = flow[i + dir];
-    if (next) show(next);
-  }
-  document.querySelectorAll(".back").forEach(b => b.onclick = () => go(-1));
-
-  // ─── Import step ────────────────────────────────────────────────
-  let importTab = "upload";
-  document.querySelectorAll(".imp-tab").forEach(tab => {
-    tab.onclick = () => {
-      importTab = tab.dataset.tab;
-      document.querySelectorAll(".imp-tab").forEach(t => t.setAttribute("aria-selected", String(t === tab)));
-      document.querySelectorAll(".imp-panel").forEach(p => p.classList.remove("active"));
-      $("panel-" + importTab).classList.add("active");
-      updateImportSummary();
-    };
-  });
-
-  function updateImportSummary() {
-    const s = state.import;
-    let msg = "";
-    if (s.pdfItems && s.pdfItems.length) msg = `${s.pdfItems.length} items read from ${escapeHTML(s.pdfName || "your menu")}.`;
-    else if (s.websiteUrl) msg = `We'll import from ${escapeHTML(s.websiteUrl)}.`;
-    else if (s.brief) msg = "We'll draft a starter menu from your description.";
-    else msg = "No menu yet? That's fine — pick \"No menu yet\" or just continue.";
-    if (s.logoDataUrl) msg += " Logo added.";
-    $("import-summary").textContent = msg;
-  }
-
-  // Upload (PDF or image)
-  const dropZone = $("drop-zone");
-  ["dragenter", "dragover"].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add("dragging"); }));
-  ["dragleave", "drop"].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove("dragging"); }));
-  dropZone.addEventListener("drop", e => { const f = e.dataTransfer?.files?.[0]; if (f) handleUpload(f); });
-  $("file-input").addEventListener("change", e => { const f = e.target.files?.[0]; if (f) handleUpload(f); });
-
-  async function handleUpload(file) {
-    const status = $("upload-status");
-    status.classList.remove("hidden");
-    if (file.type === "application/pdf") {
-      const useAI = BMAIExtract.isEnabled();
-      status.innerHTML = `<p class="text-neutral-700">Reading <strong>${escapeHTML(file.name)}</strong>${useAI ? " with AI" : ""}...</p>`;
-      let items = [];
-      try {
-        const parsed = await BMPdfParse.parseFile(file);
-        if (useAI) {
-          try { items = await BMAIExtract.extract(parsed.lines.join("\n")); }
-          catch { items = parsed.items; }
-        } else { items = parsed.items; }
-      } catch {
-        status.innerHTML = `<p class="text-amber-700">We couldn't read that PDF. Try a photo, or use "No menu yet".</p>`;
-        return;
-      }
-      if (!items.length) {
-        status.innerHTML = `<p class="text-neutral-700">No items found. You can still continue with a starter menu.</p>`;
-        return;
-      }
-      state.import.pdfItems = items;
-      state.import.pdfName = file.name;
-      state.import.source = "menu";
-      state.import.type = BMOnboardAI.inferType(items);
-      persist();
-      status.innerHTML = `<p class="text-neutral-900"><strong>Found ${items.length} items.</strong> <span class="pill pill-ink">AI</span></p>
-        <ul class="mt-2 max-h-40 overflow-auto text-sm text-neutral-600 space-y-0.5">
-          ${items.slice(0, 8).map(i => `<li>· ${escapeHTML(i.name)} <span class="tabular-nums text-neutral-500">$${(i.price || 0).toFixed(2)}</span></li>`).join("")}
-          ${items.length > 8 ? `<li class="text-neutral-400">and ${items.length - 8} more</li>` : ""}
-        </ul>`;
-    } else if (file.type.startsWith("image/")) {
-      // Photo path: real OCR isn't wired yet — honest preview using a starter draft.
-      const reader = new FileReader();
-      reader.onload = () => {
-        state.import.source = "photo";
-        state.import.pdfName = file.name;
-        persist();
-        status.innerHTML = `<p class="text-neutral-900"><strong>Photo received.</strong> <span class="pill pill-amber">Preview</span></p>
-          <p class="mt-1 text-sm text-neutral-600">AI will read your photo. For now we'll start you with an editable draft you can correct on the next screen.</p>`;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      status.innerHTML = `<p class="text-amber-700">Please upload a PDF or an image.</p>`;
-    }
-    updateImportSummary();
-  }
-
-  $("website-input").addEventListener("input", e => { state.import.websiteUrl = e.target.value.trim(); state.import.source = state.import.websiteUrl ? "website" : null; persist(); updateImportSummary(); });
-  $("brief-input").addEventListener("input", e => { state.import.brief = e.target.value.trim(); persist(); updateImportSummary(); });
-
-  // Logo upload → data URL
-  $("logo-input").addEventListener("change", e => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      state.import.logoDataUrl = reader.result;
-      persist();
-      $("logo-preview").classList.remove("hidden");
-      $("logo-preview").innerHTML = `<img src="${reader.result}" alt="Your logo" style="max-height:64px;margin:0 auto;border-radius:8px;"/>`;
-      updateImportSummary();
-    };
-    reader.readAsDataURL(f);
-  });
-
-  $("import-continue").onclick = () => { persist(); show("modules"); };
-
-  // ─── Modules step ───────────────────────────────────────────────
-  const MODULES = [
-    { key: "qrMenu", title: "QR code menu website", blurb: "A scannable menu guests open on their phone." },
-    { key: "pickup", title: "Takeout / pickup ordering", blurb: "Let guests order ahead for pickup." },
-    { key: "catering", title: "Catering menu", blurb: "Trays, platters, and bundles for groups." },
-    { key: "multiLocation", title: "Multi-location menus", blurb: "A direct link and QR per location." },
-    { key: "homepage", title: "Full restaurant homepage", blurb: "Hero, story, hours, and your menu." },
-    { key: "tableQr", title: "Table / location QR codes", blurb: "Printable codes for each table." },
-  ];
-  function renderModules() {
-    $("module-grid").innerHTML = MODULES.map(m => `
-      <button class="module-card" data-mod="${m.key}" aria-pressed="${state.modules[m.key] ? "true" : "false"}">
-        <span class="module-check"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-        <span><span class="module-title">${escapeHTML(m.title)}</span><span class="module-blurb">${escapeHTML(m.blurb)}</span></span>
-      </button>`).join("");
-    $("module-grid").querySelectorAll("[data-mod]").forEach(btn => {
-      btn.onclick = () => {
-        const k = btn.dataset.mod;
-        state.modules[k] = !state.modules[k];
-        btn.setAttribute("aria-pressed", String(state.modules[k]));
-        syncSelectAll();
-        persist();
-      };
-    });
-    syncSelectAll();
-  }
-  function syncSelectAll() {
-    const all = MODULES.every(m => state.modules[m.key]);
-    $("select-all").setAttribute("aria-pressed", String(all));
-  }
-  $("select-all").onclick = () => {
-    const turnOn = !MODULES.every(m => state.modules[m.key]);
-    MODULES.forEach(m => state.modules[m.key] = turnOn);
-    renderModules();
-    persist();
-  };
-  $("modules-continue").onclick = () => { persist(); show("draft"); runDraft(); };
-
-  // ─── Draft step (progress) ──────────────────────────────────────
-  function aiLine(label, key) {
-    return `<div class="ai-line" data-line="${key}">
-      <span class="ai-dot"><span class="ai-spin hidden"></span><svg class="hidden" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
-      <span class="text-sm">${escapeHTML(label)}</span>
-    </div>`;
-  }
-  async function runDraft() {
-    $("draft-continue").disabled = true;
-    const steps = [
-      ["Reading your menu", "read"],
-      ["Organizing sections and prices", "org"],
-      ["Writing missing descriptions", "desc"],
-    ];
-    if (state.modules.catering) steps.push(["Finding possible catering items", "cater"]);
-    if (state.modules.multiLocation) steps.push(["Preparing per-location menus", "loc"]);
-    steps.push(["Picking your best templates", "tpl"]);
-
-    $("ai-progress").innerHTML = steps.map(s => aiLine(s[0], s[1])).join("");
-
-    // Build the actual draft now (synchronous heuristic / reuses real extraction).
-    state.draft = BMOnboardAI.buildDraft(state.import, state.modules);
-    state.review = BMOnboardAI.findIssues(state.draft.items);
-    // attach live references so edits map back to draft items
-    state.review.fixes.forEach(f => f._ref = state.draft.items[f.itemIndex]);
-    state.review.questions.forEach(q => q._ref = state.draft.items[q.itemIndex]);
-    if (state.modules.catering && (!state.catering.packages || !state.catering.packages.length)) {
-      state.catering.packages = BMOnboardAI.cateringSuggestions(state.draft.items);
-    }
-    saveDraftToStore();
-    persist();
-
-    // Animate the lines for a calm, human-paced feel.
-    for (let i = 0; i < steps.length; i++) {
-      const line = document.querySelector(`[data-line="${steps[i][1]}"]`);
-      line.classList.add("active");
-      line.querySelector(".ai-spin").classList.remove("hidden");
-      await new Promise(r => setTimeout(r, 480));
-      line.querySelector(".ai-spin").classList.add("hidden");
-      line.querySelector("svg").classList.remove("hidden");
-      line.classList.remove("active");
-      line.classList.add("done");
-    }
-    $("draft-continue").disabled = false;
-  }
-  $("draft-continue").onclick = () => { renderReview(); show("review"); };
-
-  // ─── Review step ────────────────────────────────────────────────
-  function reviewCounts() {
-    const fixesPending = state.review.fixes.filter(f => f.status === "pending").length;
-    const qPending = state.review.questions.filter(q => q.status === "pending" && !q.optional).length;
-    return { fixesPending, qPending };
-  }
-  function renderReview() {
-    const d = state.draft;
-    const items = d.items.length;
-    const cats = d.categories.length;
-    const fixes = state.review.fixes.length;
-    const qs = state.review.questions.length;
-    $("review-summary").innerHTML = [
-      ["Items found", items],
-      ["Sections", cats],
-      ["Safe fixes", fixes],
-      ["Questions", qs],
-    ].map(([label, n]) => `<div class="card p-4 text-center"><div class="font-serif text-3xl">${n}</div><div class="mt-1 text-xs uppercase tracking-wider text-neutral-500">${label}</div></div>`).join("");
-
-    // Safe fixes
-    const pendFixes = state.review.fixes.filter(f => f.status !== "rejected");
-    $("safe-fixes-block").classList.toggle("hidden", pendFixes.length === 0);
-    $("safe-fixes").innerHTML = pendFixes.map(f => `
-      <div class="card p-4 flex items-center justify-between gap-3" data-fix="${f.id}">
-        <div class="text-sm">
-          <span class="text-neutral-400 line-through">${escapeHTML(f.from)}</span>
-          <span class="mx-2 text-neutral-400">→</span>
-          <span class="font-medium">${escapeHTML(f.to)}</span>
-        </div>
-        ${f.status === "approved"
-          ? `<span class="pill pill-green">Approved</span>`
-          : `<div class="flex gap-2"><button class="tiny-btn tiny-approve" data-approve-fix="${f.id}">Approve</button><button class="tiny-btn tiny-ghost" data-skip-fix="${f.id}">Skip</button></div>`}
-      </div>`).join("");
-
-    // Questions
-    const liveQs = state.review.questions.filter(q => q.status === "pending");
-    $("questions-block").classList.toggle("hidden", liveQs.length === 0);
-    $("questions").innerHTML = liveQs.map(q => questionCard(q)).join("");
-
-    $("review-clear").classList.toggle("hidden", pendFixes.length !== 0 || liveQs.length !== 0);
-
-    wireReview();
-    updateReviewRemaining();
-  }
-  function questionCard(q) {
-    let control = "";
-    if (q.kind === "price") {
-      control = `<div class="mt-3 flex items-center gap-2">
-        <span class="text-neutral-500">$</span>
-        <input class="field-input" style="max-width:120px" inputmode="decimal" placeholder="0.00" value="${escapeHTML(q.value || "")}" data-qinput="${q.id}"/>
-        <button class="tiny-btn tiny-approve" data-qsave="${q.id}">Save price</button>
-      </div>`;
-    } else if (q.kind === "description") {
-      control = `<div class="mt-3 flex flex-col gap-2 sm:flex-row">
-        <input class="field-input" placeholder="Short description (optional)" data-qinput="${q.id}"/>
-        <div class="flex gap-2"><button class="tiny-btn tiny-approve" data-qsave="${q.id}">Save</button><button class="tiny-btn tiny-ghost" data-qskip="${q.id}">Skip</button></div>
-      </div>`;
-    } else if (q.kind === "modifier") {
-      control = `<div class="mt-3 flex gap-2"><button class="tiny-btn tiny-approve" data-qmod="${q.id}">Make it a modifier</button><button class="tiny-btn tiny-ghost" data-qskip="${q.id}">Keep as item</button></div>`;
-    } else if (q.kind === "catering") {
-      control = `<div class="mt-3 flex gap-2"><button class="tiny-btn tiny-approve" data-qcater="${q.id}">Move to catering</button><button class="tiny-btn tiny-ghost" data-qskip="${q.id}">Keep on menu</button></div>`;
-    }
-    const tag = { price: "Price", description: "Description", modifier: "Add-on", catering: "Catering" }[q.kind] || "Check";
-    return `<div class="card p-4" data-q="${q.id}">
-      <div class="flex items-start justify-between gap-3">
-        <p class="text-sm">${escapeHTML(q.prompt)}</p>
-        <span class="pill pill-amber flex-none">${tag}</span>
-      </div>${control}</div>`;
-  }
-  function wireReview() {
-    $("safe-fixes").querySelectorAll("[data-approve-fix]").forEach(b => b.onclick = () => applyFix(b.dataset.approveFix, true));
-    $("safe-fixes").querySelectorAll("[data-skip-fix]").forEach(b => b.onclick = () => applyFix(b.dataset.skipFix, false));
-    $("questions").querySelectorAll("[data-qsave]").forEach(b => b.onclick = () => saveQuestion(b.dataset.qsave));
-    $("questions").querySelectorAll("[data-qskip]").forEach(b => b.onclick = () => resolveQuestion(b.dataset.qskip, "rejected"));
-    $("questions").querySelectorAll("[data-qmod]").forEach(b => b.onclick = () => makeModifier(b.dataset.qmod));
-    $("questions").querySelectorAll("[data-qcater]").forEach(b => b.onclick = () => moveToCatering(b.dataset.qcater));
-  }
-  function applyFix(id, approve) {
-    const f = state.review.fixes.find(x => x.id === id);
-    if (!f) return;
-    if (approve && f._ref) f._ref.name = f.to;
-    f.status = approve ? "approved" : "rejected";
-    saveDraftToStore(); persist(); renderReview();
-  }
-  $("approve-all-fixes").onclick = () => {
-    state.review.fixes.forEach(f => { if (f.status === "pending") { if (f._ref) f._ref.name = f.to; f.status = "approved"; } });
-    saveDraftToStore(); persist(); renderReview();
-  };
-  function saveQuestion(id) {
-    const q = state.review.questions.find(x => x.id === id);
-    if (!q || !q._ref) return resolveQuestion(id, "approved");
-    const input = document.querySelector(`[data-qinput="${id}"]`);
-    const val = input ? input.value.trim() : "";
-    if (q.kind === "price") { const n = parseFloat(val); if (!isNaN(n) && n >= 0) q._ref.price = n; }
-    if (q.kind === "description") { if (val) q._ref.description = val; }
-    resolveQuestion(id, "approved");
-  }
-  function resolveQuestion(id, status) {
-    const q = state.review.questions.find(x => x.id === id);
-    if (q) q.status = status;
-    saveDraftToStore(); persist(); renderReview();
-  }
-  function makeModifier(id) {
-    const q = state.review.questions.find(x => x.id === id);
-    if (q && q._ref) { const i = state.draft.items.indexOf(q._ref); if (i >= 0) state.draft.items.splice(i, 1); }
-    resolveQuestion(id, "approved");
-  }
-  function moveToCatering(id) {
-    const q = state.review.questions.find(x => x.id === id);
-    if (q && q._ref) {
-      if (state.modules.catering) {
-        state.catering.packages = state.catering.packages || [];
-        state.catering.packages.push({
-          id: "cater-" + Date.now(), name: q._ref.name, basedOn: q._ref.name, items: [q._ref.name],
-          serving: "Serves 8-10", price: Math.max(1, Math.round((q._ref.price || 10) * 8 * 0.9)),
-          minOrder: 1, leadTime: "24 hours", availability: "Pickup", source: "ai_suggested", status: "pending",
-        });
-      }
-      const i = state.draft.items.indexOf(q._ref); if (i >= 0) state.draft.items.splice(i, 1);
-    }
-    resolveQuestion(id, "approved");
-  }
-  function updateReviewRemaining() {
-    const { fixesPending, qPending } = reviewCounts();
-    const total = fixesPending + qPending;
-    $("review-remaining").textContent = total ? `${total} still ${total === 1 ? "needs" : "need"} a look (optional)` : "All clear";
-  }
-  $("review-continue").onclick = () => {
-    state.draft.categories = [...new Set(state.draft.items.map(i => i.category || "Menu"))];
-    saveDraftToStore(); persist();
-    if (stepVisible("catering")) { renderCatering(); show("catering"); }
-    else if (stepVisible("locations")) { renderLocations(); show("locations"); }
-    else { renderTemplates(); show("templates"); }
-  };
-
-  // ─── Catering step ──────────────────────────────────────────────
-  function renderCatering() {
-    const list = state.catering.packages || [];
-    if (!list.length) {
-      $("catering-list").innerHTML = `<div class="card p-5 text-sm text-neutral-600">No catering candidates found in your menu yet. Add a package below, or skip — you can set this up later.</div>`;
-      return;
-    }
-    $("catering-list").innerHTML = list.map((p, idx) => cateringCard(p, idx)).join("");
-    wireCatering();
-  }
-  function cateringCard(p, idx) {
-    const approved = p.status === "approved";
-    return `<div class="card p-5" data-cat="${idx}">
-      <div class="flex items-start justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <span class="pill ${approved ? "pill-green" : "pill-amber"}">${approved ? "Approved" : "AI suggested"}</span>
-          ${p.basedOn ? `<span class="text-xs text-neutral-500">from "${escapeHTML(p.basedOn)}"</span>` : ""}
-        </div>
-        <button class="tiny-btn tiny-ghost" data-cat-remove="${idx}">Remove</button>
+/* ---------- SCREEN 1: IMPORT ---------- */
+function viewImport(){
+  var files=state.import.files.map(function(f){return `<div class="row gap-3" style="padding:12px 14px;border-radius:12px;background:${f.state==="fail"?"var(--danger-bg)":"var(--raised)"}">${pdfTile(32)}<div class="grow"><div class="row spread"><span style="font-size:14px;font-weight:500">${f.name}</span><span style="font-size:12px;color:var(--soft);font-family:var(--mono)">${f.state==="done"?f.size:f.pct+"%"}</span></div>${f.state==="done"?`<div class="st st-ok" style="margin-top:6px">${icon("check",{size:11,stroke:2.6})} Read by Benu</div>`:`<div style="height:5px;background:var(--outer);border-radius:9px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${f.pct}%;background:var(--warm);transition:width .2s"></div></div>`}</div></div>`;}).join("");
+  var inner=`
+    ${pageHead({title:"Let’s Start With Your <em>Menu</em>",sub:"Hand us whatever you already have, a PDF, a photo, or a link to your current site, and Benu turns it into a beautiful online menu in minutes. You stay in charge and approve every detail before a single guest sees it."})}
+    <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:22px" class="import-grid">
+      <div class="card" style="padding:22px">
+        <div class="row spread" style="margin-bottom:16px"><div class="metalabel" style="color:var(--muted)">Primary Source</div><span class="chip">${icon("sparkle",{size:13,color:"var(--pill-text)"})} Recommended</span></div>
+        <div class="dropzone" data-act="upload"><div style="margin-bottom:14px">${pdfTile(52)}</div><div style="font-size:17px;font-weight:500">Drop your menu here, or <span style="color:var(--mint-600);font-weight:600">Browse</span></div><div style="color:var(--soft);font-size:13px;margin-top:6px">PDF, JPG or PNG · up to 90 MB</div></div>
+        <div class="col gap-2" style="margin-top:18px">${files}</div>
       </div>
-      <div class="mt-4 grid gap-3 sm:grid-cols-2">
-        <div><label class="field-label">Package name</label><input class="field-input" data-cf="name" data-i="${idx}" value="${escapeHTML(p.name)}"/></div>
-        <div><label class="field-label">Included items</label><input class="field-input" data-cf="items" data-i="${idx}" value="${escapeHTML((p.items || []).join(", "))}"/></div>
-        <div><label class="field-label">Serving size</label><input class="field-input" data-cf="serving" data-i="${idx}" value="${escapeHTML(p.serving)}"/></div>
-        <div><label class="field-label">Price ($)</label><input class="field-input" inputmode="decimal" data-cf="price" data-i="${idx}" value="${escapeHTML(String(p.price))}"/></div>
-        <div><label class="field-label">Minimum order</label><input class="field-input" inputmode="numeric" data-cf="minOrder" data-i="${idx}" value="${escapeHTML(String(p.minOrder))}"/></div>
-        <div><label class="field-label">Lead time</label><input class="field-input" data-cf="leadTime" data-i="${idx}" value="${escapeHTML(p.leadTime)}"/></div>
-        <div class="sm:col-span-2"><label class="field-label">Availability</label>
-          <select class="field-input" data-cf="availability" data-i="${idx}">
-            ${["Pickup", "Delivery", "Pickup & Delivery"].map(o => `<option ${p.availability === o ? "selected" : ""}>${o}</option>`).join("")}
-          </select>
+      <div class="col gap-4">
+        <div class="card" style="padding:18px">
+          <div class="row gap-2" style="margin-bottom:12px">${icon("link",{size:18,color:"var(--mint-600)"})}<span style="font-weight:600;font-size:15px">Existing Website</span></div>
+          <div class="row" style="border:1px solid var(--border-strong);border-radius:999px;overflow:hidden;background:var(--surface)"><span style="padding:10px 4px 10px 14px;color:var(--soft);font-size:14px">https://</span><input value="${state.import.link}" data-model="import.link" style="flex:1;border:none;outline:none;padding:10px 8px;font-size:14px;font-family:var(--sans);background:transparent"/></div>
+          <div class="metalabel" style="margin-top:9px">We’ll pull hours, photos and contact too</div>
         </div>
-      </div>
-      <div class="mt-4">
-        ${approved
-          ? `<button class="tiny-btn tiny-ghost" data-cat-unapprove="${idx}">Unapprove</button>`
-          : `<button class="tiny-btn tiny-approve" data-cat-approve="${idx}">Approve this package</button>`}
+        <div class="card" style="padding:18px">
+          <div class="row gap-2" style="margin-bottom:12px">${icon("image",{size:18,color:"var(--mint-600)"})}<span style="font-weight:600;font-size:15px">Logo</span></div>
+          ${state.import.logo
+            ?`<div class="row spread" style="background:var(--mint-50);border:1px solid var(--mint-200);border-radius:12px;padding:10px 12px"><div class="row gap-3"><div style="width:38px;height:38px;border-radius:9px;background:var(--mint-900);color:#CBE0A8;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:18px">O</div><div><div style="font-size:13.5px;font-weight:500">logo-olive.svg</div><div class="metalabel">512 × 512</div></div></div><button data-act="logo-toggle" class="btn btn-ghost btn-sm">${icon("x",{size:15})}</button></div>`
+            :`<button data-act="logo-toggle" style="width:100%;border:2px dashed var(--border-strong);background:var(--cream);border-radius:12px;padding:16px;cursor:pointer;color:var(--muted);font-size:13.5px;display:flex;gap:8px;justify-content:center;align-items:center">${icon("upload",{size:16})} Upload logo</button>`}
+        </div>
       </div>
     </div>`;
-  }
-  function wireCatering() {
-    $("catering-list").querySelectorAll("[data-cf]").forEach(inp => {
-      inp.oninput = () => {
-        const p = state.catering.packages[+inp.dataset.i];
-        const f = inp.dataset.cf;
-        if (f === "items") p.items = inp.value.split(",").map(s => s.trim()).filter(Boolean);
-        else if (f === "price" || f === "minOrder") p[f] = parseFloat(inp.value) || 0;
-        else p[f] = inp.value;
-        persist();
-      };
-    });
-    $("catering-list").querySelectorAll("[data-cat-approve]").forEach(b => b.onclick = () => { state.catering.packages[+b.dataset.catApprove].status = "approved"; persist(); renderCatering(); });
-    $("catering-list").querySelectorAll("[data-cat-unapprove]").forEach(b => b.onclick = () => { state.catering.packages[+b.dataset.catUnapprove].status = "pending"; persist(); renderCatering(); });
-    $("catering-list").querySelectorAll("[data-cat-remove]").forEach(b => b.onclick = () => { state.catering.packages.splice(+b.dataset.catRemove, 1); persist(); renderCatering(); });
-  }
-  $("add-package").onclick = () => {
-    state.catering.packages = state.catering.packages || [];
-    state.catering.packages.push({ id: "cater-" + Date.now(), name: "New package", basedOn: "", items: [], serving: "Serves 8-10", price: 0, minOrder: 1, leadTime: "24 hours", availability: "Pickup", source: "owner", status: "pending" });
-    persist(); renderCatering();
-  };
-  $("catering-continue").onclick = () => {
-    if (stepVisible("locations")) { renderLocations(); show("locations"); }
-    else { renderTemplates(); show("templates"); }
-  };
+  var foot=`<div class="row gap-3"><span class="st st-ok">${icon("check",{size:12,stroke:2.6})} 2 menus read</span><span class="metalabel" style="color:var(--muted)">Website linked · Logo added</span></div><button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
+  return screenWrap(inner)+footerBar(foot);
+}
 
-  // ─── Locations step ─────────────────────────────────────────────
-  function fauxQR(text) {
-    let h = 5381; for (let i = 0; i < text.length; i++) h = ((h << 5) + h + text.charCodeAt(i)) | 0;
-    let cells = "";
-    for (let i = 0; i < 81; i++) { const on = ((h >> (i % 31)) ^ (i * 2654435761)) & 1; cells += `<i class="${on ? "" : "off"}"></i>`; }
-    return `<div class="qr-box" aria-hidden="true">${cells}</div>`;
-  }
-  function renderLocations() {
-    const restSlug = slugify(state.draft?.name || "your-restaurant");
-    $("loc-empty").classList.toggle("hidden", state.locations.length > 0);
-    $("loc-list").innerHTML = state.locations.map((loc, idx) => {
-      const link = `/${restSlug}/${loc.slug}`;
-      return `<div class="card p-5" data-loc="${idx}">
-        <div class="flex items-start justify-between gap-4">
-          <div class="min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="font-serif text-xl">${escapeHTML(loc.name)}</span>
-              <span class="pill pill-neutral">Direct link</span>
-            </div>
-            <code class="mt-1 block text-xs text-neutral-500 break-all">yourrestaurant.com${escapeHTML(link)}</code>
-          </div>
-          <div class="flex flex-none flex-col items-center gap-1">
-            ${fauxQR(link)}<span class="text-[10px] uppercase tracking-wider text-neutral-400">Scan preview</span>
-          </div>
-        </div>
-        <div class="mt-4 grid gap-3 sm:grid-cols-3">
-          <div><label class="field-label">Hours override</label><input class="field-input" data-lf="hours" data-i="${idx}" placeholder="e.g. 11am-9pm" value="${escapeHTML(loc.hours || "")}"/></div>
-          <div><label class="field-label">Price override</label><input class="field-input" data-lf="priceNote" data-i="${idx}" placeholder="e.g. +5% downtown" value="${escapeHTML(loc.priceNote || "")}"/></div>
-          <div><label class="field-label">Pickup</label>
-            <select class="field-input" data-lf="pickup" data-i="${idx}">
-              ${["On", "Off"].map(o => `<option ${(loc.pickup || "On") === o ? "selected" : ""}>${o}</option>`).join("")}
-            </select>
-          </div>
-        </div>
-        <div class="mt-3"><button class="tiny-btn tiny-ghost" data-loc-remove="${idx}">Remove location</button></div>
-      </div>`;
+/* ---------- SCREEN 2: BUILD ---------- */
+function viewBuild(){
+  var sel=state.build.sel,areas=state.build.areas;
+  var count=Object.values(sel).filter(Boolean).length;
+  var all=count===MODULES.length;
+  var mods=MODULES.map(function(m){var on=sel[m.id];return `<button data-act="mod" data-id="${m.id}" style="text-align:left;cursor:pointer;border-radius:var(--r-lg);padding:20px;border:${on?"2px solid var(--mint-600)":"1px solid var(--border)"};background:${on?"var(--mint-50)":"var(--surface)"};box-shadow:${on?"var(--shadow-md)":"var(--shadow-sm)"};transition:all .16s;position:relative;display:flex;gap:16px;align-items:flex-start"><div style="width:46px;height:46px;border-radius:12px;flex-shrink:0;background:${on?"var(--mint-900)":"var(--raised)"};display:grid;place-items:center;transition:all .16s">${icon(m.icon,{size:22,color:on?"#CBE0A8":"var(--mint-700)"})}</div><div class="grow"><div class="row gap-2" style="margin-bottom:5px"><span style="font-size:16.5px;font-weight:600">${m.name}</span>${m.rec?`<span class="chip chip-mono" style="background:var(--pill-bg);color:var(--pill-text)">Popular</span>`:""}</div><p style="margin:0;font-size:14px;color:var(--muted);line-height:1.5">${m.desc}</p></div>${tick(on)}</button>`;}).join("");
+  var tablePanel="";
+  if(sel.codes){
+    var totalCodes=Object.values(areas).reduce(function(s,n){return s+n;},0);
+    var areaRows=AREA_DEFS.map(function(def){
+      var n=areas[def.key];var showN=Math.min(n,8);var tiles="";
+      if(n>0){var t="";for(var i=0;i<showN;i++){t+=`<div class="row gap-2" style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:6px 11px 6px 7px"><div style="width:24px;height:24px;border-radius:6px;background:var(--mint-50);display:grid;place-items:center">${icon("qr",{size:15,color:"var(--mint-900)",stroke:1.4})}</div><span style="font-size:13px;font-weight:500">${def.tile} ${String(i+1).padStart(2,"0")}</span></div>`;}if(n>showN){t+=`<div class="row center" style="border:1px dashed var(--border-strong);border-radius:10px;padding:6px 13px;font-size:13px;color:var(--muted)">+${n-showN} More</div>`;}tiles=`<div class="row wrap gap-2">${t}</div>`;}
+      return `<div style="background:var(--raised);border-radius:14px;padding:14px 16px"><div class="row spread" style="margin-bottom:${n>0?12:0}px;flex-wrap:wrap;gap:12px"><div class="row gap-3"><div style="width:34px;height:34px;border-radius:9px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center">${icon(def.icon,{size:17,color:"var(--mint-700)"})}</div><div><div style="font-size:15px;font-weight:600">${def.label}</div><div class="metalabel" style="color:var(--soft)">${n} ${n===1?def.unit.slice(0,-1):def.unit}</div></div></div><div class="row gap-3" style="flex-shrink:0"><button class="iconbtn" data-act="bump" data-area="${def.key}" data-d="-1">${icon("minus",{size:18,color:"var(--mint-700)"})}</button><div style="min-width:36px;text-align:center;font-family:var(--serif);font-size:26px;font-weight:600;line-height:46px">${n}</div><button class="iconbtn" data-act="bump" data-area="${def.key}" data-d="1">${icon("plus",{size:18,color:"var(--mint-700)"})}</button></div></div>${tiles}</div>`;
     }).join("");
-    $("loc-list").querySelectorAll("[data-lf]").forEach(inp => inp.oninput = () => { state.locations[+inp.dataset.i][inp.dataset.lf] = inp.value; persist(); });
-    $("loc-list").querySelectorAll("[data-loc-remove]").forEach(b => b.onclick = () => { state.locations.splice(+b.dataset.locRemove, 1); persist(); renderLocations(); });
+    tablePanel=`<div class="card" style="padding:0;overflow:hidden;margin-top:20px;border-color:var(--mint-400)"><div class="row spread" style="padding:18px 22px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:16px"><div class="row gap-3"><div style="width:42px;height:42px;border-radius:11px;background:var(--mint-900);display:grid;place-items:center;flex-shrink:0">${icon("qr",{size:22,color:"#CBE0A8"})}</div><div><div style="font-size:16.5px;font-weight:600">Set Up Your Tables And Seats</div><div style="font-size:13.5px;color:var(--muted);margin-top:2px">Add as many as you have in each area and we’ll print a ready to scan code for every one.</div></div></div><span class="chip" style="align-self:center">${icon("sparkle",{size:12,color:"var(--pill-text)"})} ${totalCodes} Codes Ready</span></div><div class="col gap-4" style="padding:20px 22px">${areaRows}</div></div>`;
   }
-  $("loc-add").onclick = () => {
-    const name = $("loc-name").value.trim();
-    if (!name) return;
-    state.locations.push({ name, slug: slugify(name), hours: "", priceNote: "", pickup: "On" });
-    $("loc-name").value = "";
-    persist(); renderLocations();
-  };
-  $("loc-name").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); $("loc-add").click(); } });
-  $("locations-continue").onclick = () => { renderTemplates(); show("templates"); };
+  var asideBtn=`<button data-act="selall" class="btn btn-soft">${icon(all?"x":"check",{size:16,color:"var(--mint-900)"})}${all?"Clear All":"Select Everything"}</button>`;
+  var inner=`${pageHead({title:"What Should Benu <em>Build</em> For You",sub:"Tell us what you need today and add the rest whenever you like. We’ve already ticked the ones busy restaurants reach for first.",aside:asideBtn})}<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px" class="mod-grid">${mods}</div>${tablePanel}<div style="margin-top:20px">${aiNote("Benu drafts every one of these straight from your menu. Nothing goes public until you give it the thumbs up.","info")}</div>`;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><div class="row gap-4"><span class="metalabel" style="color:var(--muted)">${count} of ${MODULES.length} selected</span><button class="btn btn-primary btn-lg" ${count===0?"disabled":""} data-act="next">Build with Benu ${icon("sparkle",{size:17,color:"#fff"})}</button></div>`;
+  return screenWrap(inner)+footerBar(foot);
+}
 
-  // ─── Templates step ─────────────────────────────────────────────
-  function renderTemplates() {
-    const recs = BMRecommend.suggestTop3({ type: state.draft.type, vibe: state.import.vibe, modules: state.modules });
-    const cfg = BMStore.encodeState(currentDraftState());
-    $("template-gallery").innerHTML = recs.top.map(r => {
-      const t = BMStore.TEMPLATES[r.template];
-      const chosen = state.template.chosen === r.template;
-      return `<div class="template-card ${r.recommended ? "recommended" : ""} ${chosen ? "chosen" : ""}" data-tpl="${r.template}">
-        ${r.recommended && !chosen ? `<span class="recommended-tag">Best fit</span>` : ""}
-        <div class="template-preview">
-          <iframe loading="lazy" src="./menu.html?config=${cfg}&template=${r.template}&palette=${r.palette}" title="${escapeHTML(t.label)} preview"></iframe>
-          <div class="preview-shield" data-pick="${r.template}" data-pal="${r.palette}"></div>
-        </div>
-        <div class="template-card-meta"><h3>${escapeHTML(t.label)}</h3><p>${escapeHTML(r.reason || t.blurb)}</p></div>
-        <button class="pick-btn" data-pick="${r.template}" data-pal="${r.palette}">${chosen ? "Selected ✓" : "Choose this"}</button>
-      </div>`;
-    }).join("");
-    $("template-gallery").querySelectorAll("[data-pick]").forEach(el => el.onclick = e => {
-      e.stopPropagation();
-      state.template.chosen = el.dataset.pick;
-      state.template.palette = el.dataset.pal;
-      saveDraftToStore(); persist(); renderTemplates();
-      $("templates-continue").disabled = false;
-    });
-    $("templates-continue").disabled = !state.template.chosen;
-  }
-  $("templates-continue").onclick = () => { renderFinish(); show("finish"); };
+/* ---------- SCREEN 3: GENERATE ---------- */
+function viewGenerate(){
+  var active=state.gen.active,done=state.gen.done;
+  var steps=GEN_STEPS.map(function(s,i){var st=i<active?"done":i===active?"run":"wait";return `<div class="row gap-4" style="padding:16px 16px;border-radius:14px;background:${st==="run"?"var(--mint-50)":"transparent"};transition:background .3s;opacity:${st==="wait"?0.5:1}"><div style="width:40px;height:40px;border-radius:11px;flex-shrink:0;display:grid;place-items:center;background:${st==="done"?"var(--mint-900)":st==="run"?"var(--mint-200)":"var(--raised)"}">${st==="done"?icon("check",{size:20,color:"#fff",stroke:2.6}):st==="run"?`<span style="width:18px;height:18px;border:2.5px solid var(--mint-400);border-top-color:var(--mint-700);border-radius:50%;display:block;animation:spin .8s linear infinite"></span>`:icon(s.icon,{size:19,color:"var(--soft)"})}</div><div class="grow"><div style="font-size:16px;font-weight:500;color:${st==="wait"?"var(--muted)":"var(--text)"}">${s.label}</div><div class="metalabel" style="margin-top:3px">${s.detail}</div></div>${st==="done"?`<span class="st st-ok">Done</span>`:""}${st==="run"?`<span class="st st-ai" style="animation:pulse 1.4s ease infinite">Working</span>`:""}</div>`;}).join("");
+  var chips=done?`<div style="margin-top:22px"><div class="row gap-3 wrap" style="justify-content:center"><span class="chip">${icon("check",{size:13,color:"var(--pill-text)",stroke:2.4})} 64 items found</span><span class="chip" style="background:var(--warn-bg);color:var(--warn)">${icon("alert",{size:13,color:"var(--warn)"})} 9 things to review</span><span class="chip">${icon("layout",{size:13,color:"var(--pill-text)"})} 3 templates matched</span></div></div>`:"";
+  var inner=`<div style="text-align:center;margin-bottom:40px"><h1 class="display" style="font-size:50px;margin-bottom:12px">${done?"Your Drafts Are <em>Ready</em>":"Benu Is <em>Building</em> Your Menu"}</h1><p style="font-size:17px;color:var(--muted);max-width:480px;margin:0 auto">${done?"It’s all yours to tweak. Change anything you like before it goes live, because nothing is public yet.":"Give us a minute to put it all together. We’ll point out anything that could use a second look."}</p></div><div class="card" style="padding:14px">${steps}</div>${chips}`;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><button class="btn btn-primary btn-lg" ${done?"":"disabled"} data-act="next">${done?`Review what Benu found ${icon("arrowR",{size:18,color:"#fff"})}`:"Building…"}</button>`;
+  return screenWrap(inner,760)+footerBar(foot);
+}
 
-  // ─── Finish step ────────────────────────────────────────────────
-  function renderFinish() {
-    const d = state.draft;
-    const mods = MODULES.filter(m => state.modules[m.key]).map(m => m.title);
-    const approvedCater = (state.catering.packages || []).filter(p => p.status === "approved").length;
-    const rows = [
-      `<strong>${d.items.length}</strong> menu items across <strong>${d.categories.length}</strong> sections`,
-      `Template: <strong>${escapeHTML(BMStore.TEMPLATES[state.template.chosen]?.label || "—")}</strong>`,
-    ];
-    if (state.modules.catering) rows.push(`<strong>${approvedCater}</strong> catering package${approvedCater === 1 ? "" : "s"} approved`);
-    if (state.modules.multiLocation) rows.push(`<strong>${state.locations.length}</strong> location${state.locations.length === 1 ? "" : "s"} with direct links`);
-    rows.push(`Building: ${mods.map(escapeHTML).join(", ") || "QR menu"}`);
-    $("finish-summary").innerHTML = `<ul class="space-y-2 text-sm text-neutral-700">${rows.map(r => `<li>· ${r}</li>`).join("")}</ul>
-      <p class="mt-4 text-xs text-neutral-500">Ingredient and allergy details stay unverified until you confirm them — nothing risky is published automatically.</p>`;
-    $("finish-email").dispatchEvent(new Event("input"));
-  }
-  $("finish-email").addEventListener("input", e => { $("finish-send").disabled = !e.target.checkValidity(); });
-  $("finish-send").onclick = async () => {
-    const emailEl = $("finish-email");
-    if (!emailEl.checkValidity()) { emailEl.reportValidity(); return; }
-    const btn = $("finish-send"); const status = $("finish-status");
-    const original = btn.textContent; btn.disabled = true; btn.textContent = "Sending…";
-    status.className = "mt-3 text-xs text-neutral-500"; status.textContent = "Building your QR pack…";
-    saveDraftToStore();
-    try {
-      const res = await fetch("/api/subscribe", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: emailEl.value.trim(),
-          templates: [state.template.chosen].filter(Boolean),
-          menu: BMStore.load(),
-          modules: state.modules,
-          locations: state.locations,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { status.className = "mt-3 text-xs text-amber-700"; status.textContent = (data && data.error) || `Server ${res.status}. Try again.`; btn.disabled = false; btn.textContent = original; return; }
-      if (data && data.slug && data.ownerToken) { try { localStorage.setItem("better-menu:owner:v1", JSON.stringify({ slug: data.slug, token: data.ownerToken })); } catch {} }
-      status.className = "mt-3 text-xs text-green-700"; status.textContent = "Sent. Check your inbox — your printable QR sheet and links are on the way.";
-      btn.textContent = "Sent ✓";
-    } catch (err) { status.className = "mt-3 text-xs text-amber-700"; status.textContent = (err && err.message) || "Network error. Try again."; btn.disabled = false; btn.textContent = original; }
-  };
-  $("to-allergy").onclick = () => { renderAllergy(); show("allergy"); };
+/* ---------- SCREEN 4: REVIEW ---------- */
+function findingRow(g,i){
+  var k=g.id+i,it=g.items[i],st=state.review.states[k],val=state.review.vals[k],editing=state.review.editing===k;
+  var left=editing
+    ?`<div class="row gap-2 wrap" style="font-size:14.5px"><span style="color:var(--soft);text-decoration:line-through">${it.from}</span>${icon("arrowR",{size:14,color:"var(--soft)"})}<input data-model="review.editVal" data-enter="rsave" data-k="${k}" data-autofocus value="${val}" style="border:1px solid var(--mint-500);border-radius:8px;padding:6px 10px;font-size:14.5px;font-weight:600;font-family:var(--sans);color:var(--mint-900);outline:none;min-width:180px"/></div>`
+    :`<div class="row gap-2 wrap" style="font-size:14.5px"><span style="color:var(--soft);text-decoration:line-through">${it.from}</span>${icon("arrowR",{size:14,color:"var(--soft)"})}<span style="font-weight:600;color:${st==="rejected"?"var(--muted)":"var(--mint-900)"}">${val}</span></div>`;
+  var right;
+  if(editing){right=`<div class="row gap-2"><button class="btn btn-secondary btn-sm" data-act="rcancel" data-k="${k}">Cancel</button><button class="btn btn-primary btn-sm" data-act="rsave" data-k="${k}">${icon("check",{size:14,color:"#fff",stroke:2.4})} Save</button></div>`;}
+  else if(st==="approved"){right=`<div class="row gap-2"><span class="st st-ok">${icon("check",{size:11,stroke:2.6})} Approved</span><button class="iconbtn" data-act="redit" data-k="${k}" title="Edit">${icon("edit",{size:15,color:"var(--muted)"})}</button></div>`;}
+  else if(st==="rejected"){right=`<button class="btn btn-ghost btn-sm" data-act="rset" data-k="${k}" data-v="">${icon("refresh",{size:14})} Undo</button>`;}
+  else{right=`<div class="row gap-2"><button class="iconbtn" data-act="rset" data-k="${k}" data-v="rejected" title="Reject">${icon("x",{size:16,color:"var(--muted)"})}</button><button class="iconbtn" data-act="redit" data-k="${k}" title="Edit">${icon("edit",{size:15,color:"var(--muted)"})}</button><button class="btn btn-soft btn-sm" data-act="rset" data-k="${k}" data-v="approved">${icon("check",{size:14,color:"var(--mint-900)",stroke:2.4})} Approve</button></div>`;}
+  return `<div class="row gap-4" style="padding:13px 16px;border-radius:12px;align-items:center;background:${st==="approved"?"var(--mint-50)":st==="rejected"?"var(--bg)":"var(--surface)"};border:${editing?"1px solid var(--mint-500)":"1px solid var(--border)"};opacity:${st==="rejected"?0.55:1};transition:all .15s"><div class="grow" style="min-width:0"><div class="metalabel" style="margin-bottom:4px">${it.ctx}${it.conf?" · "+it.conf:""}</div>${left}</div>${right}</div>`;
+}
+function viewReview(){
+  var total=Object.keys(state.review.states).length;
+  var resolved=Object.values(state.review.states).filter(function(v){return v;}).length;
+  var groups=FINDING_GROUPS.map(function(g){
+    var t=toneMap[g.tone];
+    var gResolved=g.items.filter(function(_,i){return state.review.states[g.id+i];}).length;
+    var rows=g.items.map(function(_,i){return findingRow(g,i);}).join("");
+    return `<div class="card" style="padding:0;overflow:hidden"><div class="row spread" style="padding:16px 20px;border-bottom:1px solid var(--border);background:var(--raised)"><div class="row gap-3"><div style="width:36px;height:36px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center">${icon(g.icon,{size:18,color:t.color})}</div><div><div class="row gap-2"><span style="font-size:16px;font-weight:600">${g.title}</span><span class="st ${t.chip}">${t.label}</span></div><div style="font-size:13px;color:var(--muted);margin-top:2px">${g.blurb}</div></div></div><span class="metalabel">${gResolved}/${g.items.length} done</span></div><div class="col gap-2" style="padding:14px">${rows}</div></div>`;
+  }).join("");
+  var aside=`<button class="btn btn-primary" data-act="approveSafe">${icon("sparkle",{size:16,color:"#fff"})} Approve All Safe Fixes</button>`;
+  var inner=`${pageHead({title:"A Few Things To <em>Check</em>",sub:"Benu read all 64 of your items beautifully. These few just need a quick yes or no from you. We’ve grouped them so you can breeze through, starting with the safe fixes.",aside:aside})}<div class="col gap-5">${groups}</div>`;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><div class="row gap-4"><div class="row gap-2"><div style="width:120px;height:6px;border-radius:9px;background:var(--outer);overflow:hidden"><div style="height:100%;width:${total?(resolved/total*100):0}%;background:var(--mint-600);transition:width .3s"></div></div><span class="metalabel" style="color:var(--muted)">${resolved}/${total} reviewed</span></div><button class="btn btn-primary btn-lg" data-act="next">${resolved===total?"All clear, continue":"Continue"} ${icon("arrowR",{size:18,color:"#fff"})}</button></div>`;
+  return screenWrap(inner)+footerBar(foot);
+}
 
-  // ─── Allergy step (deferred) ────────────────────────────────────
-  function renderAllergy() {
-    const items = state.draft.items;
-    $("allergy-list").innerHTML = items.map((it, idx) => {
-      const tags = (it.dietary && it.dietary.length) ? it.dietary : BMOnboardAI.dietaryTags(it);
-      it.dietary = tags;
-      const verified = it.dietaryVerified;
-      return `<div class="card p-4" data-al="${idx}">
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <div class="font-medium text-sm">${escapeHTML(it.name)}</div>
-            <div class="mt-2 flex flex-wrap gap-1.5">
-              ${tags.length ? tags.map(t => `<span class="pill ${verified ? "pill-green" : "pill-amber"}">${escapeHTML(t.tag)}${verified ? " · verified" : " · suggested"}</span>`).join("") : `<span class="text-xs text-neutral-400">No tags suggested</span>`}
-            </div>
-          </div>
-          <button class="tiny-btn ${verified ? "tiny-ghost" : "tiny-approve"} flex-none" data-verify="${idx}">${verified ? "Unverify" : "Verify"}</button>
-        </div>
-      </div>`;
-    }).join("");
-    $("allergy-list").querySelectorAll("[data-verify]").forEach(b => b.onclick = () => {
-      const it = state.draft.items[+b.dataset.verify];
-      it.dietaryVerified = !it.dietaryVerified;
-      it.dietary = (it.dietary || []).map(t => ({ ...t, state: it.dietaryVerified ? "verified" : "ai_suggested" }));
-      saveDraftToStore(); persist(); renderAllergy();
-    });
-  }
-  $("allergy-back").onclick = () => show("finish");
+/* ---------- SCREEN 5: CATERING ---------- */
+function viewCatering(){
+  var conf=Object.values(state.catering.confirmed).filter(Boolean).length;
+  var cards=CATERING.map(function(c){
+    var isConf=state.catering.confirmed[c.id];
+    var chips=c.contents.map(function(x){return `<span class="chip" style="background:var(--raised);color:var(--text);font-weight:500">${x}</span>`;}).join("");
+    var fields=CATER_FIELDS.map(function(fd){var v=state.catering.fields[c.id][fd.key];return `<div><div class="row gap-2" style="margin-bottom:6px">${icon(fd.icon,{size:14,color:"var(--muted)"})}<span class="metalabel" style="color:var(--muted)">${fd.label}</span></div><div class="row" style="border:1px solid var(--border-strong);border-radius:10px;padding:8px 12px;background:var(--surface)">${fd.suffix==="$"?`<span style="color:var(--soft);margin-right:2px">$</span>`:""}<input value="${v}" data-model="catering.fields.${c.id}.${fd.key}" style="border:none;outline:none;width:100%;font-size:14.5px;font-weight:600;font-family:var(--sans);background:transparent;color:var(--text)"/>${fd.suffix&&fd.suffix!=="$"?`<span style="color:var(--soft);font-size:13px;white-space:nowrap">${fd.suffix}</span>`:""}</div></div>`;}).join("");
+    return `<div class="card" style="padding:0;overflow:hidden;border-color:${isConf?"var(--mint-400)":"var(--border)"}"><div class="row spread" style="padding:18px 22px;border-bottom:1px solid var(--border)"><div><div class="row gap-3" style="margin-bottom:4px"><span style="font-family:var(--serif);font-size:26px;font-weight:600">${c.name}</span><span class="st st-ai">${icon("sparkle",{size:11,color:"var(--mint-700)"})} AI draft</span></div><div class="metalabel">${c.based}</div></div>${isConf?`<span class="st st-ok">${icon("check",{size:12,stroke:2.6})} Confirmed</span>`:`<span class="st st-warn">Awaiting your confirmation</span>`}</div><div style="padding:22px;display:grid;grid-template-columns:1.1fr 1fr;gap:28px" class="cater-grid"><div><div class="metalabel" style="margin-bottom:10px">What’s In It · Edit Freely</div><div class="row wrap gap-2">${chips}<button class="chip" style="background:transparent;border:1px dashed var(--border-strong);color:var(--muted);cursor:pointer">${icon("upload",{size:12})} Add item</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">${fields}</div></div><div class="row spread" style="padding:14px 22px;background:var(--raised);border-top:1px solid var(--border)"><span style="font-size:13px;color:var(--muted)">Confirm serving size, price, lead time and minimum to publish this package.</span><button class="${isConf?"btn btn-secondary btn-sm":"btn btn-primary btn-sm"}" data-act="cconfirm" data-id="${c.id}">${isConf?`${icon("refresh",{size:14})} Edit again`:`${icon("check",{size:15,color:"#fff",stroke:2.4})} Confirm details`}</button></div></div>`;
+  }).join("");
+  var inner=`${pageHead({title:"Catering Packages We <em>Suggest</em>",sub:"Benu turned your best dishes into ready to sell packages that practically order themselves. Treat these as a head start, confirm the details and they’re good to go."})}<div style="margin-bottom:24px">${aiNote("<strong>These are suggestions, not final.</strong> Benu can’t know your kitchen’s real serving sizes, prices or lead times, so please confirm each one before it goes live.","info")}</div><div class="col gap-5">${cards}</div>`;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><div class="row gap-4"><span class="metalabel" style="color:var(--muted)">${conf}/${CATERING.length} packages confirmed</span><button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button></div>`;
+  return screenWrap(inner)+footerBar(foot);
+}
 
-  // ─── Draft → BMStore (so menu/builder/QR all see it) ────────────
-  function currentDraftState() {
-    const d = state.draft || BMOnboardAI.buildDraft(state.import, state.modules);
-    return {
-      name: d.name, tagline: d.tagline, subtagline: d.subtagline,
-      template: state.template.chosen || d.template,
-      palette: state.template.palette || d.palette,
-      categories: [...new Set(d.items.map(i => i.category || "Menu"))],
-      items: d.items,
-      logo: state.import.logoDataUrl || undefined,
-    };
-  }
-  function saveDraftToStore() { if (state.draft) BMStore.save(currentDraftState()); }
+/* ---------- SCREEN 6: LOCATIONS ---------- */
+function viewLocations(){
+  var cards=LOCATIONS.map(function(loc){
+    var same=!loc.main&&state.loc.sameAs[loc.id];
+    return `<div class="card" style="padding:0;overflow:hidden"><div style="display:grid;grid-template-columns:1.4fr 1fr auto;gap:0;align-items:stretch" class="loc-grid"><div style="padding:20px 22px"><div class="row gap-2" style="margin-bottom:8px">${icon("locations",{size:18,color:"var(--mint-600)"})}<span style="font-size:18px;font-weight:600">${loc.name}</span>${loc.main?`<span class="chip chip-mono" style="background:var(--mint-900);color:#CBE0A8">Main</span>`:""}</div><div style="font-size:13.5px;color:var(--muted);margin-bottom:12px">${loc.addr}</div><div class="row gap-2" style="background:var(--mint-50);border:1px solid var(--mint-200);border-radius:10px;padding:8px 12px;max-width:320px">${icon("link",{size:14,color:"var(--mint-700)"})}<span style="font-family:var(--mono);font-size:12.5px;color:var(--mint-900)">benu.menu/olive-${loc.id}</span><button class="iconbtn iconbtn-mini" style="margin-left:auto;background:transparent;border:none" title="Copy">${icon("copy",{size:14,color:"var(--mint-700)"})}</button></div></div><div style="padding:20px 22px;border-left:1px solid var(--border)">${!loc.main?`<button data-act="lsame" data-id="${loc.id}" class="row gap-2" style="border:none;background:transparent;cursor:pointer;padding:0;margin-bottom:12px">${tick(same)}<span style="font-size:13.5px;font-weight:500">Same as main location</span></button>`:""}<div class="col gap-2" style="opacity:${same?0.45:1}"><div class="row gap-2">${icon("clock",{size:14,color:"var(--muted)"})}<span style="font-size:13.5px">${same?"Tue to Sun · 5 to 10pm":loc.hours}</span></div><div class="row gap-2">${icon("price",{size:14,color:"var(--muted)"})}<span style="font-size:13.5px">${same?"Main pricing":loc.main?"Base pricing":"+4% city pricing"}</span></div><div class="row gap-2">${icon("cart",{size:14,color:"var(--muted)"})}<span style="font-size:13.5px">${same?"Curbside and in-store":loc.pickup}</span></div></div>${!loc.main?`<button class="btn btn-ghost btn-sm" style="margin-top:8px;padding:4px 0" ${same?"disabled":""}>Customize →</button>`:""}</div><div style="padding:20px 24px;border-left:1px solid var(--border);display:grid;place-items:center;background:var(--raised);min-width:130px"><div style="width:70px;height:70px;border-radius:12px;background:#fff;border:1px solid var(--border);display:grid;place-items:center;margin-bottom:8px">${icon("qr",{size:42,color:"var(--mint-900)",stroke:1.4})}</div><span class="metalabel">QR ready</span></div></div></div>`;
+  }).join("");
+  var aside=`<button class="btn btn-secondary">${icon("upload",{size:16})} Add Location</button>`;
+  var inner=`${pageHead({title:"Each Location, Its <em>Own</em> Menu",sub:"Every spot gets its own link and QR code. Start from your main location and change only what’s different, like hours, prices, or pickup.",aside:aside})}<div class="col gap-4">${cards}</div><div style="margin-top:20px">${aiNote("Prices, hours and availability can differ per location. Anything left as same as main stays in sync automatically when you update the main menu.","info")}</div>`;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><div class="row gap-4"><span class="metalabel" style="color:var(--muted)">3 locations · 3 QR codes</span><button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button></div>`;
+  return screenWrap(inner)+footerBar(foot);
+}
 
-  // ─── Boot ───────────────────────────────────────────────────────
-  restore();
-  renderModules();
-  if (state.import.websiteUrl) $("website-input").value = state.import.websiteUrl;
-  if (state.import.brief) $("brief-input").value = state.import.brief;
-  updateImportSummary();
-  // Always start at import for a calm, predictable entry (state is restored so
-  // nothing is lost), unless a draft already exists and the user was mid-flow.
-  show("import");
+/* ---------- SCREEN 7: TEMPLATES ---------- */
+function sitePreview(variant){
+  var S={editorial:{bg:"#FBF7EE",ink:"#1d2417",accent:"#618440",serif:true,hero:"#E8F0D9"},warm:{bg:"#fff",ink:"#22150e",accent:"#C2502E",serif:true,hero:"#F6E7DC"},minimal:{bg:"#fff",ink:"#14171A",accent:"#213116",serif:false,hero:"#F2F6EB"}}[variant];
+  var ff=S.serif?"Cormorant Garamond, serif":"Inter, sans-serif";
+  var heroTitle=variant==="editorial"?"A table set with sunshine.":variant==="warm"?"Wood-fired, family-fed.":"Honest food, every day.";
+  var dishes=["Mezze Platter","Lamb Kofta","Branzino"],prices=[18,24,29];
+  var cards=dishes.map(function(d,i){return `<div><div style="height:130px;background:${S.hero};border-radius:${variant==="minimal"?4:14}px;margin-bottom:14px"></div><div style="display:flex;justify-content:space-between;font-family:${ff};font-size:22px;font-weight:600"><span>${d}</span><span style="color:${S.accent}">$${prices[i]}</span></div><p style="font-size:14px;color:#7a7a72;margin:6px 0 0">Fresh herbs, olive oil, lemon, slow-cooked with care.</p></div>`;}).join("");
+  return `<div style="width:900px;background:${S.bg};color:${S.ink};font-family:Inter, sans-serif"><div style="display:flex;justify-content:space-between;align-items:center;padding:26px 44px"><span style="font-family:${ff};font-weight:700;font-size:30px">The Olive Branch</span><div style="display:flex;gap:26px;font-size:16px;color:${S.ink}"><span>Menu</span><span>Catering</span><span>Visit</span><span style="background:${S.accent};color:#fff;padding:8px 20px;border-radius:${variant==="minimal"?4:999}px">Order</span></div></div><div style="background:${S.hero};padding:${variant==="warm"?"0":"70px 44px"};display:${variant==="warm"?"flex":"block"}">${variant==="warm"?`<div style="width:42%;background:#C9A88E"></div>`:""}<div style="padding:${variant==="warm"?"70px 44px":"0"};flex:1"><div style="font-family:JetBrains Mono, monospace;font-size:13px;letter-spacing:0.18em;text-transform:uppercase;color:${S.accent};margin-bottom:18px">Mediterranean · Austin</div><div style="font-family:${ff};font-size:${variant==="minimal"?58:72}px;line-height:1.02;font-weight:600;max-width:560px;margin-bottom:22px">${heroTitle}</div><p style="font-size:18px;line-height:1.5;max-width:460px;color:#5a5a52;margin-bottom:28px">Mezze, wood-fired mains and house wines, served seven days a week from our open kitchen.</p><div style="display:flex;gap:14px"><span style="background:${S.accent};color:#fff;padding:14px 30px;border-radius:${variant==="minimal"?4:999}px;font-size:16px;font-weight:500">View the menu</span><span style="border:1.5px solid ${S.ink};padding:14px 30px;border-radius:${variant==="minimal"?4:999}px;font-size:16px">Book a table</span></div></div></div><div style="padding:52px 44px"><div style="font-family:${ff};font-size:36px;font-weight:600;margin-bottom:26px">Tonight’s favourites</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">${cards}</div></div><div style="background:${variant==="minimal"?"#14171A":S.accent};color:#fff;padding:40px 44px;font-family:${ff};font-size:30px;font-weight:600">Open Tue to Sun · 5 to 10pm · 1401 S Congress</div></div>`;
+}
+function viewTemplates(){
+  var chosen=state.tpl.chosen;
+  var cards=TEMPLATES.map(function(t,i){
+    var on=chosen===t.id;
+    var feats=t.feats.map(function(f){return `<span class="chip" style="background:var(--raised);color:var(--text);font-size:11.5px">${f}</span>`;}).join("");
+    return `<div class="card" data-act="tchoose" data-id="${t.id}" style="padding:0;overflow:hidden;cursor:pointer;transition:all .18s;border:${on?"2px solid var(--mint-600)":"1px solid var(--border)"};box-shadow:${on?"var(--shadow-lg)":"var(--shadow-sm)"};transform:${on?"translateY(-2px)":"none"}"><div style="position:relative;background:var(--outer);border-bottom:1px solid var(--border)"><div style="height:340px;overflow:hidden;position:relative"><div style="transform:scale(0.305);transform-origin:top left;width:900px">${sitePreview(t.id)}</div><button data-act="tfocus" data-id="${t.id}" style="position:absolute;bottom:12px;right:12px;border:none;cursor:pointer;background:rgba(20,23,26,0.82);color:#fff;border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:500;display:flex;gap:7px;align-items:center;backdrop-filter:blur(6px)">${icon("eye",{size:14,color:"#fff"})} Full preview</button></div></div><div style="padding:18px"><div class="row spread" style="margin-bottom:8px"><span style="font-family:var(--serif);font-size:23px;font-weight:600">${t.name}</span><span class="chip chip-mono" style="background:${i===0?"var(--pill-bg)":"var(--raised)"};color:${i===0?"var(--pill-text)":"var(--muted)"}">${t.tag}</span></div><div class="row gap-2" style="align-items:flex-start;margin-bottom:14px">${icon("sparkle",{size:15,color:"var(--mint-600)",style:"flex-shrink:0;margin-top:2px"})}<p style="margin:0;font-size:13.5px;color:var(--muted);line-height:1.5">${t.why}</p></div><div class="row wrap gap-2" style="margin-bottom:16px">${feats}</div><button class="${on?"btn btn-primary":"btn btn-secondary"}" style="width:100%" data-act="tchoose" data-id="${t.id}">${on?`${icon("check",{size:16,color:"#fff",stroke:2.4})} Selected`:"Choose this template"}</button></div></div>`;
+  }).join("");
+  var modal="";
+  if(state.tpl.focus){var ft=TEMPLATES.find(function(t){return t.id===state.tpl.focus;});modal=`<div data-act="tclose" style="position:fixed;inset:0;z-index:60;background:rgba(20,23,26,0.55);backdrop-filter:blur(6px);display:grid;place-items:center;padding:40px"><div style="width:min(940px,94vw);max-height:90vh;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column"><div class="row spread" style="padding:14px 20px;border-bottom:1px solid var(--border)"><span style="font-family:var(--serif);font-size:20px;font-weight:600">${ft.name}</span><span class="metalabel" style="color:var(--muted)">Full page preview</span></div><div class="scroll" style="overflow:auto;background:var(--outer)"><div style="transform:scale(0.66);transform-origin:top left;width:900px">${sitePreview(state.tpl.focus)}</div></div><div class="row spread" style="padding:14px 20px;border-top:1px solid var(--border)"><button class="btn btn-secondary" data-act="tclose">Close</button><button class="btn btn-primary" data-act="tuse" data-id="${state.tpl.focus}">${icon("check",{size:16,color:"#fff",stroke:2.4})} Use this template</button></div></div></div>`;}
+  var inner=`${pageHead({title:"Three Homepages That <em>Fit</em> You",sub:"Benu matched these to your menu, your photos, and your style. Each one is built with your real content, so pick the look you love and make it your own."})}<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px" class="tpl-grid">${cards}</div>`;
+  var chosenName=TEMPLATES.find(function(t){return t.id===chosen;}).name;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><button class="btn btn-primary btn-lg" data-act="next">Continue with ${chosenName} ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
+  return screenWrap(inner,1180)+modal+footerBar(foot);
+}
+
+/* ---------- SCREEN 8: PUBLISH ---------- */
+function viewPublish(){
+  var checks=state.publish.checks,published=state.publish.published;
+  var reqItems=CHECKLIST.filter(function(c){return c.req;});
+  var reqDone=reqItems.filter(function(c){return checks[c.id];}).length;
+  var canPublish=reqItems.every(function(c){return checks[c.id];});
+  var built=BUILT.map(function(b){return `<div class="card row spread" style="padding:14px 16px"><div class="row gap-3"><div style="width:38px;height:38px;border-radius:10px;background:var(--mint-50);display:grid;place-items:center">${icon(b.icon,{size:18,color:"var(--mint-700)"})}</div><div><div style="font-size:15px;font-weight:600">${b.name}</div><div class="metalabel" style="margin-top:2px">${b.detail}</div></div></div>${b.ok?`<span class="st st-ok">${icon("check",{size:11,stroke:2.6})} Ready</span>`:`<span class="st st-warn">1 to fix</span>`}</div>`;}).join("");
+  var list=CHECKLIST.map(function(c){var done=checks[c.id];return `<button data-act="pcheck" data-id="${c.id}" class="row gap-3" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:13px 12px;border-radius:12px">${tick(done)}<div class="grow"><div style="font-size:14.5px;font-weight:500;color:${done?"var(--muted)":"var(--text)"};text-decoration:${done?"line-through":"none"}">${c.label}</div></div>${c.req?`<span class="st st-danger" style="visibility:${done?"hidden":"visible"}">Required</span>`:`<span class="st st-neutral">Optional</span>`}</button>`;}).join("");
+  var warn=!canPublish?`<div style="margin-top:14px"><div class="row gap-3" style="background:var(--warn-bg);border:1px solid #EBD3A0;border-radius:14px;padding:13px 16px;align-items:flex-start">${icon("alert",{size:17,color:"var(--warn)",style:"flex-shrink:0;margin-top:1px"})}<div style="font-size:13.5px;color:#7a5a18;line-height:1.5"><strong>${reqItems.length-reqDone} required ${reqItems.length-reqDone===1?"item":"items"} left.</strong> The publish button unlocks once these are done, so a wrong price or an unconfirmed package never slips out by accident.</div></div></div>`:"";
+  var inner=`${pageHead({title:published?"You’re <em>Live</em>":"Ready To Go <em>Live</em>",sub:published?"Your menu, ordering and homepage are now published. Share your QR codes and start taking orders.":"Here’s everything Benu built. Tick off the must-do items below and the publish button is yours."})}<div style="display:grid;grid-template-columns:1.1fr 1fr;gap:22px" class="pub-grid"><div><div class="metalabel" style="margin-bottom:12px">What Benu built</div><div class="col gap-2">${built}</div></div><div><div class="metalabel" style="margin-bottom:12px">Before you publish</div><div class="card" style="padding:8px">${list}</div>${warn}<div style="margin-top:16px" class="row spread"><span class="metalabel" style="color:var(--muted)">${reqDone}/${reqItems.length} required done</span><button class="btn btn-primary btn-lg" ${(!canPublish||published)?"disabled":""} data-act="publish">${published?`${icon("check",{size:18,color:"#fff",stroke:2.4})} Published`:`${icon("sparkle",{size:17,color:"#fff"})} Publish my restaurant`}</button></div></div></div>`;
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><button class="btn btn-ghost" data-act="later">Preview The Allergy Setup Screen ${icon("arrowR",{size:16})}</button>`;
+  return screenWrap(inner)+footerBar(foot);
+}
+
+/* ---------- SCREEN 9: ALLERGY ---------- */
+function viewAllergy(){
+  var items=state.allergy.items;
+  var counts={suggested:0,review:0,verified:0};
+  items.forEach(function(i){counts[i.state]++;});
+  var legend=Object.keys(allergyState).map(function(k){var v=allergyState[k];return `<div class="row gap-2" style="background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:7px 14px"><span class="dot" style="background:${v.dot}"></span><span style="font-size:13px;font-weight:500">${v.label}</span><span class="metalabel" style="color:var(--soft)">${counts[k]}</span></div>`;}).join("");
+  var cards=items.map(function(it,idx){
+    var s=allergyState[it.state];
+    var ings=it.ingredients.map(function(g){return `<span class="chip" style="background:var(--raised);color:var(--text);font-weight:500;font-size:12px">${g}</span>`;}).join("");
+    var tags=it.tags.map(function(tg){return `<span class="chip" style="background:${tg.warn?"var(--danger-bg)":tg.q?"var(--warn-bg)":"var(--ok-bg)"};color:${tg.warn?"var(--danger)":tg.q?"var(--warn)":"var(--ok)"};font-weight:500;font-size:12px">${tg.warn?icon("alert",{size:11,color:"var(--danger)"}):""}${tg.t}</span>`;}).join("");
+    var action=it.state==="verified"
+      ?`<button class="btn btn-secondary btn-sm" style="width:100%" data-act="aunverify" data-i="${idx}">${icon("edit",{size:14})} Edit and re-verify</button>`
+      :`<div class="row gap-2"><button class="btn btn-secondary btn-sm grow">${icon("edit",{size:14})} Edit</button><button class="btn btn-primary btn-sm grow" data-act="averify" data-i="${idx}">${icon("shield",{size:14,color:"#fff"})} Verify as correct</button></div>`;
+    return `<div class="card" style="padding:0;overflow:hidden;border-color:${it.state==="verified"?"var(--mint-400)":it.state==="review"?"#EBD3A0":"var(--border)"}"><div class="row spread" style="padding:15px 18px;border-bottom:1px solid var(--border);background:${it.state==="verified"?"var(--mint-50)":"var(--surface)"}"><div><div style="font-family:var(--serif);font-size:21px;font-weight:600">${it.name}</div><div class="metalabel" style="margin-top:2px">${it.section}</div></div><span class="st ${s.cls}">${icon(s.icon,{size:11,color:s.dot})} ${s.label}</span></div><div style="padding:18px"><div class="metalabel" style="margin-bottom:8px">Ingredients · AI suggested</div><div class="row wrap gap-2" style="margin-bottom:16px">${ings}<button class="chip" style="background:transparent;border:1px dashed var(--border-strong);color:var(--muted);cursor:pointer;font-size:12px">${icon("upload",{size:11})} Add</button></div><div class="metalabel" style="margin-bottom:8px">Dietary and allergens</div><div class="row wrap gap-2" style="margin-bottom:18px">${tags}</div>${action}</div></div>`;
+  }).join("");
+  var banner=`<div class="row gap-3" style="background:var(--mint-900);border-radius:16px;padding:16px 20px;color:#EDF3E0;align-items:flex-start">${icon("shield",{size:20,color:"#CBE0A8",style:"flex-shrink:0;margin-top:1px"})}<div style="font-size:14px;line-height:1.55"><strong style="color:#fff">Safety first.</strong> AI suggestions are a starting point, not a guarantee. Allergy tags only show to guests once a person from your team marks them <em style="font-family:var(--serif)">verified</em>.</div></div>`;
+  var inner=`${pageHead({title:"Ingredients And <em>Allergies</em>",sub:"No rush on this one, so come back whenever you have a quiet moment. Benu suggests ingredients and dietary tags from your menu, and your team gives the final say before guests ever see an allergy label."})}<div style="margin-bottom:22px">${banner}</div><div class="row gap-3 wrap" style="margin-bottom:20px">${legend}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="alg-grid">${cards}</div>`;
+  var foot=`<button class="btn btn-secondary" data-act="toPublish">${icon("arrowL",{size:18})} Back to publish</button><div class="row gap-4"><span class="metalabel" style="color:var(--muted)">${counts.verified}/${items.length} verified by your team</span><button class="btn btn-primary btn-lg">Save and finish later</button></div>`;
+  return screenWrap(inner)+footerBar(foot);
+}
+
+/* ---------- ROUTER / RENDER ---------- */
+var VIEWS=[viewImport,viewBuild,viewGenerate,viewReview,viewCatering,viewLocations,viewTemplates,viewPublish,viewAllergy];
+function render(){
+  var prevMain=document.querySelector("main");var sc=prevMain?prevMain.scrollTop:0;
+  var view=(VIEWS[state.screen]||viewImport)();
+  document.getElementById("app").innerHTML=`<div style="display:flex;flex-direction:column;height:100vh">${topBar()}${view}</div>`;
+  var nowMain=document.querySelector("main");if(nowMain)nowMain.scrollTop=sc;
+  var af=document.querySelector("[data-autofocus]");if(af){af.focus();try{af.setSelectionRange(af.value.length,af.value.length);}catch(e){}}
+}
+function go(n){n=Math.max(0,Math.min(8,n));state.screen=n;localStorage.setItem("benu_screen",String(n));if(n===2)startGen();render();var m=document.querySelector("main");if(m)m.scrollTop=0;}
+function next(){go(state.screen+1);}
+function back(){go(state.screen-1);}
+
+function startGen(){state.gen={active:0,done:false};scheduleGenTick();}
+function scheduleGenTick(){if(state.screen!==2)return;var delay=state.gen.active===0?900:1500;setTimeout(function(){if(state.screen!==2)return;state.gen.active++;if(state.gen.active>=GEN_STEPS.length){state.gen.done=true;render();return;}render();scheduleGenTick();},delay);}
+
+/* ---------- EVENTS ---------- */
+var app=document.getElementById("app");
+app.addEventListener("click",function(e){
+  var t=e.target.closest("[data-act]");if(!t)return;
+  var act=t.dataset.act,id=t.dataset.id,k=t.dataset.k;
+  if(act==="next"){next();return;}
+  if(act==="back"){back();return;}
+  if(act==="jump"){go(parseInt(t.dataset.i,10));return;}
+  if(act==="later"){go(8);return;}
+  if(act==="toPublish"){go(7);return;}
+  if(act==="upload"){addUploading();return;}
+  if(act==="logo-toggle"){state.import.logo=!state.import.logo;render();return;}
+  if(act==="mod"){state.build.sel[id]=!state.build.sel[id];render();return;}
+  if(act==="selall"){var all=Object.values(state.build.sel).filter(Boolean).length===MODULES.length;var v=!all;MODULES.forEach(function(m){state.build.sel[m.id]=v;});render();return;}
+  if(act==="bump"){var area=t.dataset.area,d=parseInt(t.dataset.d,10);state.build.areas[area]=Math.max(0,Math.min(60,state.build.areas[area]+d));render();return;}
+  if(act==="approveSafe"){FINDING_GROUPS.filter(function(g){return g.tone==="safe";}).forEach(function(g){g.items.forEach(function(_,i){state.review.states[g.id+i]="approved";});});render();return;}
+  if(act==="rset"){state.review.states[k]=t.dataset.v||null;render();return;}
+  if(act==="redit"){state.review.editing=k;state.review.editVal=state.review.vals[k];render();return;}
+  if(act==="rsave"){state.review.vals[k]=state.review.editVal;state.review.states[k]="approved";state.review.editing=null;render();return;}
+  if(act==="rcancel"){state.review.editing=null;render();return;}
+  if(act==="cconfirm"){state.catering.confirmed[id]=!state.catering.confirmed[id];render();return;}
+  if(act==="lsame"){state.loc.sameAs[id]=!state.loc.sameAs[id];render();return;}
+  if(act==="tchoose"){state.tpl.chosen=id;render();return;}
+  if(act==="tfocus"){state.tpl.focus=id;render();return;}
+  if(act==="tclose"){state.tpl.focus=null;render();return;}
+  if(act==="tuse"){state.tpl.chosen=id;state.tpl.focus=null;render();return;}
+  if(act==="pcheck"){state.publish.checks[id]=!state.publish.checks[id];render();return;}
+  if(act==="publish"){state.publish.published=true;render();return;}
+  if(act==="averify"){state.allergy.items[parseInt(t.dataset.i,10)].state="verified";render();return;}
+  if(act==="aunverify"){state.allergy.items[parseInt(t.dataset.i,10)].state="review";render();return;}
+});
+app.addEventListener("input",function(e){
+  var t=e.target.closest("[data-model]");if(t){setModel(t.dataset.model,t.value);}
+});
+app.addEventListener("keydown",function(e){
+  if(e.key==="Enter"){var t=e.target.closest("[data-enter]");if(t){e.preventDefault();var k=t.dataset.k;state.review.vals[k]=state.review.editVal;state.review.states[k]="approved";state.review.editing=null;render();}}
+});
+
+function addUploading(){
+  var id="draft-menu-"+(Math.floor(Math.random()*90+10))+".pdf";
+  state.import.files.push({name:id,size:"3.0 MB",pct:8,state:"up"});
+  render();
+  var p=8;
+  var timer=setInterval(function(){
+    p+=Math.random()*22;
+    var f=state.import.files.find(function(x){return x.name===id;});
+    if(!f){clearInterval(timer);return;}
+    if(p>=100){p=100;f.pct=100;f.state="done";clearInterval(timer);}else{f.pct=Math.round(p);}
+    render();
+  },240);
+}
+
+/* ---------- BOOT ---------- */
+initState();
+render();
+if(state.screen===2)startGen();
 </script>
-
 </body>
 </html>
