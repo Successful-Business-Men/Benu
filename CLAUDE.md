@@ -15,10 +15,12 @@ Benu (also called Better Menu) turns a restaurant menu into a website, QR orderi
 - Before every push, run `git pull --rebase` first. This stops parallel sessions from overwriting each other.
 - Use short, clear commit messages.
 
-## How The Live Site Updates (Important)
-- A `git push` saves to GitHub but does not reliably publish the live site. Auto-deploy from GitHub is currently not firing.
-- To publish, run `npx vercel --prod --yes` from the project root. The Vercel CLI is already signed in.
-- The change is live at https://better-menu-eight.vercel.app within a few seconds. Always verify by loading the URL.
+## How The Live Site Updates
+- A `git push` to `static-html-version` now auto-deploys via GitHub Actions (`.github/workflows/deploy.yml`). Live at https://better-menu-eight.vercel.app about 1 to 2 minutes after the push.
+- It uses the repo secret `VERCEL_TOKEN` (already set). Watch a run with `gh run watch` or the Actions tab.
+- Do not rely on Vercel's own dashboard Git integration. It points at the wrong repo, so only this Action publishes the site.
+- Manual fallback if ever needed: `npx vercel --prod --yes` from the project root. The Vercel CLI is signed in.
+- Always verify by loading the URL after a deploy.
 
 ## Running Multiple Sessions
 - It is fine to run several Claude sessions on this project at the same time.
