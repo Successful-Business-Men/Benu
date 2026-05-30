@@ -12,8 +12,15 @@ Benu (also called Better Menu) turns a restaurant menu into a website, QR orderi
 ## How Work Gets Saved
 - Local branch `main` pushes to the `static-html-version` branch on GitHub, which is what Vercel deploys. A plain `git push` works.
 - Always commit and push after making changes, so the live site updates. Do not wait to be asked.
+- Before every push, run `git pull --rebase` first. This stops parallel sessions from overwriting each other.
 - Use short, clear commit messages.
 - Changes go live about 10 to 60 seconds after the push.
+
+## Running Multiple Sessions
+- It is fine to run several Claude sessions on this project at the same time.
+- Give each session a different file to work on. For example one session on `menu.html`, another on `onboard.html`. Do not edit the same file in two sessions at once.
+- Each session commits, pulls with rebase, then pushes on its own. They all deploy to the same live site.
+- If a push is rejected, run `git pull --rebase`, resolve any conflict, then push again.
 
 ## Writing Rules (Strict)
 - Never use em-dashes anywhere. Use a comma, a period, or a colon instead.
