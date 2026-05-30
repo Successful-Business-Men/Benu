@@ -1,0 +1,26 @@
+name: Deploy to Vercel
+
+# Publishes the live site on every push to the deploy branch.
+# Needs one repo secret: VERCEL_TOKEN (create at https://vercel.com/account/tokens).
+# The project IDs below are identifiers, not secrets.
+
+on:
+  push:
+    branches: [static-html-version]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: team_qmereu4f1FBAqtOEBs69mPeQ
+      VERCEL_PROJECT_ID: prj_9oFpFcqd4F8ZDV5ix1R0vkSkc0dg
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy to Vercel production
+        run: npx vercel@latest deploy --prod --yes --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
