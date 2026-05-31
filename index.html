@@ -172,7 +172,9 @@
   /* ─────────────────────────  Buttons  ───────────────────────── */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-    padding: .85rem 1.5rem;
+    height: 44px;
+    padding: 0 22px;
+    line-height: 1;
     border-radius: 999px;
     font-weight: 500;
     font-size: .9375rem;
@@ -254,8 +256,9 @@
     box-shadow: 0 2px 8px rgba(20,23,26,.04);
   }
   .pill-nav a {
-    padding: 7px 16px;
-    font-size: .85rem; font-weight: 500;
+    height: 44px;
+    padding: 0 16px;
+    font-size: .9375rem; font-weight: 500;
     color: var(--text);
     border-radius: 999px;
     transition: background .2s, color .2s;
@@ -279,7 +282,7 @@
     transition: color .2s;
   }
   .nav-actions .signin:hover { color: var(--text); }
-  .nav-cta { padding: .55rem 1.1rem; font-size: .85rem; }
+  .nav-cta { /* size unified into .btn (44px) */ }
 
   .menu-toggle { display: none; background: var(--surface); border: 1px solid var(--rule); }
 
@@ -922,10 +925,7 @@
     justify-content: flex-start;
     gap: 14px;
   }
-  .hero-text .hero-ctas .btn {
-    padding: 0.98rem 1.7rem;
-    font-size: 0.985rem;
-  }
+  /* Hero CTAs use the standard .btn size (44px) for consistency */
   .hero-text .hero-meta {
     text-align: left;
     margin-top: 13px;
@@ -2227,7 +2227,7 @@
         <a href="#pricing">Pricing</a>
         <a href="#concierge">Concierge</a>
       </nav>
-      <a href="./onboard.html" class="btn btn-primary" style="padding:.6rem 1.2rem; font-size:.88rem;">Start building
+      <a href="./onboard.html" class="btn btn-primary">Start building
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
     </div>
