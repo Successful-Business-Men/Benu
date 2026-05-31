@@ -118,7 +118,7 @@ const ICONS={
   link:"M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 1 0-5.66-5.66l-1.5 1.5M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 1 0 5.66 5.66l1.5-1.5",
   image:"M4 5h16v14H4zM4 15l4.5-4.5L13 15m-2-2l2.5-2.5L20 17",
   text:"M5 6h14M5 12h14M5 18h9",
-  qr:"M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z",
+  qr:"M3 3h6v6H3z M5 5h2v2H5z M15 3h6v6h-6z M17 5h2v2h-2z M3 15h6v6H3z M5 17h2v2H5z M12 4h2v2h-2z M4 12h2v2h-2z M12 12h2v2h-2z M16 12h2v2h-2z M19 15h2v2h-2z M12 16h2v2h-2z M16 18h2v2h-2z M19 19h2v2h-2z",
   cart:"M4 5h2l2 11h9l2-7H7M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z",
   catering:"M12 3v2M5 11a7 7 0 0 1 14 0zM3 11h18M4 15h16M6 19h12",
   home:"M4 11l8-7 8 7M6 10v9h12v-9",
@@ -333,9 +333,8 @@ function viewBuild(){
     }).join("");
     tablePanel=`<div class="card" style="padding:0;overflow:hidden;margin-top:20px;border-color:var(--mint-400)"><div class="row spread" style="padding:18px 22px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:16px"><div class="row gap-3"><div style="width:42px;height:42px;border-radius:11px;background:var(--mint-900);display:grid;place-items:center;flex-shrink:0">${icon("qr",{size:22,color:"#CBE0A8"})}</div><div><div style="font-size:19px;font-weight:600">Set Up Your Tables And Seats</div><div style="font-size:13.5px;color:var(--muted);margin-top:2px">Add as many as you have in each area and we’ll print a ready to scan code for every one.</div></div></div><span class="chip" style="align-self:center">${icon("sparkle",{size:12,color:"var(--pill-text)"})} ${totalCodes} Codes Ready</span></div><div class="col gap-4" style="padding:20px 22px">${areaRows}</div></div>`;
   }
-  var asideBtn=`<button data-act="selall" class="btn btn-soft">${icon(all?"x":"check",{size:16,color:"var(--mint-900)"})}${all?"Clear All":"Select Everything"}</button>`;
-  var inner=`${pageHead({title:"What Should Benu <em>Build For You</em>",sub:"Tell us what you need today and add the rest whenever you like. We’ve already ticked the ones busy restaurants reach for first.",aside:asideBtn,titleSize:66})}<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px" class="mod-grid">${mods}</div>${tablePanel}<div style="margin-top:20px">${aiNote("Benu drafts every one of these straight from your menu. Nothing goes public until you give it the thumbs up.","info")}</div>`;
-  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><div class="row gap-4"><span class="metalabel" style="color:var(--muted)">${count} of ${MODULES.length} selected</span><button class="btn btn-primary btn-lg" ${count===0?"disabled":""} data-act="next">Build with Benu ${icon("sparkle",{size:17,color:"#fff"})}</button></div>`;
+  var inner=`${pageHead({title:"What Should Benu<br><em>Build For You</em>",sub:"Tell us what you need today and add the rest whenever you like.",titleSize:66})}<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px" class="mod-grid">${mods}</div>${tablePanel}<div style="margin-top:20px">${aiNote("Benu drafts every one of these straight from your menu. Nothing goes public until you give it the thumbs up.","info")}</div>`;
+  var foot=`<button class="btn btn-secondary" data-act="back">Back</button><button class="btn btn-primary btn-lg" ${count===0?"disabled":""} data-act="next">Build with Benu</button>`;
   return screenWrap(inner)+footerBar(foot);
 }
 
