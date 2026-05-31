@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Benu · The website, ordering, and kitchen display for your restaurant.</title>
-<meta name="description" content="Benu turns your menu PDF into a restaurant website, QR ordering, and a live kitchen display. Free to build, $39 a month to publish — with no per-order fees." />
+<meta name="description" content="Benu turns your menu PDF into a restaurant website, QR ordering, and a live kitchen display. Free to build, $39 a month to publish, with no per-order fees." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -297,6 +297,8 @@
   }
   .hero-headline .hl-line { display: block; }
   .hero-headline .hl-line + .hl-line { margin-top: .05em; }
+  /* Blank-line break after "Your Kitchen." so "Choose Benu." starts a fresh line. */
+  .hero-headline .hl-line.hl-break { margin-top: .9em; }
   .hero-sub {
     font-size: 1.15rem;
     line-height: 1.55;
@@ -929,7 +931,7 @@
     margin-top: 13px;
   }
 
-  /* The "Benu." accent word — animates color per slide */
+  /* The "Benu." accent word, animates color per slide */
   .brand-accent {
     color: var(--slide-accent);
     transition: color 0.6s ease;
@@ -937,6 +939,9 @@
     font-style: italic;
     font-weight: 500;
     letter-spacing: -0.01em;
+    /* Cormorant italic reads smaller than Inter at the same size, so bump it
+       up to match the cap height of "Choose". */
+    font-size: 1.12em;
   }
 
   /* Service card — compact rotating caption that labels the carousel.
@@ -1101,8 +1106,11 @@
 
   /* The larger dark-green circular "next" button — color-shifts per slide. */
   .rotator-next {
-    width: 58px;
-    height: 58px;
+    /* Exactly the height of the hero "Start building" button so the circle and
+       the button read as the same size: 0.98rem*2 padding + 0.985rem line box
+       (line-height 1.6) + 2px border = 3.536rem + 2px, about 58.6px. */
+    width: calc(3.536rem + 2px);
+    height: calc(3.536rem + 2px);
     flex: none;
     border: 0;
     padding: 0;
@@ -1239,8 +1247,6 @@
     .rotator-controls { gap: 12px; }
     .rotator-count { font-size: 0.72rem; }
     .rotator-sep { height: 15px; }
-    .rotator-next { width: 48px; height: 48px; }
-    .rotator-next svg { width: 20px; height: 20px; }
     .hero-rotator .frame-mark { display: none; }
   }
 
@@ -1543,29 +1549,15 @@
     <a href="#top" class="brand"><span class="mark serif">B</span> Benu</a>
 
     <nav class="pill-nav" id="nav" aria-label="Primary">
-      <a href="#top" class="active" aria-current="true">
-        <i data-lucide="house" class="pill-ico" aria-hidden="true"></i>
-        Home
-      </a>
-      <a href="#bundle">
-        <i data-lucide="package" class="pill-ico" aria-hidden="true"></i>
-        Bundle
-      </a>
-      <a href="#templates">
-        <i data-lucide="layout-template" class="pill-ico" aria-hidden="true"></i>
-        Templates
-      </a>
-      <a href="#pricing">
-        <i data-lucide="receipt" class="pill-ico" aria-hidden="true"></i>
-        Pricing
-      </a>
+      <a href="#top" class="active" aria-current="true">Home</a>
+      <a href="#bundle">Bundle</a>
+      <a href="#templates">Templates</a>
+      <a href="#pricing">Pricing</a>
     </nav>
 
     <div class="nav-actions">
-      <a href="#concierge" class="signin">Talk to us</a>
-      <a href="./onboard.html" class="btn btn-primary nav-cta">Start building
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
+      <a href="./onboard.html" class="signin">Sign in</a>
+      <a href="./onboard.html" class="btn btn-primary nav-cta">Start building</a>
       <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-controls="nav" aria-expanded="false">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
       </button>
@@ -1592,9 +1584,9 @@
         <!-- LEFT: text content -->
         <div class="hero-text reveal-hero">
           <h1 class="display-sans hero-headline" id="hero-headline">
-            <span class="hl-line">Your menu, your orders,</span>
-            <span class="hl-line">your kitchen.</span>
-            <span class="hl-line">Choose <span class="brand-accent" id="brand-accent">Benu.</span></span>
+            <span class="hl-line">Your Menu, Your Orders,</span>
+            <span class="hl-line">Your Kitchen.</span>
+            <span class="hl-line hl-break">Choose <span class="brand-accent" id="brand-accent">Benu.</span></span>
           </h1>
 
           <!-- Static product promise — clarifies the headline at a glance so the
@@ -1619,7 +1611,7 @@
         <div class="hero-stage" id="hero-stage">
 
           <!-- Carousel stage — device frames, exactly one visible at a time -->
-          <div class="hero-rotator-wrap" id="rotator-wrap" role="group" aria-roledescription="carousel" aria-label="Product previews — website, QR ordering, and kitchen display">
+          <div class="hero-rotator-wrap" id="rotator-wrap" role="group" aria-roledescription="carousel" aria-label="Product previews: website, QR ordering, and kitchen display">
 
           <!-- SLIDE 0 — Website (laptop + browser chrome) -->
           <div class="product-slide active" data-slide="0">
@@ -1665,7 +1657,7 @@
             <div class="sc-eyebrow">
               <span class="sc-kicker">Now previewing</span>
             </div>
-            <h2 class="sc-title" id="sc-title">Website builder</h2>
+            <h2 class="sc-title" id="sc-title">Website Builder</h2>
             <p class="sc-desc" id="sc-desc">Drop your menu PDF. Benu lays out a beautiful website with your photos, your brand, and your own custom domain.</p>
           </div>
 
@@ -1729,7 +1721,7 @@
         <div>
           <span class="eyebrow">Tables we set</span>
           <h2 class="display mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.4rem); max-width: 16ch;">
-            Built for the dining rooms <em>you actually run.</em>
+            Built For The Dining Rooms <em>You Actually Run.</em>
           </h2>
         </div>
         <p class="lead">
@@ -1801,8 +1793,8 @@
   <section class="section" id="bundle">
     <div class="container">
       <div class="bundle-head reveal">
-        <span class="eyebrow">What's in the bundle</span>
-        <h2 class="display mt-eyebrow" style="font-size: clamp(2.4rem, 5.5vw, 4rem);">Three products. <em>One bill.</em></h2>
+        
+        <h2 class="display mt-eyebrow" style="font-size: clamp(2.4rem, 5.5vw, 4rem);">Three Products. <em>One Bill.</em></h2>
         <p class="lead" style="margin-top: 22px; max-width: 56ch;">
           Most restaurants stitch together a website host, an online-ordering plugin, and a printed-ticket setup. Benu replaces all three, and lets them talk to each other.
         </p>
@@ -1812,10 +1804,9 @@
         <article class="bundle-cell reveal">
           <div class="cell-top">
             <span class="cell-icon"><i data-lucide="panel-top" aria-hidden="true"></i></span>
-            <span class="cell-index">01</span>
           </div>
-          <h3>Website builder</h3>
-          <p class="cell-lead">An editorial site that looks like your restaurant — not a template.</p>
+          <h3>Website Builder</h3>
+          <p class="cell-lead">An editorial site that looks like your restaurant, not a template.</p>
           <ul class="cell-list">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Laid out by people who read menus</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Your own custom domain</li>
@@ -1830,10 +1821,9 @@
         <article class="bundle-cell reveal">
           <div class="cell-top">
             <span class="cell-icon"><i data-lucide="qr-code" aria-hidden="true"></i></span>
-            <span class="cell-index">02</span>
           </div>
-          <h3>QR ordering</h3>
-          <p class="cell-lead">Guests scan, browse, and order from their own phone.</p>
+          <h3>QR Ordering</h3>
+          <p class="cell-lead">Guests scan one code, order from their phone, and pay on the spot. You turn tables faster and the money lands straight in your bank.</p>
           <ul class="cell-list">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>One code per table</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>No app, no card reader to dock</li>
@@ -1848,10 +1838,9 @@
         <article class="bundle-cell reveal">
           <div class="cell-top">
             <span class="cell-icon"><i data-lucide="chef-hat" aria-hidden="true"></i></span>
-            <span class="cell-index">03</span>
           </div>
-          <h3>Kitchen display</h3>
-          <p class="cell-lead">A live order screen for the line — no printer, no paper.</p>
+          <h3>Kitchen Display</h3>
+          <p class="cell-lead">A live order screen for the line. No printer, no paper.</p>
           <ul class="cell-list">
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Tickets appear in about three seconds</li>
             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>One tap per stage on the line</li>
@@ -1871,32 +1860,28 @@
     <div class="container">
       <div class="how-head reveal">
         <span class="eyebrow">From PDF to live restaurant</span>
-        <h2 class="display mt-eyebrow" style="font-size: clamp(2.4rem, 5vw, 4rem);">Four steps. <em>One afternoon.</em></h2>
+        <h2 class="display mt-eyebrow" style="font-size: clamp(2.4rem, 5vw, 4rem);">Four Steps. <em>One Afternoon.</em></h2>
       </div>
       <ol class="how-steps">
         <li class="how-step reveal">
           <span class="how-node"><i data-lucide="upload" aria-hidden="true"></i><span class="node-num">1</span></span>
-          <h3>Drop your PDF</h3>
-          <p>Benu reads your existing menu — names, prices, descriptions, even two-column layouts — into clean structured items.</p>
-          <div class="step-meta">~ 30 seconds</div>
+          <h3>Drop Your PDF</h3>
+          <p>Benu reads your existing menu: names, prices, descriptions, even two-column layouts, into clean structured items.</p>
         </li>
         <li class="how-step reveal">
           <span class="how-node"><i data-lucide="palette" aria-hidden="true"></i><span class="node-num">2</span></span>
-          <h3>Pick a template</h3>
-          <p>Start from a restaurant-ready layout, then drop in your colors and photos. Swap the look with a click.</p>
-          <div class="step-meta">~ 5 minutes</div>
+          <h3>Pick A Template</h3>
+          <p>Start from a restaurant-ready layout, then add your own colors and photos. Change the whole look whenever you want.</p>
         </li>
         <li class="how-step reveal">
           <span class="how-node"><i data-lucide="printer" aria-hidden="true"></i><span class="node-num">3</span></span>
-          <h3>Print the QR</h3>
-          <p>One QR per table, on tasteful cards we mail you. Guests scan, browse, and order — no app required.</p>
-          <div class="step-meta">~ 10 minutes</div>
+          <h3>Print The QR</h3>
+          <p>One QR per table, on tasteful cards we mail you. Guests scan, browse, and order. No app required.</p>
         </li>
         <li class="how-step reveal">
           <span class="how-node"><i data-lucide="monitor-check" aria-hidden="true"></i><span class="node-num">4</span></span>
-          <h3>Run service</h3>
-          <p>Orders hit the line the moment guests send them. Cooks fire tickets, prep times stay honest, and you stay in the room.</p>
-          <div class="step-meta">Open for orders</div>
+          <h3>Run Service</h3>
+          <p>Orders reach the kitchen the second guests send them. Your team works from one screen and you stay out on the floor.</p>
         </li>
       </ol>
     </div>
@@ -1908,9 +1893,9 @@
       <div class="tpl-head">
         <div>
           <span class="eyebrow reveal">Five templates</span>
-          <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.4rem, 5vw, 4rem);">Each one its <em>own restaurant.</em></h2>
+          <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.4rem, 5vw, 4rem);">Each One Its <em>Own Restaurant.</em></h2>
           <p class="lead reveal" style="margin-top: 20px; max-width: 50ch;">
-            Five real shapes of restaurant interface — counter, market, storefront, boutique, diner — not seven recolors. Each one snaps to your colors, photos, and copy in seconds.
+            Five real shapes of restaurant interface: counter, market, storefront, boutique, diner, not seven recolors. Each one snaps to your colors, photos, and copy in seconds.
           </p>
         </div>
         <a href="./onboard.html" class="btn btn-ghost reveal">Start building
@@ -1964,7 +1949,7 @@
     <div class="container demo-wrap">
       <div>
         <span class="eyebrow reveal">See it run, live</span>
-        <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);">PDF in. <em>Live menu out.</em></h2>
+        <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);">PDF In. <em>Live Menu Out.</em></h2>
         <p class="lead reveal" style="margin-top: 20px; max-width: 46ch;">
           Watch a real menu PDF turn into a styled site, swap templates, recolor on the fly, and land a ticket on the kitchen display. This isn't a screen-recording. It's the actual product, running on this page.
         </p>
@@ -1997,7 +1982,7 @@
       <div class="demo-stage reveal" id="demo-stage">
         <div class="demo-step demo-input active" id="demo-step-1">
           <span class="demo-label">{ drop your menu }</span>
-          <p class="demo-title">PDF in. <em style="color:var(--mint-700)">Live</em> menu out.</p>
+          <p class="demo-title">PDF In. <em style="color:var(--mint-700)">Live</em> Menu Out.</p>
           <div class="demo-dropzone" id="demo-dropzone">
             <div class="demo-dropzone-empty">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2026,9 +2011,9 @@
     <div class="container kitchen-wrap">
       <div>
         <span class="eyebrow reveal">The line is wired in</span>
-        <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);">Tickets <em>land on the line</em> in seconds.</h2>
+        <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);">Tickets <em>Land On The Line</em> In Seconds.</h2>
         <p class="lead reveal" style="margin-top: 20px; max-width: 50ch;">
-          Every scanned order becomes a kitchen ticket your team can start, mark ready, and hand off — on the tablet or laptop you already have.
+          Every scanned order becomes a kitchen ticket your team can start, mark ready, and hand off, on the tablet or laptop you already have.
         </p>
         <div class="kds-flow reveal" role="group" aria-label="Ticket stages on the line">
           <span class="kds-pill is-new"><span class="pdot" aria-hidden="true"></span>New</span>
@@ -2059,37 +2044,37 @@
     <div class="container why-wrap">
       <div class="why-manifesto reveal">
         <span class="eyebrow">Why Benu is built this way</span>
-        <h2 class="display mt-eyebrow" style="font-size: clamp(2.2rem, 4vw, 3.4rem);">Built for restaurants. <em>Not for agencies.</em></h2>
+        <h2 class="display mt-eyebrow" style="font-size: clamp(2.2rem, 4vw, 3.4rem);">Built For Restaurants. <em>Not For Agencies.</em></h2>
         <p class="lead" style="margin-top: 20px; max-width: 38ch;">
-          Most restaurant software locks you in and bills you per order. We built Benu the other way around — for the people actually running the floor.
+          Most restaurant software locks you in and bills you per order. We built Benu the other way around, for the people actually running the floor.
         </p>
       </div>
       <div class="why-list">
         <article class="why-row reveal">
           <span class="why-ico"><i data-lucide="shield-check" aria-hidden="true"></i></span>
           <div>
-            <h3>You own your menu, every byte.</h3>
+            <h3>You Own Your Menu, Every Byte.</h3>
             <p>Export every item, photo, and order anytime. No lock-in, no proprietary format, no exit fee.</p>
           </div>
         </article>
         <article class="why-row reveal">
           <span class="why-ico"><i data-lucide="refresh-cw" aria-hidden="true"></i></span>
           <div>
-            <h3>Change it once. It's everywhere.</h3>
+            <h3>Change It Once. It's Everywhere.</h3>
             <p>Website, QR menu, and kitchen read the same record. Update a price or 86 a dish and it changes everywhere at once.</p>
           </div>
         </article>
         <article class="why-row reveal">
           <span class="why-ico"><i data-lucide="sparkles" aria-hidden="true"></i></span>
           <div>
-            <h3>The AI quietly does the dull parts.</h3>
+            <h3>The AI Quietly Does The Dull Parts.</h3>
             <p>Descriptions in your template's voice, dietary tags detected, a design review before you publish.</p>
           </div>
         </article>
         <article class="why-row reveal">
           <span class="why-ico"><i data-lucide="tablet-smartphone" aria-hidden="true"></i></span>
           <div>
-            <h3>No new hardware to buy.</h3>
+            <h3>No New Hardware To Buy.</h3>
             <p>Guests order from their own phones; the kitchen display runs in any browser on a device you already have.</p>
           </div>
         </article>
@@ -2102,7 +2087,7 @@
     <div class="container">
       <div class="maxw-3 center mx-auto" style="margin-bottom: 32px;">
         <span class="eyebrow reveal">Pricing</span>
-        <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.4rem, 5vw, 4rem);">Build it free. <em>Go live for $39.</em></h2>
+        <h2 class="display reveal mt-eyebrow" style="font-size: clamp(2.4rem, 5vw, 4rem);">Build It Free. <em>Go Live For $39.</em></h2>
         <p class="lead reveal" style="margin-top: 18px; max-width: 56ch; margin-left: auto; margin-right: auto;">
           Use every template, every tool, every photo, free, until you're ready to publish. Subscribe only when your customers are about to see it.
         </p>
@@ -2149,7 +2134,7 @@
             <li><i data-lucide="check" aria-hidden="true"></i>Live kitchen display + printed QR table cards</li>
             <li><i data-lucide="check" aria-hidden="true"></i>A design review before every publish</li>
             <li><i data-lucide="check" aria-hidden="true"></i>Priority support from a real human</li>
-            <li class="feat-highlight"><i data-lucide="check" aria-hidden="true"></i>No per-order fees — ever</li>
+            <li class="feat-highlight"><i data-lucide="check" aria-hidden="true"></i>No per-order fees, ever</li>
           </ul>
           <div class="price-cta">
             <button type="button" id="go-live-btn" class="btn btn-primary btn-block">Go live</button>
@@ -2179,7 +2164,7 @@
       </div>
 
       <div class="guarantee reveal">
-        <p class="g-line" style="margin:0;">Build it free. Publish the day you're ready.</p>
+        <p class="g-line" style="margin:0;">Build It Free. Publish The Day You're Ready.</p>
         <p class="g-sub" style="margin:6px 0 0;">No card needed to start building · Cancel anytime · You own your data</p>
       </div>
     </div>
@@ -2190,7 +2175,7 @@
     <div class="container contact-wrap">
       <div class="reveal">
         <span class="eyebrow">Concierge</span>
-        <h2 class="display mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);">Rather have us <em>build it?</em></h2>
+        <h2 class="display mt-eyebrow" style="font-size: clamp(2.2rem, 4.5vw, 3.5rem);">Rather Have Us <em>Build It?</em></h2>
         <p class="lead" style="margin-top: 20px; max-width: 44ch;">
           Send your menu and a few photos. We set up the templates, write the copy, configure the kitchen view, and hand back the keys, usually within forty-eight hours.
         </p>
@@ -2224,7 +2209,7 @@
       <div class="closing-panel reveal">
         <div class="closing-rule"></div>
         <h2 class="display-sans closing-line">
-          Your restaurant could be <span class="hl">live</span> <em class="serif-it">by tonight.</em>
+          Your Restaurant Could Be <span class="hl">Live</span> <em class="serif-it">By Tonight.</em>
         </h2>
         <p class="lead mx-auto" style="margin-top: 26px; max-width: 50ch;">
           Free to build · $39/month to publish · No per-order fees · Cancel anytime.
@@ -2558,7 +2543,7 @@
         accent: "#618440",
         accentDeep: "#213116",
         pill: "#CBE0A8",
-        title: "Website builder",
+        title: "Website Builder",
         desc: "Drop your menu PDF. Benu lays out a beautiful website with your photos, your brand, and your own custom domain.",
       },
       {
@@ -2566,15 +2551,15 @@
         accent: "#618440",
         accentDeep: "#213116",
         pill: "#CBE0A8",
-        title: "QR ordering",
-        desc: "One QR code per table. Guests scan, browse the menu, and order — no app to install, no card reader to dock.",
+        title: "QR Ordering",
+        desc: "One QR code per table. Guests scan, browse the menu, and order. No app to install, no card reader to dock.",
       },
       {
         id: "kitchen",
         accent: "#618440",
         accentDeep: "#213116",
         pill: "#CBE0A8",
-        title: "Kitchen display",
+        title: "Kitchen Display",
         desc: "Orders pulse onto the line the second a guest taps send. Cooks tap Start, Ready, and Hand Off as they go.",
       },
     ];
@@ -2752,7 +2737,7 @@
       status.textContent = "";
       const res = await postSubscribe({ email: email.value.trim() });
       if (res.ok) {
-        form.innerHTML = '<p class="text-sm" style="color: var(--mint-700); margin:0;">You’re in. Check your inbox — your printable QR sheet and kitchen links are on the way.</p>';
+        form.innerHTML = '<p class="text-sm" style="color: var(--mint-700); margin:0;">You’re in. Check your inbox. Your printable QR sheet and kitchen links are on the way.</p>';
       } else {
         submit.disabled = false;
         submit.textContent = original;
