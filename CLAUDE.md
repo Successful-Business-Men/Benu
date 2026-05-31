@@ -22,11 +22,22 @@ Benu (also called Better Menu) turns a restaurant menu into a website, QR orderi
 - Manual fallback if ever needed: `npx vercel --prod --yes` from the project root. The Vercel CLI is signed in.
 - Always verify by loading the URL after a deploy.
 
-## Running Multiple Sessions
-- It is fine to run several Claude sessions on this project at the same time.
-- Give each session a different file to work on. For example one session on `menu.html`, another on `onboard.html`. Do not edit the same file in two sessions at once.
-- Each session commits, pulls with rebase, then pushes on its own. They all deploy to the same live site.
-- If a push is rejected, run `git pull --rebase`, resolve any conflict, then push again.
+## Running Multiple Sessions (Parallel-Safe)
+The onboarding is split into one file per screen so many sessions never touch the same file. Give each session exactly ONE file.
+
+Onboarding file map (in `js/onboard/`):
+- Screens: `screen-import.js`, `screen-build.js`, `screen-generate.js`, `screen-review.js`, `screen-photos.js`, `screen-catering.js`, `screen-locations.js`, `screen-templates.js`, `screen-publish.js`, `screen-allergy.js`.
+- Shared: `icons.js` (icon set), `data.js` (sample data and copy), `state.js` (app state), `chrome.js` (header, footer, page head), `app.js` (router, events, boot).
+- `onboard.html` is just the shell, the CSS, and the script tags. The other root files (`index.html`, `menu.html`, etc.) are still single files, so one session each.
+
+Best way, full isolation, good for 10+ at once:
+1. `bash scripts/session-start.sh <name>` makes an isolated copy at `../benu-<name>` on its own branch.
+2. Open that session in that folder and edit its one file.
+3. `bash scripts/session-ship.sh "what changed"` publishes it live. It retries automatically if other sessions ship at the same moment.
+
+Simple way, shared folder: edit your one file, then `git pull --rebase` and `git push`. Because each session owns a different file, these merge cleanly.
+
+Hard rule: never edit the same file in two sessions at once. If a push is rejected, run `git pull --rebase`, resolve any conflict, then push again.
 
 ## Writing Rules (Strict)
 - Never use em-dashes anywhere. Use a comma, a period, or a colon instead.
