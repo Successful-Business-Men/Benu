@@ -2,7 +2,7 @@
 const state={
   screen:(function(){var n=parseInt(localStorage.getItem("benu_screen")||"0",10);return isNaN(n)?0:Math.min(Math.max(n,0),9);})(),
   import:{files:[],link:"ssfreshnoodle.com",logo:null},
-  build:{sel:{qr:true,takeout:true,catering:false,multi:false,home:true,codes:true},areas:{dining:8,patio:4,bar:6}},
+  build:{sel:{home:true,qr:true,catering:false,ordering:false},areas:{dining:8,patio:4,bar:6},homepage:{started:"",known:"",story:"",awards:""}},
   gen:{active:0,done:false},
   review:{states:{},vals:{},editing:null,editVal:""},
   photos:{uploaded:false,showMissing:false},

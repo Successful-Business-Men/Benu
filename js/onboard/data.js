@@ -1,11 +1,9 @@
 /* ---------- DATA ---------- */
 const MODULES=[
-  {id:"qr",icon:"qr",name:"QR Menu Website",desc:"A clean digital menu your guests open by scanning a code at the table.",rec:true},
-  {id:"takeout",icon:"cart",name:"Takeout And Pickup",desc:"Let guests order ahead and pay for pickup, right from the menu.",rec:true},
-  {id:"catering",icon:"catering",name:"Catering Menu",desc:"Turn your dishes into trays and platters with their own lead times.",rec:false},
-  {id:"multi",icon:"locations",name:"Multi Location Menus",desc:"Separate menus, hours, and prices for each of your locations.",rec:false},
-  {id:"home",icon:"home",name:"Restaurant Homepage",desc:"A full landing page with your story, photos, hours, and links.",rec:true},
-  {id:"codes",icon:"menu",name:"Table And Location QR Codes",desc:"Printable codes for every table and seat, ready to place on day one.",rec:true},
+  {id:"home",icon:"home",name:"Restaurant Homepage",desc:"Your story, photos, hours, and location, so guests find you and fall for the place before they arrive.",rec:true},
+  {id:"qr",icon:"qr",name:"QR Menu",desc:"Your live menu guests scan at the table. We print a ready to scan code for every table and seat.",rec:true},
+  {id:"catering",icon:"catering",name:"Catering Menu",desc:"Turn your dishes into trays and platters with their own sizes, prices, and lead times.",rec:false},
+  {id:"ordering",icon:"cart",name:"Online Ordering",desc:"Let guests order ahead and pay for pickup, right from your menu. Add it whenever you are ready.",rec:false},
 ];
 const AREA_DEFS=[
   {key:"dining",label:"Dining",unit:"Tables",tile:"Table",icon:"utensils"},
