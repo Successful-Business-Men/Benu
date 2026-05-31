@@ -154,7 +154,7 @@ function icon(name,o){o=o||{};const size=o.size||20,stroke=o.stroke||1.6,color=o
 function pdfTile(size){size=size||40;return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><path d="M8 6a2 2 0 0 1 2-2h12l10 10v18a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2z" fill="#0E7C66"/><path d="M22 4l10 10h-8a2 2 0 0 1-2-2z" fill="#0B5E4D"/><text x="20" y="29" text-anchor="middle" font-family="Inter, sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg>`;}
 function logoHtml(size){size=size||20;return `<div class="row gap-2" style="align-items:center"><div style="width:${size+6}px;height:${size+6}px;border-radius:8px;background:var(--mint-900);display:grid;place-items:center;box-shadow:var(--shadow-green)"><svg width="${size-4}" height="${size-4}" viewBox="0 0 24 24" fill="none"><path d="M7 4h7a4 4 0 0 1 0 8H7zM7 12h8a4 4 0 0 1 0 8H7zM7 4v16" stroke="#CBE0A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="font-family:var(--serif);font-size:${size+4}px;font-weight:600;letter-spacing:-0.01em">Benu</span></div>`;}
 
-const STEPS=["Import","Build","Generate","Review","Catering","Locations","Templates","Publish"];
+const STEPS=["Import","Build","Generate","Review","Photos","Catering","Locations","Templates","Publish"];
 
 /* ---------- DATA ---------- */
 const MODULES=[
@@ -238,13 +238,33 @@ const allergyState={
   verified:{label:"Verified by you",cls:"st-ok",icon:"shield",dot:"var(--ok)"},
 };
 
+const PHOTO_LIB={
+  counts:{food:38,interior:9,exterior:4,team:3},
+  total:64,withPhoto:52,
+  dishes:[
+    {name:"Margherita Pizza",section:"Wood-fired",has:true},
+    {name:"Bruschetta",section:"Starters",has:true},
+    {name:"Mezze Platter",section:"Mezze",has:true},
+    {name:"Halloumi",section:"Mezze",has:true},
+    {name:"Branzino",section:"Mains",has:true},
+    {name:"Lamb Kofta",section:"Mains",has:true},
+    {name:"Spanakopita",section:"Mezze",has:true},
+    {name:"Caesar Salad",section:"Salads",has:true},
+    {name:"Tiramisù",section:"Dessert",has:false},
+    {name:"House Red",section:"Wine",has:false},
+    {name:"Bone Broth",section:"Starters",has:false},
+    {name:"Affogato",section:"Dessert",has:false},
+  ],
+};
+
 /* ---------- STATE ---------- */
 const state={
-  screen:(function(){var n=parseInt(localStorage.getItem("benu_screen")||"0",10);return isNaN(n)?0:Math.min(Math.max(n,0),8);})(),
+  screen:(function(){var n=parseInt(localStorage.getItem("benu_screen")||"0",10);return isNaN(n)?0:Math.min(Math.max(n,0),9);})(),
   import:{files:[],link:"ssfreshnoodle.com",logo:null},
   build:{sel:{qr:true,takeout:true,catering:false,multi:false,home:true,codes:true},areas:{dining:8,patio:4,bar:6}},
   gen:{active:0,done:false},
   review:{states:{},vals:{},editing:null,editVal:""},
+  photos:{uploaded:false,showMissing:false},
   catering:{confirmed:{},fields:{}},
   loc:{sameAs:{dom:false,rr:true}},
   tpl:{chosen:"editorial",focus:null},
@@ -389,6 +409,32 @@ function viewReview(){
   return screenWrap(inner)+footerBar(foot);
 }
 
+/* ---------- PHOTOS ---------- */
+function viewPhotos(){
+  var P=PHOTO_LIB,up=state.photos.uploaded,miss=state.photos.showMissing;
+  var without=P.total-P.withPhoto;
+  var head=pageHead({title:"Add Your <em>Photos</em>",sub:"Drop in everything you have. Benu sorts it, matches each dish to its best shot, and tells you exactly what is missing. Your camera roll is fine."});
+  var body;
+  if(!up){
+    body=`<div class="dropzone" data-act="photoUpload" role="button" tabindex="0" style="width:100%"><div style="margin-bottom:14px">${icon("image",{size:46,color:"var(--mint-600)",stroke:1.3})}</div><div style="font-size:18px;font-weight:600">Drop a folder of photos, or <span style="color:var(--mint-600)">Browse</span></div><div style="color:var(--soft);font-size:13px;margin-top:6px">JPG, PNG or HEIC · as many as you like</div></div><div class="row gap-3 wrap" style="margin-top:16px;justify-content:center"><button class="btn btn-soft btn-sm" data-act="photoUpload">${icon("image",{size:16,color:"var(--mint-900)"})} Import From Instagram</button><button class="btn btn-soft btn-sm" data-act="photoUpload">${icon("locations",{size:16,color:"var(--mint-900)"})} Import From Google</button></div><div style="margin-top:20px">${aiNote("Benu auto sorts food, interior, exterior and team shots, then matches the food photos to your menu items by name. You approve every match before anything goes live.","sparkle")}</div>`;
+  } else {
+    var cats=[{label:"Food",n:P.counts.food,ic:"catering"},{label:"Interior",n:P.counts.interior,ic:"home"},{label:"Exterior",n:P.counts.exterior,ic:"locations"},{label:"Team",n:P.counts.team,ic:"users"}];
+    var catCards=cats.map(function(c){return `<div style="flex:1 1 150px;background:var(--raised);border-radius:14px;padding:16px"><div class="row gap-3"><div style="width:42px;height:42px;border-radius:11px;background:var(--surface);border:1px solid var(--border);display:grid;place-items:center;flex-shrink:0">${icon(c.ic,{size:20,color:"var(--mint-700)"})}</div><div><div style="font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.05">${c.n}</div><div class="metalabel" style="color:var(--soft)">${c.label}</div></div></div></div>`;}).join("");
+    var pct=Math.round(P.withPhoto/P.total*100);
+    var summary=`<div class="card" style="padding:18px 20px"><div class="row spread" style="gap:14px;flex-wrap:wrap"><div class="row gap-3" style="min-width:0"><div style="width:42px;height:42px;border-radius:11px;background:var(--mint-900);display:grid;place-items:center;flex-shrink:0">${icon("check",{size:20,color:"#CBE0A8",stroke:2.4})}</div><div style="min-width:0"><div style="font-size:19px;font-weight:600">${P.withPhoto} of ${P.total} dishes have a photo</div><div style="font-size:13.5px;color:var(--muted);margin-top:2px">${without} still need one. A clean card stands in until you add it.</div></div></div><button class="btn btn-soft btn-sm" data-act="photoMissing">${miss?"Show All Matches":"See The "+without+" Without"}</button></div><div style="height:8px;border-radius:9px;background:var(--outer);overflow:hidden;margin-top:14px"><div style="height:100%;width:${pct}%;background:var(--mint-600)"></div></div></div>`;
+    var shown=miss?P.dishes.filter(function(d){return !d.has;}):P.dishes;
+    var rows=shown.map(function(d){
+      var thumb=d.has?`<div style="width:46px;height:46px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,var(--mint-300),var(--mint-100));display:grid;place-items:center">${icon("image",{size:18,color:"var(--mint-900)"})}</div>`:`<div style="width:46px;height:46px;border-radius:10px;flex-shrink:0;border:1.5px dashed var(--border-strong);display:grid;place-items:center">${icon("image",{size:18,color:"var(--soft)"})}</div>`;
+      var badge=d.has?`<span class="st st-ok" style="font-size:11px;padding:6px 11px">${icon("check",{size:12,stroke:2.6})} Photo</span>`:`<span class="st st-warn" style="font-size:11px;padding:6px 11px">${icon("alert",{size:12})} No photo</span>`;
+      return `<div class="row spread" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;gap:12px"><div class="row gap-3" style="min-width:0">${thumb}<div style="min-width:0"><div style="font-size:15.5px;font-weight:600">${d.name}</div><div class="metalabel" style="color:var(--soft)">${d.section}</div></div></div>${badge}</div>`;
+    }).join("");
+    var moreNote=miss&&without>shown.length?`<div class="row center" style="border:1px dashed var(--border-strong);border-radius:12px;padding:11px;font-size:13px;color:var(--muted)">And ${without-shown.length} more waiting on a photo</div>`:"";
+    body=`<div class="row gap-3 wrap" style="margin-bottom:18px">${catCards}</div>${summary}<div class="row spread" style="margin:24px 2px 12px;flex-wrap:wrap;gap:8px"><span class="metalabel" style="color:var(--muted)">${miss?"Dishes Without A Photo":"Auto Matched To Your Menu"}</span><span class="row gap-2" style="font-size:12.5px;color:var(--soft)">${icon("sparkle",{size:12,color:"var(--mint-600)"})} You approve every match</span></div><div class="col gap-2">${rows}${moreNote}</div>`;
+  }
+  var foot=`<button class="btn btn-secondary" data-act="back">${icon("arrowL",{size:18})} Back</button><button class="btn btn-primary btn-lg" data-act="next">${up?"Looks great, continue":"Continue"} ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
+  return screenWrap(`${head}${body}`)+footerBar(foot);
+}
+
 /* ---------- SCREEN 5: CATERING ---------- */
 function viewCatering(){
   var conf=Object.values(state.catering.confirmed).filter(Boolean).length;
@@ -475,7 +521,7 @@ function viewAllergy(){
 }
 
 /* ---------- ROUTER / RENDER ---------- */
-var VIEWS=[viewImport,viewBuild,viewGenerate,viewReview,viewCatering,viewLocations,viewTemplates,viewPublish,viewAllergy];
+var VIEWS=[viewImport,viewBuild,viewGenerate,viewReview,viewPhotos,viewCatering,viewLocations,viewTemplates,viewPublish,viewAllergy];
 function render(){
   var prevMain=document.querySelector("main");var sc=prevMain?prevMain.scrollTop:0;
   var view=(VIEWS[state.screen]||viewImport)();
@@ -483,7 +529,7 @@ function render(){
   var nowMain=document.querySelector("main");if(nowMain)nowMain.scrollTop=sc;
   var af=document.querySelector("[data-autofocus]");if(af){af.focus();try{af.setSelectionRange(af.value.length,af.value.length);}catch(e){}}
 }
-function go(n){n=Math.max(0,Math.min(8,n));state.screen=n;localStorage.setItem("benu_screen",String(n));if(n===2)startGen();render();var m=document.querySelector("main");if(m)m.scrollTop=0;}
+function go(n){n=Math.max(0,Math.min(9,n));state.screen=n;localStorage.setItem("benu_screen",String(n));if(n===2)startGen();render();var m=document.querySelector("main");if(m)m.scrollTop=0;}
 function next(){go(state.screen+1);}
 function back(){go(state.screen-1);}
 
@@ -498,13 +544,15 @@ app.addEventListener("click",function(e){
   if(act==="next"){next();return;}
   if(act==="back"){back();return;}
   if(act==="jump"){go(parseInt(t.dataset.i,10));return;}
-  if(act==="later"){go(8);return;}
-  if(act==="toPublish"){go(7);return;}
+  if(act==="later"){go(9);return;}
+  if(act==="toPublish"){go(8);return;}
   if(act==="rmfile"){state.import.files.splice(parseInt(t.dataset.i,10),1);render();return;}
   if(act==="rmlogo"){if(state.import.logo&&state.import.logo.url)URL.revokeObjectURL(state.import.logo.url);state.import.logo=null;render();return;}
   if(act==="mod"){state.build.sel[id]=!state.build.sel[id];render();return;}
   if(act==="selall"){var all=Object.values(state.build.sel).filter(Boolean).length===MODULES.length;var v=!all;MODULES.forEach(function(m){state.build.sel[m.id]=v;});render();return;}
   if(act==="bump"){var area=t.dataset.area,d=parseInt(t.dataset.d,10);state.build.areas[area]=Math.max(0,Math.min(60,state.build.areas[area]+d));render();return;}
+  if(act==="photoUpload"){state.photos.uploaded=true;render();return;}
+  if(act==="photoMissing"){state.photos.showMissing=!state.photos.showMissing;render();return;}
   if(act==="approveSafe"){FINDING_GROUPS.filter(function(g){return g.tone==="safe";}).forEach(function(g){g.items.forEach(function(_,i){state.review.states[g.id+i]="approved";});});render();return;}
   if(act==="rset"){state.review.states[k]=t.dataset.v||null;render();return;}
   if(act==="redit"){state.review.editing=k;state.review.editVal=state.review.vals[k];render();return;}
