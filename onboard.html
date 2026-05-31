@@ -285,20 +285,19 @@ function tick(on){return `<div style="width:24px;height:24px;border-radius:7px;f
 
 /* ---------- SCREEN 1: IMPORT ---------- */
 function viewImport(){
-  var files=state.import.files.map(function(f,i){return `<div class="row gap-3" style="padding:12px 14px;border-radius:12px;background:var(--raised)">${pdfTile(32)}<div class="grow" style="min-width:0"><div class="row spread"><span style="font-size:14px;font-weight:500;word-break:break-all">${f.name}</span><span style="font-size:12px;color:var(--soft);font-family:var(--mono);white-space:nowrap;margin-left:8px">${f.size}</span></div><div class="st st-ok" style="margin-top:6px">${icon("check",{size:11,stroke:2.6})} Uploaded</div></div><button class="iconbtn" data-act="rmfile" data-i="${i}" title="Remove" aria-label="Remove file">${icon("x",{size:16,color:"var(--muted)"})}</button></div>`;}).join("");
+  var files=state.import.files.map(function(f,i){var isImg=(f.type||"").indexOf("image")===0||/\.(png|jpe?g|gif|webp|avif)$/i.test(f.name);var preview=f.url?(isImg?`<img src="${f.url}" alt="${f.name}" style="display:block;width:100%;height:220px;object-fit:contain;background:var(--surface);border:1px solid var(--border);border-radius:10px"/>`:`<embed src="${f.url}#toolbar=0&navpanes=0&view=FitH" type="application/pdf" style="display:block;width:100%;height:240px;background:var(--surface);border:1px solid var(--border);border-radius:10px"/>`):`<div style="display:flex;align-items:center;justify-content:center;height:120px;background:var(--surface);border:1px solid var(--border);border-radius:10px">${pdfTile(40)}</div>`;return `<div class="col gap-3" style="padding:12px;border-radius:12px;background:var(--raised)">${preview}<div class="row gap-3"><div class="grow" style="min-width:0"><div class="row spread"><span style="font-size:14px;font-weight:500;word-break:break-all">${f.name}</span><span style="font-size:12px;color:var(--soft);font-family:var(--mono);white-space:nowrap;margin-left:8px">${f.size}</span></div><div class="st st-ok" style="margin-top:6px">${icon("check",{size:11,stroke:2.6})} Uploaded</div></div><button class="iconbtn" data-act="rmfile" data-i="${i}" title="Remove" aria-label="Remove file">${icon("x",{size:16,color:"var(--muted)"})}</button></div></div>`;}).join("");
   var fileList=state.import.files.length?`<div class="col gap-2" style="margin-top:18px">${files}</div>`:"";
   var logoBlock=state.import.logo
-    ?`<div class="row spread" style="background:var(--mint-50);border:1px solid var(--mint-200);border-radius:12px;padding:10px 12px"><div class="row gap-3" style="min-width:0"><img src="${state.import.logo.url}" alt="Logo preview" style="width:38px;height:38px;border-radius:9px;object-fit:cover;background:var(--surface);border:1px solid var(--border);flex-shrink:0"/><div style="min-width:0"><div style="font-size:13.5px;font-weight:500;word-break:break-all">${state.import.logo.name}</div><div class="metalabel">Uploaded</div></div></div><button class="iconbtn" data-act="rmlogo" title="Remove logo" aria-label="Remove logo">${icon("x",{size:16,color:"var(--muted)"})}</button></div>`
+    ?`<div class="col gap-3" style="background:var(--mint-50);border:1px solid var(--mint-200);border-radius:12px;padding:12px"><img src="${state.import.logo.url}" alt="Logo preview" style="display:block;width:100%;height:160px;object-fit:contain;border-radius:9px;background:var(--surface);border:1px solid var(--border)"/><div class="row spread" style="min-width:0"><div style="min-width:0"><div style="font-size:13.5px;font-weight:500;word-break:break-all">${state.import.logo.name}</div><div class="metalabel">Uploaded</div></div><button class="iconbtn" data-act="rmlogo" title="Remove logo" aria-label="Remove logo">${icon("x",{size:16,color:"var(--muted)"})}</button></div></div>`
     :`<label style="position:relative;width:100%;border:2px dashed var(--border-strong);background:var(--cream);border-radius:12px;padding:16px;cursor:pointer;color:var(--muted);font-size:13.5px;display:flex;gap:8px;justify-content:center;align-items:center">${icon("upload",{size:16})} Upload logo<input id="logo-input" type="file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0"/></label>`;
   var n=state.import.files.length;
   var statusChips=n
     ?`<span class="st st-ok">${icon("check",{size:12,stroke:2.6})} ${n} ${n===1?"menu":"menus"} added</span><span class="metalabel" style="color:var(--muted)">${state.import.link?"Website linked":"No website yet"}${state.import.logo?" · Logo added":""}</span>`
     :`<span class="metalabel" style="color:var(--muted)">Add your menu to get started</span>`;
   var inner=`
-    ${pageHead({title:"Let’s Start With Your <em>Menu</em>",sub:"Hand us whatever you already have, a PDF, a photo, or a link to your current site, and Benu turns it into a beautiful online menu in minutes. You stay in charge and approve every detail before a single guest sees it."})}
+    ${pageHead({title:"Drop In Your <em>Menu</em>",sub:"Upload your menu as a PDF or photo, or paste your website link. Benu turns it into a polished online menu in minutes. You approve everything before it goes live."})}
     <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:22px" class="import-grid">
       <div class="card" style="padding:22px">
-        <div class="row spread" style="margin-bottom:16px"><div class="metalabel" style="color:var(--muted)">Primary Source</div><span class="chip">${icon("sparkle",{size:13,color:"var(--pill-text)"})} Recommended</span></div>
         <label class="dropzone" id="dropzone"><div style="margin-bottom:14px">${pdfTile(52)}</div><div style="font-size:17px;font-weight:500">Drop your menu here, or <span style="color:var(--mint-600);font-weight:600">Browse</span></div><div style="color:var(--soft);font-size:13px;margin-top:6px">PDF, JPG or PNG · up to 90 MB</div><input id="pdf-input" type="file" accept="application/pdf,image/png,image/jpeg" multiple style="position:absolute;width:1px;height:1px;opacity:0"/></label>
         ${fileList}
       </div>
@@ -314,7 +313,7 @@ function viewImport(){
         </div>
       </div>
     </div>`;
-  var foot=`<div class="row gap-3">${statusChips}</div><button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
+  var foot=`<button class="btn btn-primary btn-lg" data-act="next">Continue ${icon("arrowR",{size:18,color:"#fff"})}</button>`;
   return screenWrap(inner)+footerBar(foot);
 }
 
@@ -533,7 +532,7 @@ app.addEventListener("dragover",function(e){if(e.target.closest&&e.target.closes
 app.addEventListener("drop",function(e){var dz=e.target.closest&&e.target.closest("#dropzone");if(dz){e.preventDefault();handlePdfFiles(e.dataTransfer.files);}});
 
 function formatSize(bytes){if(bytes>=1048576)return (bytes/1048576).toFixed(1)+" MB";if(bytes>=1024)return Math.round(bytes/1024)+" KB";return bytes+" B";}
-function handlePdfFiles(fileList){if(!fileList||!fileList.length)return;Array.prototype.forEach.call(fileList,function(file){state.import.files.push({name:file.name,size:formatSize(file.size)});});render();}
+function handlePdfFiles(fileList){if(!fileList||!fileList.length)return;Array.prototype.forEach.call(fileList,function(file){state.import.files.push({name:file.name,size:formatSize(file.size),type:file.type,url:URL.createObjectURL(file)});});render();}
 function handleLogoFile(file){if(!file)return;if(state.import.logo&&state.import.logo.url)URL.revokeObjectURL(state.import.logo.url);state.import.logo={name:file.name,url:URL.createObjectURL(file)};render();}
 
 /* ---------- BOOT ---------- */
